@@ -12,7 +12,7 @@ import randoop.condition.SpecificationCollection;
 import randoop.execution.TestEnvironment;
 import randoop.generation.*;
 import randoop.instrument.CoveredClassVisitor;
-import randoop.main.randoopflags.RandoopFlag;
+import randoop.main.randoopflags.*;
 import randoop.operation.TypedClassOperation;
 import randoop.operation.TypedOperation;
 import randoop.output.*;
@@ -36,13 +36,32 @@ import static randoop.reflection.AccessibilityPredicate.IS_PUBLIC;
 
 public class RandoopObjectGenerator extends GenTests{
 
-    private Set<RandoopFlag> flagList;//TODO: maybe we can have a FlagList class, because i need define method flagListToString()
+    private Set<RandoopFlag> flagList;
 
-     public RandoopObjectGenerator(){
+     public RandoopObjectGenerator(Class<?> testClass){
+
          super();
-         flagList = new HashSet<>();
-     }
 
+         flagList = new HashSet<>();
+
+         //Set the class
+         addFlag(new TestClassFlag(testClass));
+
+         //Hidden configurations
+         addFlag(new ForbidNullFlag(true));//Try not use null
+         addFlag(new TimeLimitFlag(100));
+         addFlag(new ProgressiveDisplayFlag(false));//no display randoop info
+         addFlag(new ProgressIntervalMillis(-1));
+         addFlag(new ProgressIntervalSteps(-1));
+
+
+         //This flags are only for testing because i need literals :)
+         addFlag(new LiteralsFileFlag("/home/augusto/Documents/tesis/randoop/literals/lits.txt"));
+         addFlag(new LiteralsLevelFlag("ALL"));
+     }
+     public void setSeed(int seed){
+         addFlag(new RandomSeedFlag(seed));
+     }
     private String[] flagsToString(){
         return flagList.stream().map(RandoopFlag::createFlag).toArray(String[]::new);
     }
