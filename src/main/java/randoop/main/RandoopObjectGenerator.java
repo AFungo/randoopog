@@ -36,7 +36,7 @@ import static randoop.reflection.AccessibilityPredicate.IS_PUBLIC;
 
 public class RandoopObjectGenerator extends GenTests{
 
-    private Set<RandoopFlag> flagList;
+    private Set<RandoopFlag> flagList;//podria ser un map de key el nombre a la clase
 
      public RandoopObjectGenerator(Class<?> testClass){
 
@@ -49,24 +49,28 @@ public class RandoopObjectGenerator extends GenTests{
 
          //Hidden configurations
          addFlag(new ForbidNullFlag(true));//Try not use null
-         addFlag(new TimeLimitFlag(100));
+         addFlag(new TimeLimitFlag(10));
          addFlag(new ProgressiveDisplayFlag(false));//no display randoop info
          addFlag(new ProgressIntervalMillis(-1));
          addFlag(new ProgressIntervalSteps(-1));
 
 
          //This flags are only for testing because i need literals :)
-         addFlag(new LiteralsFileFlag("/home/augusto/Documents/tesis/randoop/literals/lits.txt"));
+         addFlag(new LiteralsFileFlag("../../literals/lits.txt"));
          addFlag(new LiteralsLevelFlag("ALL"));
      }
      public void setSeed(int seed){
          addFlag(new RandomSeedFlag(seed));
+     }
+     public void setRunTime(int seconds){
+        addFlag(new TimeLimitFlag(seconds));
      }
     private String[] flagsToString(){
         return flagList.stream().map(RandoopFlag::createFlag).toArray(String[]::new);
     }
 
     public void addFlag(RandoopFlag flag){
+        flagList.remove(flag);
         flagList.add(flag);
     }
 
