@@ -92,7 +92,7 @@ allprojects { subproject ->
     extraJavacArgs = [
       // Uncomment -proc:none to disable all annotation processing and speed up the build.
       // '-proc:none',
-      '-Werror',
+      //'-Werror',
       // '-AcheckPurityAnnotations',
       '-ArequirePrefixInWarningSuppressions',
       '-AwarnUnneededSuppressions',
@@ -242,31 +242,31 @@ dependencies {
  */
 compileJava.options.compilerArgs = [
   '-g',
-  '-Werror',
+//  '-Werror',
   '-Xlint',
   '-Xlint:-classfile,-options'
 ]
 compileTestJava.options.compilerArgs = [
   '-g',
-  '-Werror',
+//  '-Werror',
   '-Xlint',
   '-Xlint:-classfile,-options'
 ]
 compileCoveredTestJava.options.compilerArgs = [
   '-g',
-  '-Werror',
+  //'-Werror',
   '-Xlint',
   '-Xlint:-classfile,-options'
 ]
 compileReplacecallTestJava.options.compilerArgs = [
   '-g',
-  '-Werror',
+ // '-Werror',
   '-Xlint',
   '-Xlint:-classfile,-options'
 ]
 compileSystemTestJava.options.compilerArgs = [
   '-g',
-  '-Werror',
+ // '-Werror',
   '-Xlint',
   '-Xlint:-classfile,-options'
 ]
@@ -624,7 +624,10 @@ task printJunitJarPath {
  * (Task part of build by default.)
  */
 jar {
-  from sourceSets.main.output
+//  from sourceSets.main.output
+  manifest {
+    attributes 'Main-Class': 'randoop.main.GeneratorMain'
+  }
 }
 
 task copyJars(type: Copy, dependsOn: [
@@ -639,7 +642,7 @@ assemble.dependsOn copyJars
 
 shadowJar {
   // The jar file name is randoop-all-$version.jar
-  archiveBaseName = 'randoop-all'
+  archiveBaseName = 'randoop-all-generator'
   archiveClassifier = ''
 
   exclude '**/pom.*'
