@@ -514,6 +514,7 @@ public class ForwardGenerator extends AbstractGenerator {
 
     randoopConsistencyTests(newSequence);
 
+    // TODO: We should modify this condition or add a new one in order to discard duplicated objects.
     // Discard if sequence is a duplicate.
     if (this.allSequences.contains(newSequence)) {
       operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
