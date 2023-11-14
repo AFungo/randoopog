@@ -11,12 +11,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -1361,15 +1356,24 @@ public class GenTests extends GenInputsAbstract {
     FileSystem fileSystem = fileSystemCache.get(directoryURI);
     if (fileSystem == null) {
       try {
-        // FIXME: Remove this Hardcoded URI, is only for debugging
-        directoryURI =
-                new URI(
-                        "jar:file:/home/augusto/Documents/tesis/randoop/build/libs/randoop-all-4.3.2.jar!/specifications/jdk/");
-        fileSystem =
-                FileSystems.newFileSystem(directoryURI, Collections.<String, Object>emptyMap());
-        fileSystemCache.put(directoryURI, fileSystem);
-      } catch (IOException | URISyntaxException e) {
-        throw new RandoopBug("Error locating directory " + resourceDirectory, e);
+          directoryURI =
+                  new URI(
+                          "jar:file:/home/augusto/Documents/tesis/randoop/build/libs/randoop-all-4.3.2.jar!/specifications/jdk/");
+        // Check if the file system already exists
+        fileSystem = FileSystems.getFileSystem(directoryURI);
+      } catch (FileSystemNotFoundException e) {
+        // If the file system doesn't exist, create a new one
+        try {
+          // FIXME: Remove this Hardcoded URI, is only for debugging
+
+          fileSystem =
+                  FileSystems.newFileSystem(directoryURI, Collections.<String, Object>emptyMap());
+          fileSystemCache.put(directoryURI, fileSystem);
+        } catch (IOException exception) {
+          throw new RandoopBug("Error locating directory " + resourceDirectory, exception);
+        }
+      } catch (URISyntaxException e) {
+          throw new RuntimeException(e);
       }
     }
 
