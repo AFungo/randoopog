@@ -1,11 +1,7 @@
 package randoop.generation;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
+
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.plumelib.util.CollectionsPlume;
 import org.plumelib.util.StringsPlume;
@@ -41,6 +37,8 @@ import randoop.util.MultiMap;
 import randoop.util.Randomness;
 import randoop.util.SimpleArrayList;
 import randoop.util.SimpleList;
+
+import static randoop.main.GenTests.loadCUTVars;
 
 /** Randoop's forward, component-based generator. */
 public class ForwardGenerator extends AbstractGenerator {
@@ -514,13 +512,41 @@ public class ForwardGenerator extends AbstractGenerator {
 
     randoopConsistencyTests(newSequence);
 
-    // TODO: We should modify this condition or add a new one in order to discard duplicated objects.
-    // Discard if sequence is a duplicate.
-    if (this.allSequences.contains(newSequence)) {
-      operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
-      Log.logPrintf("Sequence discarded: the same sequence was previously created.%n");
-      return null;
+
+    //My own filter for duplicates sequences
+    List<ExecutableSequence> regressionSequences = this.getRegressionSequences();
+    List<Object> values = new ArrayList<>();
+
+    for (ExecutableSequence e : regressionSequences) {
+      Variable var = loadCUTVars(Stack.class, e);
+      if (var != null) {
+        values.add(ExecutableSequence.getRuntimeValuesForVars(Collections.singletonList(var), e.executionResults)[0]);
+      }
     }
+    ExecutableSequence e = new ExecutableSequence(newSequence);
+    Variable var = loadCUTVars(Stack.class, e);
+    if (var != null) {
+      Object o = ExecutableSequence.getRuntimeValuesForVars(Collections.singletonList(var), e.executionResults)[0];
+      if (values.contains(o)) {
+        operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
+        Log.logPrintf("Sequence discarded: the same sequence was previously created.%n");
+        return null;
+      }
+    }else{
+      // TODO: We should modify this condition or add a new one in order to discard duplicated objects.
+      // Discard if sequence is a duplicate.
+      if (this.allSequences.contains(newSequence)) {
+        operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
+        Log.logPrintf("Sequence discarded: the same sequence was previously created.%n");
+        return null;
+      }
+    }
+
+
+
+
+
+
 
     this.allSequences.add(newSequence);
 

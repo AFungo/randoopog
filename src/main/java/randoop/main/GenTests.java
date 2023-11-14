@@ -598,7 +598,7 @@ public class GenTests extends GenInputsAbstract {
     return true;
   }
 
-  static Variable loadCUTVars(Class<?> cut, ExecutableSequence seq) {
+  public static Variable loadCUTVars(Class<?> cut, ExecutableSequence seq) {
       seq.execute(new DummyVisitor(), new DummyCheckGenerator());
       for (ReferenceValue referenceValue : seq.getAllValues()) {
         if (referenceValue.getType().getCanonicalName().equals(cut.getName())) {
@@ -1355,6 +1355,7 @@ public class GenTests extends GenInputsAbstract {
 
     FileSystem fileSystem = fileSystemCache.get(directoryURI);
     if (fileSystem == null) {
+
       try {
           directoryURI =
                   new URI(

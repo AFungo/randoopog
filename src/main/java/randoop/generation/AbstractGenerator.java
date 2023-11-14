@@ -1,9 +1,6 @@
 package randoop.generation;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.plumelib.options.Option;
@@ -19,11 +16,14 @@ import randoop.main.GenInputsAbstract;
 import randoop.operation.TypedOperation;
 import randoop.sequence.ExecutableSequence;
 import randoop.sequence.Sequence;
+import randoop.sequence.Variable;
 import randoop.test.TestCheckGenerator;
 import randoop.util.Log;
 import randoop.util.ProgressDisplay;
 import randoop.util.ReflectionExecutor;
 import randoop.util.predicate.AlwaysFalse;
+
+import static randoop.main.GenTests.loadCUTVars;
 
 /**
  * Algorithm template for implementing a test generator.
@@ -225,7 +225,8 @@ public abstract class AbstractGenerator {
    * @return true iff any stopping criterion is met
    */
   protected boolean shouldStop() {
-    return (limits.time_limit_millis != 0 && elapsedTime() >= limits.time_limit_millis)
+    return
+            (limits.time_limit_millis != 0 && elapsedTime() >= limits.time_limit_millis)
         || (numAttemptedSequences() >= limits.attempted_limit)
         || (numGeneratedSequences() >= limits.generated_limit)
         || (numOutputSequences() >= limits.output_limit)
@@ -262,7 +263,10 @@ public abstract class AbstractGenerator {
    * @return the sum of the number of error and regression test sequences for output
    */
   public int numOutputSequences() {
-    return outErrorSeqs.size() + outRegressionSeqs.size();
+    //esto hay que ver como hacerlo mejor use el resultado de este metodo pq es el que al final nos va a dar los objetos
+    //es decir si llega a la cantidad que buscamos deberia dejar de generar
+    return this.getRegressionSequences().size();
+//    return outRegressionSeqs.size();
   }
 
   /**
@@ -395,7 +399,12 @@ public abstract class AbstractGenerator {
         operationHistory.add(es.getOperation(), OperationOutcome.SUBSUMED);
       } else {
         operationHistory.add(es.getOperation(), OperationOutcome.REGRESSION_SEQUENCE);
-        unique_seqs.add(es);
+        //modificado por mi aca entiendo que chequea si la secuancia generada da un onjeto de la clase stack.class.
+        //Fixme: ESta hardcodeada bien fea hay que mejorarla
+        Variable var = loadCUTVars(Stack.class, es);;
+        if (var != null) {
+          unique_seqs.add(es);
+        }
       }
     }
     return unique_seqs;
