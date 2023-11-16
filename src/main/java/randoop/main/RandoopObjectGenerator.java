@@ -33,7 +33,7 @@ import static randoop.reflection.AccessibilityPredicate.IS_PUBLIC;
 
 public class RandoopObjectGenerator extends GenTests{
 
-    private Map<String, RandoopFlag> randoopFlagMap;//podria ser un map de key el nombre a la clase
+    private Map<String, RandoopFlag> randoopFlagMap;
     public RandoopObjectGenerator(Class<?> testClass){
         super();
         randoopFlagMap = new HashMap<>();
@@ -69,7 +69,6 @@ public class RandoopObjectGenerator extends GenTests{
     String[] args = flagsToString();
 
     System.out.println(Arrays.toString(args));
-
     try {
         String[] nonargs = options.parse(args);
         if (nonargs.length > 0) {
@@ -454,18 +453,18 @@ public class RandoopObjectGenerator extends GenTests{
     //                testEnvironment.setReplaceCallAgent(agentPath, agentArgs);
     //            }
 
-    List<ExecutableSequence> regressionSequences = explorer.getRegressionSequences();
-
-    List<Object> values = new ArrayList<>();
-
-    for (ExecutableSequence e : regressionSequences) {
-            Variable var = loadCUTVars(Stack.class, e);
-            if (var != null) {
-                values.add(ExecutableSequence.getRuntimeValuesForVars(Collections.singletonList(var), e.executionResults)[0]);
-            }
-    }
+//    List<ExecutableSequence> regressionSequences = explorer.getRegressionSequences();
+//
+//    List<Object> values = new ArrayList<>();
+//
+//    for (ExecutableSequence e : regressionSequences) {
+//            Variable var = loadCUTVars(Stack.class, e);
+//            if (var != null) {
+//                values.add(ExecutableSequence.getRuntimeValuesForVars(Collections.singletonList(var), e.executionResults)[0]);
+//            }
+//    }
     //            System.out.println(Arrays.toString(values.stream().filter(o -> !o.isEmpty()).toArray()));
-    return values;
+    return explorer.getAllObjects();
     //        return null;
     }
 
