@@ -514,8 +514,7 @@ public class ForwardGenerator extends AbstractGenerator {
 
 
     //My own filter for duplicates sequences
-    List<ExecutableSequence> regressionSequences = this.getRegressionSequences();
-    List<Object> values = new ArrayList<>();
+//    List<ExecutableSequence> regressionSequences = this.getRegressionSequences();
     Class<?> clazz;
 
     try {
@@ -524,21 +523,17 @@ public class ForwardGenerator extends AbstractGenerator {
       throw new RuntimeException(ex);
     }
 
-
-    for (ExecutableSequence e : regressionSequences) {
-      Variable var = loadCUTVars(clazz, e);
-      if (var != null) {
-        values.add(ExecutableSequence.getRuntimeValuesForVars(Collections.singletonList(var), e.executionResults)[0]);
-      }
-    }
     ExecutableSequence e = new ExecutableSequence(newSequence);
     Variable var = loadCUTVars(clazz, e);
+
     if (var != null) {
       Object o = ExecutableSequence.getRuntimeValuesForVars(Collections.singletonList(var), e.executionResults)[0];
-      if (values.contains(o)) {
+      if (this.allObjects.contains(o)) {
         operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
         Log.logPrintf("Sequence discarded: the same sequence was previously created.%n");
         return null;
+      }else{
+        this.allObjects.add(o);
       }
     }else{
       // TODO: We should modify this condition or add a new one in order to discard duplicated objects.
@@ -988,5 +983,9 @@ public class ForwardGenerator extends AbstractGenerator {
                 "sideEffectFreeMethods: " + sideEffectFreeMethods.size(),
                 "runtimePrimitivesSeen: " + runtimePrimitivesSeen.size()))
         + ")";
+  }
+
+  public List<Object> getAllObjects(){
+    return this.allObjects;
   }
 }
