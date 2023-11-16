@@ -84,6 +84,11 @@ public class ForwardGenerator extends AbstractGenerator {
    */
   private Set<Object> runtimePrimitivesSeen = new LinkedHashSet<>();
 
+
+  /**
+   * This attribute have the class which  the user want to generate objects
+   */
+  private Class<?> objectsClass;
   /**
    * Create a forward generator.
    *
@@ -108,6 +113,24 @@ public class ForwardGenerator extends AbstractGenerator {
         classesUnderTest);
   }
 
+  public ForwardGenerator(
+          List<TypedOperation> operations,
+          Set<TypedOperation> sideEffectFreeMethods,
+          GenInputsAbstract.Limits limits,
+          ComponentManager componentManager,
+          IStopper stopper,
+          Set<ClassOrInterfaceType> classesUnderTest,
+          Class<?> objectsClass) {
+    this(
+            operations,
+            sideEffectFreeMethods,
+            limits,
+            componentManager,
+            stopper,
+            classesUnderTest);
+    this.objectsClass = objectsClass;
+  }
+
   /**
    * Create a forward generator.
    *
@@ -118,18 +141,18 @@ public class ForwardGenerator extends AbstractGenerator {
    * @param stopper determines when the test generation process should conclude. Can be null.
    * @param classesUnderTest the classes that are under test
    */
-  public ForwardGenerator(
+    public ForwardGenerator(
       List<TypedOperation> operations,
       Set<TypedOperation> sideEffectFreeMethods,
       GenInputsAbstract.Limits limits,
       ComponentManager componentManager,
       IStopper stopper,
-      Set<ClassOrInterfaceType> classesUnderTest) {
+      Set<ClassOrInterfaceType> classesUnderTest
+      ) {
     super(operations, limits, componentManager, stopper);
 
     this.sideEffectFreeMethods = sideEffectFreeMethods;
     this.instantiator = componentManager.getTypeInstantiator();
-
     initializeRuntimePrimitivesSeen();
 
     switch (GenInputsAbstract.method_selection) {
@@ -513,15 +536,17 @@ public class ForwardGenerator extends AbstractGenerator {
     randoopConsistencyTests(newSequence);
 
 
-    //My own filter for duplicates sequences
+  //My own filter for duplicates sequences
 //    List<ExecutableSequence> regressionSequences = this.getRegressionSequences();
     Class<?> clazz;
+    clazz = this.objectsClass;
 
-    try {
-      clazz = Class.forName(GenInputsAbstract.testclass.get(0));//Fixme: this way to get a class not looks reliable. We need think in a better way
-    } catch (ClassNotFoundException ex) {
-      throw new RuntimeException(ex);
-    }
+    //No se cual forma es mejor a lo mejor hay una forma mas interesante
+//    try {
+//      clazz = Class.forName(GenInputsAbstract.testclass.get(0));//Fixme: this way to get a class not looks reliable. We need think in a better way
+//    } catch (ClassNotFoundException ex) {
+//      throw new RuntimeException(ex);
+//    }
 
     ExecutableSequence e = new ExecutableSequence(newSequence);
     Variable var = loadCUTVars(clazz, e);

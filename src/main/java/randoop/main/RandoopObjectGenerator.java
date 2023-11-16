@@ -34,11 +34,13 @@ import static randoop.reflection.AccessibilityPredicate.IS_PUBLIC;
 public class RandoopObjectGenerator extends GenTests{
 
     private Map<String, RandoopFlag> randoopFlagMap;
-    public RandoopObjectGenerator(Class<?> testClass){
+    private final Class<?> objectClass;
+    public RandoopObjectGenerator(Class<?> objectClass){
         super();
+        this.objectClass = objectClass;
         randoopFlagMap = new HashMap<>();
         //Set the class
-        addFlag(new TestClassFlag(testClass));
+        addFlag(new TestClassFlag(objectClass));
         //Default configurations
         addFlag(new ForbidNullFlag(true));//Try not use null
 //        addFlag(new TimeLimitFlag(30));
@@ -310,7 +312,9 @@ public class RandoopObjectGenerator extends GenTests{
             new GenInputsAbstract.Limits(),
             componentMgr,
             /* stopper= */ null,
-            classesUnderTest);
+            classesUnderTest,
+            this.objectClass
+            );
 
     // log setup.
     operationModel.log();
