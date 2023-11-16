@@ -9,13 +9,11 @@ import randoop.Globals;
 import randoop.MethodReplacements;
 import randoop.condition.RandoopSpecificationError;
 import randoop.condition.SpecificationCollection;
-import randoop.execution.TestEnvironment;
 import randoop.generation.*;
 import randoop.instrument.CoveredClassVisitor;
 import randoop.main.randoopflags.*;
 import randoop.operation.TypedClassOperation;
 import randoop.operation.TypedOperation;
-import randoop.output.*;
 import randoop.reflection.*;
 import randoop.sequence.*;
 import randoop.test.*;
@@ -30,16 +28,15 @@ import java.io.PrintWriter;
 import java.nio.file.*;
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static randoop.reflection.AccessibilityPredicate.IS_PUBLIC;
 
 public class RandoopObjectGenerator extends GenTests{
 
-    private Set<RandoopFlag> flagList;//podria ser un map de key el nombre a la clase
+    private Map<String, RandoopFlag> randoopFlagMap;//podria ser un map de key el nombre a la clase
     public RandoopObjectGenerator(Class<?> testClass){
         super();
-        flagList = new HashSet<>();
+        randoopFlagMap = new HashMap<>();
         //Set the class
         addFlag(new TestClassFlag(testClass));
         //Default configurations
@@ -62,11 +59,10 @@ public class RandoopObjectGenerator extends GenTests{
         addFlag(new OutputLimitFlag(limit));
     }
     private String[] flagsToString(){
-        return flagList.stream().map(RandoopFlag::createFlag).toArray(String[]::new);
+        return randoopFlagMap.values().stream().map(RandoopFlag::createFlag).toArray(String[]::new);
     }
     public void addFlag(RandoopFlag flag){
-        flagList.remove(flag);
-        flagList.add(flag);
+        randoopFlagMap.put(flag.getFlagName(), flag);
     }
     @SuppressWarnings("unchecked")
     public List<Object> generateObjects() {
