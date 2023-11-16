@@ -137,6 +137,11 @@ public abstract class AbstractGenerator {
   protected OperationHistoryLogInterface operationHistory;
 
   /**
+   *The list of all generated objects from the execution of the new sequences
+   */
+  protected final List<Object> allObjects = new LinkedList<>();
+
+  /**
    * Constructs a generator with the given parameters.
    *
    * @param operations statements (e.g. methods and constructors) used to create sequences. Cannot
@@ -265,7 +270,7 @@ public abstract class AbstractGenerator {
   public int numOutputSequences() {
     //esto hay que ver como hacerlo mejor use el resultado de este metodo pq es el que al final nos va a dar los objetos
     //es decir si llega a la cantidad que buscamos deberia dejar de generar
-    return this.getRegressionSequences().size();
+    return this.allObjects.size();
 //    return outRegressionSeqs.size();
   }
 
@@ -401,10 +406,10 @@ public abstract class AbstractGenerator {
         operationHistory.add(es.getOperation(), OperationOutcome.REGRESSION_SEQUENCE);
         //modificado por mi aca entiendo que chequea si la secuancia generada da un onjeto de la clase stack.class.
         //Fixme: ESta hardcodeada bien fea hay que mejorarla
-        Variable var = loadCUTVars(Stack.class, es);;
-        if (var != null) {
+//        Variable var = loadCUTVars(Stack.class, es);;
+//        if (var != null) {
           unique_seqs.add(es);
-        }
+//        }
       }
     }
     return unique_seqs;
@@ -464,4 +469,10 @@ public abstract class AbstractGenerator {
    *     behavior
    */
   public abstract void newRegressionTestHook(Sequence sequence);
+
+  /**
+   *
+   * @return all objects generated
+   */
+  public abstract List<Object> getAllObjects();
 }
