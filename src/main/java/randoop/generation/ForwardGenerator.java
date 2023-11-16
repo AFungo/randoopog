@@ -516,15 +516,23 @@ public class ForwardGenerator extends AbstractGenerator {
     //My own filter for duplicates sequences
     List<ExecutableSequence> regressionSequences = this.getRegressionSequences();
     List<Object> values = new ArrayList<>();
+    Class<?> clazz;
+
+    try {
+      clazz = Class.forName(GenInputsAbstract.testclass.get(0));//Fixme: this way to get a class not looks reliable. We need think in a better way
+    } catch (ClassNotFoundException ex) {
+      throw new RuntimeException(ex);
+    }
+
 
     for (ExecutableSequence e : regressionSequences) {
-      Variable var = loadCUTVars(Stack.class, e);
+      Variable var = loadCUTVars(clazz, e);
       if (var != null) {
         values.add(ExecutableSequence.getRuntimeValuesForVars(Collections.singletonList(var), e.executionResults)[0]);
       }
     }
     ExecutableSequence e = new ExecutableSequence(newSequence);
-    Variable var = loadCUTVars(Stack.class, e);
+    Variable var = loadCUTVars(clazz, e);
     if (var != null) {
       Object o = ExecutableSequence.getRuntimeValuesForVars(Collections.singletonList(var), e.executionResults)[0];
       if (values.contains(o)) {
@@ -541,12 +549,6 @@ public class ForwardGenerator extends AbstractGenerator {
         return null;
       }
     }
-
-
-
-
-
-
 
     this.allSequences.add(newSequence);
 
