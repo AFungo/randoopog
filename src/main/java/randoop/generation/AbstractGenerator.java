@@ -234,7 +234,8 @@ public abstract class AbstractGenerator {
             (limits.time_limit_millis != 0 && elapsedTime() >= limits.time_limit_millis)
         || (numAttemptedSequences() >= limits.attempted_limit)
         || (numGeneratedSequences() >= limits.generated_limit)
-        || (numOutputSequences() >= limits.output_limit)
+        || (numObjectsGenerated() >= limits.output_limit)//new condition output limit now is compared here
+//        || (numOutputSequences() >= limits.output_limit) //that is the oiginal condition
         || (GenInputsAbstract.stop_on_error_test && numErrorSequences() > 0)
         || (stopper != null && stopper.shouldStop());
   }
@@ -268,10 +269,17 @@ public abstract class AbstractGenerator {
    * @return the sum of the number of error and regression test sequences for output
    */
   public int numOutputSequences() {
-    //esto hay que ver como hacerlo mejor use el resultado de este metodo pq es el que al final nos va a dar los objetos
-    //es decir si llega a la cantidad que buscamos deberia dejar de generar
+    return outRegressionSeqs.size();
+  }
+
+  /**
+   * Returns the count of generated objects currently for output.
+   *
+   * @return the number of generated objects for output
+   */
+  public int numObjectsGenerated(){
+//    System.out.println("Size = " + this.allObjects.size());
     return this.allObjects.size();
-//    return outRegressionSeqs.size();
   }
 
   /**
