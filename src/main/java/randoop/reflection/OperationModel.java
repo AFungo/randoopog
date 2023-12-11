@@ -304,6 +304,7 @@ public class OperationModel {
    * Includes literals at different levels indicated by {@link ClassLiteralsMode}.
    *
    * @param compMgr the component manager
+   * @param literalsFile the list of literals file names
    * @param literalsLevel the level of literals to add
    */
   public void addDefaultLiterals(
