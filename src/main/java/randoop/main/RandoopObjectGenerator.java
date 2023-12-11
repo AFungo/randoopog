@@ -48,7 +48,7 @@ public class RandoopObjectGenerator extends GenTests{
         addFlag(new ProgressIntervalMillis(-1));
         addFlag(new ProgressIntervalSteps(-1));
         //This flags are only for testing because i need literals :)
-        addFlag(new LiteralsFileFlag("../../literals/lits.txt"));
+//        addFlag(new LiteralsFileFlag("../../literals/lits.txt"));
         addFlag(new LiteralsLevelFlag("ALL"));
     }
     public void setSeed(int seed){
@@ -57,7 +57,7 @@ public class RandoopObjectGenerator extends GenTests{
     public void setRunTime(int seconds){
     addFlag(new TimeLimitFlag(seconds));
     }
-    public void setOutputLimitFlag(int limit){
+    private void setOutputLimitFlag(int limit){
         addFlag(new OutputLimitFlag(limit));
     }
     private String[] flagsToString(){
@@ -67,27 +67,29 @@ public class RandoopObjectGenerator extends GenTests{
         randoopFlagMap.put(flag.getFlagName(), flag);
     }
     @SuppressWarnings("unchecked")
-    public List<Object> generateObjects() {
-    String[] args = flagsToString();
+    public List<Object> generateObjects(int objectsAmount) {
 
-    System.out.println(Arrays.toString(args));
-    try {
-        String[] nonargs = options.parse(args);
-        if (nonargs.length > 0) {
-            throw new Options.ArgException("Unrecognized command-line arguments: " + Arrays.toString(nonargs));
+        setOutputLimitFlag(objectsAmount);
+        String[] args = flagsToString();
+
+        System.out.println(Arrays.toString(args));
+        try {
+            String[] nonargs = options.parse(args);
+            if (nonargs.length > 0) {
+                throw new Options.ArgException("Unrecognized command-line arguments: " + Arrays.toString(nonargs));
+            }
+        } catch (Options.ArgException ae) {
+        // usage() exits the program by calling System.exit().
+            usage("While parsing command-line arguments: %s", ae.getMessage());
         }
-    } catch (Options.ArgException ae) {
-    // usage() exits the program by calling System.exit().
-        usage("While parsing command-line arguments: %s", ae.getMessage());
-    }
 
-    if (GenInputsAbstract.progressdisplay) {
-        System.out.println("Randoop for Java version " + Globals.getRandoopVersion() + ".");
-    }
+        if (GenInputsAbstract.progressdisplay) {
+            System.out.println("Randoop for Java version " + Globals.getRandoopVersion() + ".");
+        }
 
-    checkOptionsValid();
+        checkOptionsValid();
 
-    Randomness.setSeed(randomseed);
+        Randomness.setSeed(randomseed);
 
     // java.security.Policy policy = java.security.Policy.getPolicy();
 
@@ -283,6 +285,7 @@ public class RandoopObjectGenerator extends GenTests{
     */
     Set<Sequence> defaultSeeds = SeedSequences.defaultSeeds();
     Set<Sequence> annotatedTestValues = operationModel.getAnnotatedTestValues();
+    //TODO: Aca le agrega objectos literales por default a randoop no se si sacando todos estos no afectaria ala ejecucion, ya que a lomejor necesito un int o un char y yo desde m definicion no se lo doy :)
     Set<Sequence> components =
     new LinkedHashSet<>(
             CollectionsPlume.mapCapacity(defaultSeeds.size() + annotatedTestValues.size()));
