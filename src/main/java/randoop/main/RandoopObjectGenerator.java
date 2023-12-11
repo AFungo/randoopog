@@ -48,7 +48,7 @@ public class RandoopObjectGenerator extends GenTests{
         addFlag(new ProgressIntervalMillis(-1));
         addFlag(new ProgressIntervalSteps(-1));
         //This flags are only for testing because i need literals :)
-//        addFlag(new LiteralsFileFlag("../../literals/lits.txt"));
+        addFlag(new LiteralsFileFlag("../../literals/lits.txt"));
         addFlag(new LiteralsLevelFlag("ALL"));
     }
     public void setSeed(int seed){
@@ -295,7 +295,8 @@ public class RandoopObjectGenerator extends GenTests{
     ComponentManager componentMgr = new ComponentManager(components);
     operationModel.addClassLiterals(
     componentMgr, GenInputsAbstract.literals_file, GenInputsAbstract.literals_level);
-
+//TODO: Here i add default string list to literals
+    operationModel.addDefaultLiterals(componentMgr, GenInputsAbstract.literals_level);
     MultiMap<Type, TypedClassOperation> sideEffectFreeMethodsByType = readSideEffectFreeMethods();
 
     Set<TypedOperation> sideEffectFreeMethods = new LinkedHashSet<>();
