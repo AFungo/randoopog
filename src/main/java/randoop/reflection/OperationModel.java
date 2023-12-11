@@ -265,20 +265,13 @@ public class OperationModel {
 
     // Add a (1-element) sequence corresponding to each literal to the component
     // manager.
-//TODO: Here i change literalFile reader for a default string list
-//Maybe we can adapt a method or something for add new objects or something like this
-//    for (String filename : literalsFile) {
-    MultiMap<ClassOrInterfaceType, Sequence> literalmap;
-//      if (filename.equals("CLASSES")) {
-//        literalmap = classLiteralMap;
-//      } else {
-    literalmap = LiteralFileReader.loadDefaultLiterals();
-//        literalmap = LiteralFileReader.parse(filename);
-//      }
-
-    /**
-     * TODO: para mi todo lo de abajo no va pero ni idea que hace
-     */
+    for (String filename : literalsFile) {
+      MultiMap<ClassOrInterfaceType, Sequence> literalmap;
+      if (filename.equals("CLASSES")) {
+        literalmap = classLiteralMap;
+      } else {
+        literalmap = LiteralFileReader.parse(filename);
+      }
 
       for (ClassOrInterfaceType type : literalmap.keySet()) {
         Package pkg = (literalsLevel == ClassLiteralsMode.PACKAGE ? type.getPackage() : null);
@@ -303,7 +296,51 @@ public class OperationModel {
           }
         }
       }
-//    }
+    }
+  }
+
+  /**
+   * Adds literals to the component manager, by parsing any literals files specified by the user.
+   * Includes literals at different levels indicated by {@link ClassLiteralsMode}.
+   *
+   * @param compMgr the component manager
+   * @param literalsFile the list of literals file names
+   * @param literalsLevel the level of literals to add
+   */
+  public void addDefaultLiterals(
+          ComponentManager compMgr, ClassLiteralsMode literalsLevel) {
+
+//Maybe we can adapt a method or something for add new objects or something like this
+    MultiMap<ClassOrInterfaceType, Sequence> literalmap;
+    literalmap = LiteralFileReader.loadDefaultLiterals();
+
+    /**
+     * TODO: para mi todo lo de abajo no va pero ni idea que hace
+     */
+
+    for (ClassOrInterfaceType type : literalmap.keySet()) {
+      Package pkg = (literalsLevel == ClassLiteralsMode.PACKAGE ? type.getPackage() : null);
+      for (Sequence seq : literalmap.getValues(type)) {
+        switch (literalsLevel) {
+          case CLASS:
+            compMgr.addClassLevelLiteral(type, seq);
+            break;
+          case PACKAGE:
+            assert pkg != null;
+            compMgr.addPackageLevelLiteral(pkg, seq);
+            break;
+          case ALL:
+            compMgr.addGeneratedSequence(seq);
+            break;
+          default:
+            throw new Error(
+                    "Unexpected error in GenTests.  Please report at"
+                            + " https://github.com/randoop/randoop/issues , providing the information"
+                            + " requested at"
+                            + " https://randoop.github.io/randoop/manual/index.html#bug-reporting .");
+        }
+      }
+    }
   }
 
   /**
