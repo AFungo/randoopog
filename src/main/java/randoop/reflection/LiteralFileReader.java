@@ -1,6 +1,7 @@
 package randoop.reflection;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import org.checkerframework.checker.signature.qual.ClassGetName;
@@ -51,11 +52,114 @@ import randoop.util.RecordProcessor;
  * to only specific methods within a class.
  */
 public class LiteralFileReader {
+  private static final List<String> stringList = Arrays.asList(
+          "String:\"8080\"",
+          "String:\"1234\"",
+          "String:\"hi!\"",
+          "String:\"hello\"",
+          "String:\"bye\"",
+          "String:\"randoop\"",
+          "String:\"metamorphic relation\"" ,
+          "String:\"spec\"" ,
+          "String:\"property\"" ,
+          "String:\"oracle\"" ,
+          "String:\"apple\"" ,
+          "String:\"banana\"" ,
+          "String:\"cherry\"" ,
+          "String:\"date\"" ,
+          "String:\"grape\"" ,
+          "String:\"kiwi\"" ,
+          "String:\"lemon\"" ,
+          "String:\"melon\"" ,
+          "String:\"orange\"" ,
+          "String:\"peach\"" ,
+          "String:\"pear\"" ,
+          "String:\"plum\"" ,
+          "String:\"strawberry\"" ,
+          "String:\"tomato\"" ,
+          "String:\"watermelon\"" ,
+          "String:\"blueberry\"" ,
+          "String:\"raspberry\"" ,
+          "String:\"blackberry\"" ,
+          "String:\"pomegranate\"" ,
+          "String:\"apricot\"" ,
+          "String:\"mango\"" ,
+          "String:\"pineapple\"" ,
+          "String:\"peanut\"" ,
+          "String:\"cashew\"" ,
+          "String:\"almond\"" ,
+          "String:\"walnut\"" ,
+          "String:\"pecan\"" ,
+          "String:\"hazelnut\"" ,
+          "String:\"pistachio\"" ,
+          "String:\"macadamia\"" ,
+          "String:\"coconut\"" ,
+          "String:\"chestnut\"" ,
+          "String:\"hickory\"" ,
+          "String:\"maple\"" ,
+          "String:\"oak\"" ,
+          "String:\"cedar\"" ,
+          "String:\"pine\"" ,
+          "String:\"fir\"" ,
+          "String:\"cypress\"" ,
+          "String:\"redwood\"" ,
+          "String:\"birch\"" ,
+          "String:\"aspen\"" ,
+          "String:\"willow\"" ,
+          "String:\"poplar\"" ,
+          "String:\"sycamore\"" ,
+          "String:\"elm\"" ,
+          "String:\"ash\"" ,
+          "String:\"sugar\"" ,
+          "String:\"silver\"" ,
+          "String:\"white\"" ,
+          "String:\"red\"" ,
+          "String:\"blue\"" ,
+          "String:\"green\"" ,
+          "String:\"yellow\"" ,
+          "String:\"orange\"" ,
+          "String:\"purple\"" ,
+          "String:\"violet\"" ,
+          "String:\"pink\"" ,
+          "String:\"brown\"" ,
+          "String:\"black\"" ,
+          "String:\"gray\"" ,
+          "String:\"cream\"" ,
+          "String:\"beige\"" ,
+          "String:\"taupe\"" ,
+          "String:\"mauve\"" ,
+          "String:\"teal\"" ,
+          "String:\"indigo\"" ,
+          "String:\"lavender\"" ,
+          "String:\"maroon\"" ,
+          "String:\"navy\"" ,
+          "String:\"olive\"" ,
+          "String:\"turquoise\""
+  );
 
   private LiteralFileReader() {
     throw new Error("Do not instantiate");
   }
 
+
+  // Add more strings...
+  /**
+   * Returns a map from class to list of constants.
+   *
+   * @return the map from types to literal values
+   */
+  public static MultiMap<ClassOrInterfaceType, Sequence> loadDefaultLiterals() {
+    final MultiMap<ClassOrInterfaceType, Sequence> map = new MultiMap<>();
+    try {
+      for (String str : stringList){
+        TypedOperation operation = NonreceiverTerm.parse(str);
+        map.add(ClassOrInterfaceType.forClass(String.class), new Sequence().extend(operation, new ArrayList<Variable>(0)));
+      }
+    }catch (OperationParseException e) {
+      throwRecordSyntaxError(e);
+    }
+    return map;
+  }
   /**
    * Returns a map from class to list of constants.
    *

@@ -265,14 +265,20 @@ public class OperationModel {
 
     // Add a (1-element) sequence corresponding to each literal to the component
     // manager.
+//TODO: Here i change literalFile reader for a default string list
+//Maybe we can adapt a method or something for add new objects or something like this
+//    for (String filename : literalsFile) {
+    MultiMap<ClassOrInterfaceType, Sequence> literalmap;
+//      if (filename.equals("CLASSES")) {
+//        literalmap = classLiteralMap;
+//      } else {
+    literalmap = LiteralFileReader.loadDefaultLiterals();
+//        literalmap = LiteralFileReader.parse(filename);
+//      }
 
-    for (String filename : literalsFile) {
-      MultiMap<ClassOrInterfaceType, Sequence> literalmap;
-      if (filename.equals("CLASSES")) {
-        literalmap = classLiteralMap;
-      } else {
-        literalmap = LiteralFileReader.parse(filename);
-      }
+    /**
+     * TODO: para mi todo lo de abajo no va pero ni idea que hace
+     */
 
       for (ClassOrInterfaceType type : literalmap.keySet()) {
         Package pkg = (literalsLevel == ClassLiteralsMode.PACKAGE ? type.getPackage() : null);
@@ -297,7 +303,7 @@ public class OperationModel {
           }
         }
       }
-    }
+//    }
   }
 
   /**
