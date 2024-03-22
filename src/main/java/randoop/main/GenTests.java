@@ -1357,10 +1357,12 @@ public class GenTests extends GenInputsAbstract {
     if (fileSystem == null) {
 
       try {
-          directoryURI =
-                  new URI(
-                          "jar:file:/home/augusto/Documents/tesis/randoop/build/libs/randoop-all-4.3.2.jar!/specifications/jdk/");
-        // Check if the file system already exists
+
+        Path projectRoot = Paths.get(System.getProperty("user.dir")).getParent();
+        Path libsPath = projectRoot.resolve("libs/randoop-all-generator-4.3.2.jar");
+
+        URI jarUri = libsPath.toUri();
+        directoryURI = new URI("jar:" + jarUri.toString() + "!/specifications/jdk/");
         fileSystem = FileSystems.getFileSystem(directoryURI);
       } catch (FileSystemNotFoundException e) {
         // If the file system doesn't exist, create a new one
@@ -1369,7 +1371,7 @@ public class GenTests extends GenInputsAbstract {
 
           fileSystem =
                   FileSystems.newFileSystem(directoryURI, Collections.<String, Object>emptyMap());
-          fileSystemCache.put(directoryURI, fileSystem);
+//          fileSystemCache.put(directoryURI, fileSystem);
         } catch (IOException exception) {
           throw new RandoopBug("Error locating directory " + resourceDirectory, exception);
         }
