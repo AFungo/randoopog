@@ -35,6 +35,8 @@ public class RandoopObjectGenerator extends GenTests{
 
     private Map<String, RandoopFlag> randoopFlagMap;
     private final Class<?> objectClass;
+    private Optional<Class<?>> parameterizedClass = Optional.empty();
+
     public RandoopObjectGenerator(Class<?> objectClass){
         super();
         this.objectClass = objectClass;
@@ -48,8 +50,14 @@ public class RandoopObjectGenerator extends GenTests{
         addFlag(new ProgressIntervalMillis(-1));
         addFlag(new ProgressIntervalSteps(-1));
         //This flags are only for testing because i need literals :)
-        addFlag(new LiteralsFileFlag("../../literals/lits.txt"));
+//        addFlag(new LiteralsFileFlag("/home/augusto/Documents/tesis/randoopObjectGenerator/literals/lits.txt"));
         addFlag(new LiteralsLevelFlag("ALL"));
+    }
+    public RandoopObjectGenerator(Class<?> objectClass, Class<?> parameterizedClass){
+        this(objectClass);
+        this.parameterizedClass = Optional.of(parameterizedClass);
+        if(!parameterizedClass.equals(Integer.class) && !parameterizedClass.equals(String.class))
+            new RandoopObjectGenerator(parameterizedClass).generateObjects(400);
     }
     public void setSeed(int seed){
     addFlag(new RandomSeedFlag(seed));
@@ -309,16 +317,26 @@ public class RandoopObjectGenerator extends GenTests{
     /*
     * Create the generator for this session.
     */
-    AbstractGenerator explorer =
-    new ForwardGenerator(
-            operations,
-            sideEffectFreeMethods,
-            new GenInputsAbstract.Limits(),
-            componentMgr,
-            /* stopper= */ null,
-            classesUnderTest,
-            this.objectClass
-            );
+    AbstractGenerator explorer = parameterizedClass.isPresent()?
+            new ForwardGenerator(
+                    operations,
+                    sideEffectFreeMethods,
+                    new GenInputsAbstract.Limits(),
+                    componentMgr,
+                    /* stopper= */ null,
+                    classesUnderTest,
+                    this.objectClass,
+                    this.parameterizedClass.get()
+            )
+        : new ForwardGenerator(
+                operations,
+                sideEffectFreeMethods,
+                new GenInputsAbstract.Limits(),
+                componentMgr,
+                /* stopper= */ null,
+                classesUnderTest,
+                this.objectClass
+                );
 
     // log setup.
     operationModel.log();

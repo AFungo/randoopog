@@ -1,10 +1,6 @@
 package randoop.types;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /** An abstract class representing type variables. */
 public abstract class TypeVariable extends ParameterType {
@@ -42,6 +38,7 @@ public abstract class TypeVariable extends ParameterType {
     java.lang.reflect.TypeVariable<?> v = (java.lang.reflect.TypeVariable) type;
     Set<java.lang.reflect.TypeVariable<?>> variableSet = new HashSet<>(1);
     variableSet.add(v);
+//    if(type.equals(Stack.class));
     return new ExplicitTypeVariable(v, ParameterBound.forTypes(variableSet, v.getBounds()));
   }
 

@@ -2,12 +2,10 @@ package randoop.reflection;
 
 import static org.plumelib.util.CollectionsPlume.iteratorToIterable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
 import org.plumelib.util.CombinationIterator;
+import randoop.main.RandoopObjectGenerator;
 import randoop.operation.TypedClassOperation;
 import randoop.types.BoundsCheck;
 import randoop.types.ClassOrInterfaceType;
@@ -41,6 +39,11 @@ public class TypeInstantiator {
   private final Set<Type> inputTypes;
 
   /**
+   * The class of parameterized type for this model.
+   */
+  private Class<?> parameterizedClass;
+
+  /**
    * Creates a {@link TypeInstantiator} object using the given types to construct instantiating
    * substitutions.
    *
@@ -52,6 +55,30 @@ public class TypeInstantiator {
   }
 
   /**
+   * Creates a {@link TypeInstantiator} object using the given types and the parameterized class to construct instantiating
+   * substitutions.
+   *
+   * @param inputTypes the ground types for instantiations
+   */
+  public TypeInstantiator(Set<Type> inputTypes, Class<?> parameterizedClass) {
+    // No defensive copy:  the value changes with time, but this class doesn't change it.
+    this.inputTypes = inputTypes;
+    this.parameterizedClass = parameterizedClass;
+  }
+
+
+  public void setParameterizedClass(Class<?> parameterizedClass){
+    this.parameterizedClass = parameterizedClass;
+    //NOTE: No supe recuperar la clase con la cual instanciamos a target class..., seria facil si se la pasamos como parametro en algun lado, pero de alguna manera jqwik lo hace (creo que deberia intentar verlo)
+    //TODO: hay que añadir la clase de la que queremos instanciar a esta lista
+//    if(!this.inputTypes.contains(Type.forClass(parameterizedClass))){
+//      RandoopObjectGenerator rog = new RandoopObjectGenerator(parameterizedClass);
+//      rog.generateObjects(100);
+//    }
+
+    this.inputTypes.add(Type.forClass(parameterizedClass));
+  }
+  /**
    * Instantiate the given operation by choosing type arguments for its type parameters.
    *
    * @param operation the generic operation to instantiate
@@ -59,7 +86,7 @@ public class TypeInstantiator {
    */
   public TypedClassOperation instantiate(TypedClassOperation operation) {
     assert operation.isGeneric() || operation.hasWildcardTypes()
-        : "operation " + operation + " must be generic or have wildcards";
+            : "operation " + operation + " must be generic or have wildcards";
 
     // if declaring type of operation is generic, select instantiation
     ClassOrInterfaceType declaringType = operation.getDeclaringType();
@@ -73,7 +100,7 @@ public class TypeInstantiator {
 
       // if operation creates objects of its declaring type, may create new instantiation
       if (operation.isConstructorCall()
-          || (operation.isStatic()
+              || (operation.isStatic()
               && ((InstantiatedType) outputType).getGenericClassType().equals(declaringType))) {
         if (declaringType.isSubtypeOf(JDKTypes.SORTED_SET_TYPE)) {
           substitution = instantiateSortedSetType(operation);
@@ -91,7 +118,7 @@ public class TypeInstantiator {
         return null;
       }
       // instantiate type parameters of declaring type
-      operation = operation.substitute(substitution);
+      operation = operation.substitute(substitution);//NOTE: ACA se le dice a la operacion como parametrizar :)
     }
     // type parameters of declaring type are instantiated
 
@@ -159,7 +186,7 @@ public class TypeInstantiator {
    * @return a substitution for the type parameter of SortedSet
    */
   private Substitution selectSubstitutionForSortedSet(
-      GenericClassType searchType, TypeVariable typeParameter) {
+          GenericClassType searchType, TypeVariable typeParameter) {
     // Select a substitution for searchType's formal parameter.
     Substitution substitution = selectSubstitution(searchType);
     if (substitution == null) {
@@ -190,6 +217,7 @@ public class TypeInstantiator {
 
     {
       List<TypeVariable> typeParameters = type.getTypeParameters();
+
       Substitution substitution = selectSubstitution(typeParameters);
       if (substitution != null) {
         ClassOrInterfaceType instantiatedType = type.substitute(substitution);
@@ -225,11 +253,11 @@ public class TypeInstantiator {
    *     no such substitution exists
    */
   private Substitution selectSubstitution(
-      ClassOrInterfaceType type, ClassOrInterfaceType patternType) {
+          ClassOrInterfaceType type, ClassOrInterfaceType patternType) {
     List<ReferenceType> matches = new ArrayList<>(inputTypes.size());
     for (Type inputType : inputTypes) {
       if (inputType.isParameterized()
-          && ((ReferenceType) inputType).isInstantiationOf(patternType)) {
+              && ((ReferenceType) inputType).isInstantiationOf(patternType)) {
         matches.add((ReferenceType) inputType);
       }
     }
@@ -269,7 +297,7 @@ public class TypeInstantiator {
       if (paramType.isGeneric()) {
         if (paramType.isClassOrInterfaceType()) {
           Substitution subst =
-              selectSubstitution((ParameterizedType) origParamType, (ParameterizedType) paramType);
+                  selectSubstitution((ParameterizedType) origParamType, (ParameterizedType) paramType);
           if (subst == null) {
             return null;
           }
@@ -329,7 +357,7 @@ public class TypeInstantiator {
    *     has no instantiating types
    */
   private Substitution selectSubstitution(
-      List<TypeVariable> typeParameters, Substitution substitution) {
+          List<TypeVariable> typeParameters, Substitution substitution) {
     List<Substitution> substitutionList = allExtendingSubstitutions(typeParameters, substitution);
     if (substitutionList.isEmpty()) {
       return null;
@@ -346,7 +374,7 @@ public class TypeInstantiator {
    */
   @SuppressWarnings("MixedMutabilityReturnType")
   private List<Substitution> allExtendingSubstitutions(
-      List<TypeVariable> typeParameters, Substitution substitution) {
+          List<TypeVariable> typeParameters, Substitution substitution) {
 
     // Partition parameters based on whether they might have independent bounds:
 
@@ -389,7 +417,7 @@ public class TypeInstantiator {
           return Collections.emptyList();
         }
         for (List<ReferenceType> tuple :
-            iteratorToIterable(new CombinationIterator<>(nongenCandidates))) {
+                iteratorToIterable(new CombinationIterator<>(nongenCandidates))) {
           // choose instantiating substitution for non-generic bounded parameters
           Substitution initialSubstitution = substitution.extend(nongenericParameters, tuple);
           // apply selected substitution to all generic-bounded parameters
@@ -445,17 +473,28 @@ public class TypeInstantiator {
    *     are no candidate types for some parameter
    */
   private Substitution selectSubstitutionIndependently(
-      List<TypeVariable> parameters, Substitution substitution) {
+          List<TypeVariable> parameters, Substitution substitution) {
     List<ReferenceType> selectedTypes = new ArrayList<>(parameters.size());
     for (TypeVariable typeArgument : parameters) {
       List<ReferenceType> candidates = candidateTypes(typeArgument);
-      if (candidates.isEmpty()) {
-        Log.logPrintf(
-            "TypeInstantiator.selectSubstitutionIndependently: No candidate types for %s%n",
-            typeArgument);
-        return null;
+      //NotE: hay que preguntar si esta la clase que queremos instanciar y esto lo retorna
+      Optional<ReferenceType> lookingType =
+              candidates.stream().filter(obj -> obj.getRuntimeClass().equals(parameterizedClass)).findFirst();
+      //      if(candidates.get(5).getRuntimeClass().equals(String.class)) System.out.println("AAAAAAAA");
+      //Note: aca lo agregue yo, tiene en cuenta si el tipo que queremos que cree los objetos esta en la lista de posibles substituciones
+      if (lookingType.isPresent()) {
+        selectedTypes.add(lookingType.get());
       }
-      selectedTypes.add(Randomness.randomMember(candidates));
+      else {
+        if (candidates.isEmpty()) {
+          Log.logPrintf(
+                  "TypeInstantiator.selectSubstitutionIndependently: No candidate types for %s%n",
+                  typeArgument);
+          return null;
+        }
+        //      selectedTypes.add()
+        selectedTypes.add(Randomness.randomMember(candidates));
+      }
     }
     return substitution.extend(parameters, selectedTypes);
   }
@@ -473,11 +512,11 @@ public class TypeInstantiator {
    *     may side-effect it.
    */
   private List<Substitution> allSubstitutions(
-      List<TypeVariable> parameters, Substitution initialSubstitution, BoundsCheck boundsCheck) {
+          List<TypeVariable> parameters, Substitution initialSubstitution, BoundsCheck boundsCheck) {
     List<Substitution> substitutionList = new ArrayList<>();
     List<List<ReferenceType>> candidateTypes = candidateTypes(parameters);
     for (List<ReferenceType> tuple :
-        iteratorToIterable(new CombinationIterator<>(candidateTypes))) {
+            iteratorToIterable(new CombinationIterator<>(candidateTypes))) {
       Substitution substitution = initialSubstitution.extend(parameters, tuple);
       if (boundsCheck.test(tuple, substitution)) {
         substitutionList.add(substitution);
@@ -527,7 +566,7 @@ public class TypeInstantiator {
         ReferenceType inputRefType = (ReferenceType) inputType;
         Substitution substitution = new Substitution(argument, inputRefType);
         if (lowerBound.isLowerBound(inputRefType, substitution)
-            && upperBound.isUpperBound(inputRefType, substitution)) {
+                && upperBound.isUpperBound(inputRefType, substitution)) {
           typeList.add(inputRefType);
         }
       }

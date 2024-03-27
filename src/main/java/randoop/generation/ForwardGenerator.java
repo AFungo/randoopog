@@ -89,6 +89,12 @@ public class ForwardGenerator extends AbstractGenerator {
    * This attribute have the class which  the user want to generate objects
    */
   private Class<?> objectsClass;
+
+  /**
+   * This attribute have the class which  the user want to generate objects
+   */
+  private Class<?> parameterizedClass;
+
   /**
    * Create a forward generator.
    *
@@ -120,7 +126,8 @@ public class ForwardGenerator extends AbstractGenerator {
           ComponentManager componentManager,
           IStopper stopper,
           Set<ClassOrInterfaceType> classesUnderTest,
-          Class<?> objectsClass) {
+          Class<?> objectsClass
+          ) {
     this(
             operations,
             sideEffectFreeMethods,
@@ -129,6 +136,29 @@ public class ForwardGenerator extends AbstractGenerator {
             stopper,
             classesUnderTest);
     this.objectsClass = objectsClass;
+    this.parameterizedClass = null;
+  }
+
+  public ForwardGenerator(
+          List<TypedOperation> operations,
+          Set<TypedOperation> sideEffectFreeMethods,
+          GenInputsAbstract.Limits limits,
+          ComponentManager componentManager,
+          IStopper stopper,
+          Set<ClassOrInterfaceType> classesUnderTest,
+          Class<?> objectsClass,
+          Class<?> parameterizedClass
+  ) {
+    this(
+            operations,
+            sideEffectFreeMethods,
+            limits,
+            componentManager,
+            stopper,
+            classesUnderTest,
+            objectsClass);
+    this.parameterizedClass = parameterizedClass;
+    this.instantiator.setParameterizedClass(parameterizedClass);
   }
 
   /**
