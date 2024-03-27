@@ -422,7 +422,7 @@ test {
 }
 
 task coveredTest(type: Test, dependsOn: [
-  shadowJar,
+//  shadowJar,
   'copyJars',
   'compileTestJava'
 ]) {
@@ -546,9 +546,9 @@ task systemTest(type: Test, dependsOn: [
    * Set system properties for jar paths, used by randoop.main.SystemTestEnvironment
    */
   doFirst {
-    systemProperty 'jar.randoop', shadowJar.archiveFile.get()
-    systemProperty 'jar.replacecall.agent', project(':replacecall').shadowJar.archiveFile.get()
-    systemProperty 'jar.covered.class.agent', project(':covered-class').shadowJar.archiveFile.get()
+//    systemProperty 'jar.randoop', shadowJar.archiveFile.get()
+//    systemProperty 'jar.replacecall.agent', project(':replacecall').shadowJar.archiveFile.get()
+//    systemProperty 'jar.covered.class.agent', project(':covered-class').shadowJar.archiveFile.get()
   }
 
   workingDir = file("$buildDir")
