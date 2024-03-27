@@ -13,6 +13,7 @@ import randoop.SubTypeSet;
 import randoop.main.GenInputsAbstract;
 import randoop.reflection.TypeInstantiator;
 import randoop.types.ClassOrInterfaceType;
+import randoop.types.InstantiatedType;
 import randoop.types.Type;
 import randoop.util.ListOfLists;
 import randoop.util.Log;

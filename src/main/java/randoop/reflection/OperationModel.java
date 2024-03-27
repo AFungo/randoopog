@@ -285,7 +285,7 @@ public class OperationModel {
               compMgr.addPackageLevelLiteral(pkg, seq);
               break;
             case ALL:
-              compMgr.addGeneratedSequence(seq);
+              compMgr.addGeneratedSequence(seq);//TODO: aca añade las secuencias de los literales, sp que para hecer los test
               break;
             default:
               throw new Error(
@@ -304,7 +304,6 @@ public class OperationModel {
    * Includes literals at different levels indicated by {@link ClassLiteralsMode}.
    *
    * @param compMgr the component manager
-   * @param literalsFile the list of literals file names
    * @param literalsLevel the level of literals to add
    */
   public void addDefaultLiterals(

@@ -1357,6 +1357,10 @@ public class GenTests extends GenInputsAbstract {
     FileSystem fileSystem = fileSystemCache.get(directoryURI);
     if (fileSystem == null) {
       try {
+        /*
+         * Note: duplique este codigo pero para que busque el jar de randoop en el repo de jqwik
+         *   en caso de que no lo encuentre en el de randoop
+         */
         Path projectRoot = Paths.get(System.getProperty("user.dir")).getParent();
         Path libsPath = projectRoot.resolve("libs/randoop-all-generator-4.3.2.jar");
 
