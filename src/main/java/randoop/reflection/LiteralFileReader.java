@@ -52,6 +52,25 @@ import randoop.util.RecordProcessor;
  * to only specific methods within a class.
  */
 public class LiteralFileReader {
+  private static final List<String> integerList = Arrays.asList(
+          "Integer:-10",
+          "int:-99",
+          "int:-98",
+          "int:-97",
+          "int:-96",
+          "int:-95",
+          "int:-94",
+          "int:-93",
+          "int:-92",
+          "int:-91",
+          "int:-90",
+          "int:-89",
+          "int:-88",
+          "int:-87",
+          "int:-86",
+          "int:-85",
+          "int:-84"
+  );
   private static final List<String> stringList = Arrays.asList(
           "String:\"8080\"",
           "String:\"1234\"",
@@ -155,6 +174,10 @@ public class LiteralFileReader {
         TypedOperation operation = NonreceiverTerm.parse(str);
         map.add(ClassOrInterfaceType.forClass(String.class), new Sequence().extend(operation, new ArrayList<Variable>(0)));
       }
+//      for (String str : integerList){
+//            TypedOperation operation = NonreceiverTerm.parse(str);
+//            map.add(ClassOrInterfaceType.forClass(Integer.class), new Sequence().extend(operation, new ArrayList<Variable>(0)));
+//        }
     }catch (OperationParseException e) {
       throwRecordSyntaxError(e);
     }
@@ -171,45 +194,45 @@ public class LiteralFileReader {
     final MultiMap<ClassOrInterfaceType, Sequence> map = new MultiMap<>();
 
     RecordProcessor processor =
-        new RecordProcessor() {
-          @Override
-          public void processRecord(List<String> lines) {
+            new RecordProcessor() {
+              @Override
+              public void processRecord(List<String> lines) {
 
-            if (!(lines.size() >= 1
-                && lines.get(0).trim().toUpperCase(Locale.getDefault()).equals("CLASSNAME"))) {
-              throwRecordSyntaxError("record does not begin with \"CLASSNAME\"", lines, 0);
-            }
+                if (!(lines.size() >= 1
+                        && lines.get(0).trim().toUpperCase(Locale.getDefault()).equals("CLASSNAME"))) {
+                  throwRecordSyntaxError("record does not begin with \"CLASSNAME\"", lines, 0);
+                }
 
-            if (!(lines.size() >= 2)) {
-              throwRecordSyntaxError("class name missing", lines, 1);
-            }
+                if (!(lines.size() >= 2)) {
+                  throwRecordSyntaxError("class name missing", lines, 1);
+                }
 
-            Class<?> cls = null;
-            try {
-              @SuppressWarnings("signature") // reading from file, checked & exception thrown below
-              @ClassGetName String className = lines.get(1);
-              cls = TypeNames.getTypeForName(className);
-            } catch (ClassNotFoundException | NoClassDefFoundError e) {
-              throwRecordSyntaxError(e);
-            }
-            assert cls != null;
-            ClassOrInterfaceType classType = ClassOrInterfaceType.forClass(cls);
+                Class<?> cls = null;
+                try {
+                  @SuppressWarnings("signature") // reading from file, checked & exception thrown below
+                  @ClassGetName String className = lines.get(1);
+                  cls = TypeNames.getTypeForName(className);
+                } catch (ClassNotFoundException | NoClassDefFoundError e) {
+                  throwRecordSyntaxError(e);
+                }
+                assert cls != null;
+                ClassOrInterfaceType classType = ClassOrInterfaceType.forClass(cls);
 
-            if (!(lines.size() >= 3
-                && lines.get(2).trim().toUpperCase(Locale.getDefault()).equals("LITERALS"))) {
-              throwRecordSyntaxError("Missing field \"LITERALS\"", lines, 2);
-            }
+                if (!(lines.size() >= 3
+                        && lines.get(2).trim().toUpperCase(Locale.getDefault()).equals("LITERALS"))) {
+                  throwRecordSyntaxError("Missing field \"LITERALS\"", lines, 2);
+                }
 
-            for (int i = 3; i < lines.size(); i++) {
-              try {
-                TypedOperation operation = NonreceiverTerm.parse(lines.get(i));
-                map.add(classType, new Sequence().extend(operation, new ArrayList<Variable>(0)));
-              } catch (OperationParseException e) {
-                throwRecordSyntaxError(e);
+                for (int i = 3; i < lines.size(); i++) {
+                  try {
+                    TypedOperation operation = NonreceiverTerm.parse(lines.get(i));
+                    map.add(classType, new Sequence().extend(operation, new ArrayList<Variable>(0)));
+                  } catch (OperationParseException e) {
+                    throwRecordSyntaxError(e);
+                  }
+                }
               }
-            }
-          }
-        };
+            };
 
     RecordListReader reader = new RecordListReader("CLASSLITERALS", processor);
     reader.parse(inFile);
