@@ -25,12 +25,7 @@ import randoop.sequence.Statement;
 import randoop.sequence.Value;
 import randoop.sequence.Variable;
 import randoop.test.DummyCheckGenerator;
-import randoop.types.ClassOrInterfaceType;
-import randoop.types.InstantiatedType;
-import randoop.types.JDKTypes;
-import randoop.types.JavaTypes;
-import randoop.types.Type;
-import randoop.types.TypeTuple;
+import randoop.types.*;
 import randoop.util.ListOfLists;
 import randoop.util.Log;
 import randoop.util.MultiMap;
@@ -93,7 +88,7 @@ public class ForwardGenerator extends AbstractGenerator {
   /**
    * This attribute have the class which  the user want to generate objects
    */
-  private Class<?> parameterizedClass;
+  private Map<TypeVariable, Class<?>> parameterizedClass;
 
   /**
    * Create a forward generator.
@@ -147,7 +142,7 @@ public class ForwardGenerator extends AbstractGenerator {
           IStopper stopper,
           Set<ClassOrInterfaceType> classesUnderTest,
           Class<?> objectsClass,
-          Class<?> parameterizedClass
+          Map<TypeVariable, Class<?>> parameterizedClass
   ) {
     this(
             operations,

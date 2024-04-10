@@ -5,7 +5,6 @@ import static org.plumelib.util.CollectionsPlume.iteratorToIterable;
 import java.util.*;
 
 import org.plumelib.util.CombinationIterator;
-import randoop.main.RandoopObjectGenerator;
 import randoop.operation.TypedClassOperation;
 import randoop.types.BoundsCheck;
 import randoop.types.ClassOrInterfaceType;
@@ -41,7 +40,7 @@ public class TypeInstantiator {
   /**
    * The class of parameterized type for this model.
    */
-  private Class<?> parameterizedClass;
+  private Map<TypeVariable, Class<?>> parameterizedClass;
 
   /**
    * Creates a {@link TypeInstantiator} object using the given types to construct instantiating
@@ -60,14 +59,14 @@ public class TypeInstantiator {
    *
    * @param inputTypes the ground types for instantiations
    */
-  public TypeInstantiator(Set<Type> inputTypes, Class<?> parameterizedClass) {
+  public TypeInstantiator(Set<Type> inputTypes, Map<TypeVariable, Class<?>> parameterizedClass) {
     // No defensive copy:  the value changes with time, but this class doesn't change it.
     this.inputTypes = inputTypes;
     this.parameterizedClass = parameterizedClass;
   }
 
 
-  public void setParameterizedClass(Class<?> parameterizedClass){
+  public void setParameterizedClass(Map<TypeVariable, Class<?>> parameterizedClass){
     this.parameterizedClass = parameterizedClass;
     //NOTE: No supe recuperar la clase con la cual instanciamos a target class..., seria facil si se la pasamos como parametro en algun lado, pero de alguna manera jqwik lo hace (creo que deberia intentar verlo)
     //TODO: hay que añadir la clase de la que queremos instanciar a esta lista
@@ -75,8 +74,9 @@ public class TypeInstantiator {
 //      RandoopObjectGenerator rog = new RandoopObjectGenerator(parameterizedClass);
 //      rog.generateObjects(100);
 //    }
-
-    this.inputTypes.add(Type.forClass(parameterizedClass));
+    for(Class<?> c: parameterizedClass.values()){
+      this.inputTypes.add(Type.forClass(c));
+    }
   }
   /**
    * Instantiate the given operation by choosing type arguments for its type parameters.
@@ -475,11 +475,16 @@ public class TypeInstantiator {
   private Substitution selectSubstitutionIndependently(
           List<TypeVariable> parameters, Substitution substitution) {
     List<ReferenceType> selectedTypes = new ArrayList<>(parameters.size());
+
     for (TypeVariable typeArgument : parameters) {
+      Type t = typeArgument.getRawtype();
       List<ReferenceType> candidates = candidateTypes(typeArgument);
       //NotE: hay que preguntar si esta la clase que queremos instanciar y esto lo retorna
-      Optional<ReferenceType> lookingType =
-              candidates.stream().filter(obj -> obj.getRuntimeClass().equals(parameterizedClass)).findFirst();
+      Class<?> clazz = parameterizedClass.get(typeArgument);
+      Optional<ReferenceType> lookingType = Optional.empty();
+      if (clazz != null)
+        lookingType =
+                candidates.stream().filter(obj -> obj.getRuntimeClass().equals(clazz)).findFirst();
       //      if(candidates.get(5).getRuntimeClass().equals(String.class)) System.out.println("AAAAAAAA");
       //Note: aca lo agregue yo, tiene en cuenta si el tipo que queremos que cree los objetos esta en la lista de posibles substituciones
       if (lookingType.isPresent()) {

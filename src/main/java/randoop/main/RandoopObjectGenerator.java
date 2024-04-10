@@ -19,6 +19,7 @@ import randoop.sequence.*;
 import randoop.test.*;
 import randoop.types.ClassOrInterfaceType;
 import randoop.types.Type;
+import randoop.types.TypeVariable;
 import randoop.util.*;
 
 import java.io.File;
@@ -28,6 +29,7 @@ import java.io.PrintWriter;
 import java.nio.file.*;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static randoop.reflection.AccessibilityPredicate.IS_PUBLIC;
 
@@ -35,29 +37,34 @@ public class RandoopObjectGenerator extends GenTests{
 
     private Map<String, RandoopFlag> randoopFlagMap;
     private final Class<?> objectClass;
-    private Optional<Class<?>> parameterizedClass = Optional.empty();
+    private Map<TypeVariable, Class<?>> parameterizedClasses = new HashMap<>();
 
     public RandoopObjectGenerator(Class<?> objectClass){
         super();
         this.objectClass = objectClass;
         randoopFlagMap = new HashMap<>();
-        //Set the class
         addFlag(new TestClassFlag(objectClass));
-        //Default configurations
         addFlag(new ForbidNullFlag(true));//Try not use null
-//        addFlag(new TimeLimitFlag(30));
         addFlag(new ProgressiveDisplayFlag(false));//no display randoop info
         addFlag(new ProgressIntervalMillis(-1));
         addFlag(new ProgressIntervalSteps(-1));
-        //This flags are only for testing because i need literals :)
-//        addFlag(new LiteralsFileFlag("/home/augusto/Documents/tesis/randoopObjectGenerator/literals/lits.txt"));
         addFlag(new LiteralsLevelFlag("ALL"));
     }
     public RandoopObjectGenerator(Class<?> objectClass, Class<?> parameterizedClass){
+        this(objectClass, Collections.singletonList(parameterizedClass));
+    }
+
+    public RandoopObjectGenerator(Class<?> objectClass, List<Class<?>> parameterizedClass){
         this(objectClass);
-        this.parameterizedClass = Optional.of(parameterizedClass);
-        if(!parameterizedClass.equals(Integer.class) && !parameterizedClass.equals(String.class))
-            new RandoopObjectGenerator(parameterizedClass).generateObjects(400);
+        List<TypeVariable> s = ClassOrInterfaceType.forClass(objectClass).getTypeParameters() ;
+        if(s.size() < parameterizedClass.size())
+            throw new IllegalArgumentException("More parameterized types than parameters");//Note: No se como describirlo!!!!!
+        for(Class<?> c : parameterizedClass){
+            this.parameterizedClasses.put(s.remove(0), c);
+            if(!c.equals(Integer.class) && !c.equals(String.class))
+                new RandoopObjectGenerator(c).generateObjects(100);
+        }
+        //NOTE: ver la flag de --classlist para pasarle muchas clases
     }
     public void setSeed(int seed){
     addFlag(new RandomSeedFlag(seed));
@@ -317,7 +324,7 @@ public class RandoopObjectGenerator extends GenTests{
     /*
     * Create the generator for this session.
     */
-    AbstractGenerator explorer = parameterizedClass.isPresent()?
+    AbstractGenerator explorer = !parameterizedClasses.isEmpty()?
             new ForwardGenerator(
                     operations,
                     sideEffectFreeMethods,
@@ -326,7 +333,7 @@ public class RandoopObjectGenerator extends GenTests{
                     /* stopper= */ null,
                     classesUnderTest,
                     this.objectClass,
-                    this.parameterizedClass.get()
+                    this.parameterizedClasses
             )
         : new ForwardGenerator(
                 operations,
