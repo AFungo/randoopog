@@ -1407,7 +1407,7 @@ public class GenTests extends GenInputsAbstract {
         throw new RuntimeException(e);
       }
     }
-    System.out.println("---------------------\n\n" + fileSystem.getPath(resourceDirectory) + "----------------------\n");
+//    System.out.println("---------------------\n\n" + fileSystem.getPath(resourceDirectory) + "----------------------\n");
     return fileSystem.getPath(resourceDirectory);
   }
 

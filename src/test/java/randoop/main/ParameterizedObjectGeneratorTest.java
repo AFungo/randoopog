@@ -30,9 +30,9 @@ public class  ParameterizedObjectGeneratorTest{
      */
     @Test
     public void test() throws IOException {
-        List<Class<?>> l = Arrays.asList(Integer.class, String.class);
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashMap.class, l);//Poner la clase;
-        rog.setSeed(1);//Con la semilla 100 la mayoria son iguales, son [coconut] o []
+        List<Class<?>> l = Arrays.asList(Integer.class);
+        RandoopObjectGenerator rog = new RandoopObjectGenerator(Stack.class, l);//Poner la clase;
+        rog.setSeed(100);//Con la semilla 100 la mayoria son iguales, son [coconut] o []
 //        rog.setOutputLimitFlag(10);
         List<Object> list = rog.generateObjects(10);
         printList(list);

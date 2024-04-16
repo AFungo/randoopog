@@ -51,6 +51,7 @@ public class TypeInstantiator {
   public TypeInstantiator(Set<Type> inputTypes) {
     // No defensive copy:  the value changes with time, but this class doesn't change it.
     this.inputTypes = inputTypes;
+    this.parameterizedClass = new HashMap<>();
   }
 
   /**
@@ -67,7 +68,7 @@ public class TypeInstantiator {
 
 
   public void setParameterizedClass(Map<TypeVariable, Class<?>> parameterizedClass){
-    this.parameterizedClass = parameterizedClass;
+    this.parameterizedClass.putAll(parameterizedClass);
     //NOTE: No supe recuperar la clase con la cual instanciamos a target class..., seria facil si se la pasamos como parametro en algun lado, pero de alguna manera jqwik lo hace (creo que deberia intentar verlo)
     //TODO: hay que añadir la clase de la que queremos instanciar a esta lista
 //    if(!this.inputTypes.contains(Type.forClass(parameterizedClass))){
