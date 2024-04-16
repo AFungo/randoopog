@@ -583,7 +583,9 @@ public class ForwardGenerator extends AbstractGenerator {
         Log.logPrintf("Sequence discarded: the same sequence was previously created.%n");
         return null;
       }else{
+        //TODO: aca si añadimos un nuevo objeto incrementamos en 1 el contador
         this.allObjects.add(o);
+        this.cantObjects++;
       }
     }else{
       // TODO: We should modify this condition or add a new one in order to discard duplicated objects.

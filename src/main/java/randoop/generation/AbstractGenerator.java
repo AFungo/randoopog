@@ -142,6 +142,14 @@ public abstract class AbstractGenerator {
   protected final List<Object> allObjects = new LinkedList<>();
 
   /**
+   * TODO: agregue este atributo para poder contar la cantidad de objetos en cada corrida cada vez que pide objetos
+   * Para mi hay una mejor opcion
+   * se incrementa en la linea 587 dde fowardgenerator.createNewUniquesequence
+   * lo reincia en 0 la linea 316 createandclassifysequences
+   * y lo lee shouldStop
+   */
+  protected int cantObjects = 0;
+  /**
    * Constructs a generator with the given parameters.
    *
    * @param operations statements (e.g. methods and constructors) used to create sequences. Cannot
@@ -230,14 +238,13 @@ public abstract class AbstractGenerator {
    * @return true iff any stopping criterion is met
    */
   protected boolean shouldStop() {
-    return
-            (limits.time_limit_millis != 0 && elapsedTime() >= limits.time_limit_millis)
-        || (numAttemptedSequences() >= limits.attempted_limit)
-        || (numGeneratedSequences() >= limits.generated_limit)
-        || (numObjectsGenerated() >= limits.output_limit)//new condition output limit now is compared here
+    return (limits.time_limit_millis != 0 && elapsedTime() >= limits.time_limit_millis) //Este lo dejo? corta segun el tiempo transcurrido
+          || (numAttemptedSequences() >= limits.attempted_limit)
+          || (numGeneratedSequences() >= limits.generated_limit)
+          || (numObjectsGenerated() >= limits.output_limit)//este metodo antes retornaba el tamaño del set que guarda los objetos ahora retorna la cantidad generado en la corrida parcial
 //        || (numOutputSequences() >= limits.output_limit) //that is the oiginal condition
-        || (GenInputsAbstract.stop_on_error_test && numErrorSequences() > 0)
-        || (stopper != null && stopper.shouldStop());
+          || (GenInputsAbstract.stop_on_error_test && numErrorSequences() > 0)
+          || (stopper != null && stopper.shouldStop());
   }
 
   /**
@@ -278,8 +285,11 @@ public abstract class AbstractGenerator {
    * @return the number of generated objects for output
    */
   public int numObjectsGenerated(){
+    /*
+    * aca antes retonaba el size de los objetos generados
+    * */
 //    System.out.println("Size = " + this.allObjects.size());
-    return this.allObjects.size();
+    return this.cantObjects;//this.allObjects.size();
   }
 
   /**
@@ -308,7 +318,11 @@ public abstract class AbstractGenerator {
       progressDisplay = new ProgressDisplay(this, ProgressDisplay.Mode.MULTILINE);
       progressDisplay.start();
     }
-
+    /**
+     * TODO: aca es donde empieza a generar los nuevos objetos por lo tano antes del ciclo inicializo cantObjects en 0
+     * shouldStop va a retornar true cuando (una de las condiciones) cantObjects == a como configuramos la flag de cuantos objetos queremos que retorne
+     */
+    this.cantObjects = 0;
     while (!shouldStop()) {
 
       num_steps++;

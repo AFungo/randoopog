@@ -7,6 +7,7 @@ import org.assertj.core.api.Assertions;
 
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.plumelib.util.SystemPlume;
 
 import java.io.IOException;
 import java.util.*;
@@ -26,11 +27,19 @@ public class GeneratorTest {
 
     @Test
     public void test() throws IOException {
+        /*
+       pequeño detalle los dates parecen todos iguales pero si te fijas como esta tomando la date actual cambia un numero dentro de la clase
+       (supongo que son los milisegundos en la documentacion dice que los incluye en la comparacion)
+         */
         RandoopObjectGenerator rog = new RandoopObjectGenerator(Stack.class, Date.class);//Poner la clase;
         rog.setSeed(100);
-        List<Object> list = rog.generateObjects(10);
-        printList(list);
-//        assertThat(list.size(), CoreMatchers.is(3));
+        List<Object> stacks = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            Object o = rog.generateOneObject();
+            assertThat(stacks.contains(o), CoreMatchers.is(false));
+            stacks.add(o);
+        }
+        printList(stacks);
     }
 
     @ParameterizedTest
