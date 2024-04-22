@@ -17,27 +17,25 @@ import java.lang.reflect.Type;
 import java.lang.reflect.ParameterizedType;
 public class  ParameterizedObjectGeneratorTest{
 
-    private void printList(List l){
-        for (Object o : l){
-            System.out.println(o);
-        }
-    }
-
-
-
-    /*
-    Pasarle a randoop la clase de la parametriacion en un atributo
-     */
+    //Tener en cuenta que cuando usamos date parece que genera siempre el mismo objeto pero lo que pasa
+    //es que en el toString es igual pero por debajo cambian los milisegundos (suele pasar cuando toma la fecha actual)
     @Test
-    public void test() throws IOException {
-        List<Class<?>> l = Arrays.asList(Integer.class);
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(Stack.class, l);//Poner la clase;
-        rog.setSeed(100);//Con la semilla 100 la mayoria son iguales, son [coconut] o []
-//        rog.setOutputLimitFlag(10);
-        List<Object> list = rog.generateObjects(10);
-        printList(list);
-//        System.out.println(list);
-        assertThat(list.size(), CoreMatchers.is(10));
+    public void printObjectAndSequenceTest(){
+        RandoopObjectGenerator rog = new RandoopObjectGenerator(Stack.class, String.class);
+//        RandoopObjectGenerator rog = new RandoopObjectGenerator(Stack.class, Integer.class);
+//        RandoopObjectGenerator rog = new RandoopObjectGenerator(Stack.class, Date.class);
+//        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashMap.class, Arrays.asList(Stack.class, String.class));
+//        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashMap.class, Arrays.asList(Integer.class, String.class));
+//        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashMap.class, Arrays.asList(Integer.class, Date.class));
+        rog.setSeed(100);
+        for (int i = 0; i < 10; i++) {
+            Object o = rog.generateOneObject();
+            System.out.println("Object = " + o +
+                    "\n Sequence = " + new ArrayList<>(rog.getSequences()).get(i)
+            );///hago esa cosa fea de pasarlo a array pq tengo un set de secuencias
+            // no se si estoy haciendo bien en get(i)
+            // pq nada me asegura que se corresponda con el objeto actual
+        }
     }
 
     @ParameterizedTest
@@ -54,8 +52,16 @@ public class  ParameterizedObjectGeneratorTest{
         RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, parameterizedClazz);
         rog.setSeed(seed);
         List<Object> list = rog.generateObjects(amount);
-        printList(list);
         Assertions.assertThat(list).doesNotHaveDuplicates();
+    }
+
+    @ParameterizedTest
+    @MethodSource("amountAndSeedGenerator")
+    public void classMatchWithGeneratedObjectTest(int amount, Class<?> clazz, List<Class<?>> parameterizedClazz, int seed){
+        RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, parameterizedClazz);
+        rog.setSeed(seed);
+        List<Object> list = rog.generateObjects(amount);
+        Assertions.assertThat(list).allMatch(clazz::isInstance);
     }
     public static Stream<Arguments> amountAndSeedGenerator() {
         return Stream.of(
