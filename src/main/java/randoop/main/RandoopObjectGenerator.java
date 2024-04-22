@@ -49,11 +49,12 @@ public class RandoopObjectGenerator extends GenTests{
         addFlag(new ProgressIntervalMillis(-1));
         addFlag(new ProgressIntervalSteps(-1));
         addFlag(new LiteralsLevelFlag("ALL"));
+        setUpGenerator(1);
     }
     public RandoopObjectGenerator(Class<?> objectClass, Class<?> parameterizedClass){
         this(objectClass, Collections.singletonList(parameterizedClass));
     }
-
+//cambiar nombre de parameterized class son instacian de las clases
     public RandoopObjectGenerator(Class<?> objectClass, List<Class<?>> parameterizedClass){
         this(objectClass);
         List<TypeVariable> s = ClassOrInterfaceType.forClass(objectClass).getTypeParameters() ;
@@ -61,6 +62,9 @@ public class RandoopObjectGenerator extends GenTests{
             throw new IllegalArgumentException("More parameterized types than parameters");//Note: No se como describirlo!!!!!
         for(Class<?> c : parameterizedClass){
             this.parameterizedClasses.put(s.remove(0), c);
+            /**
+             * TODO: arreglar este hardcode
+             */
             if(!c.equals(Integer.class) && !c.equals(String.class))
                 new RandoopObjectGenerator(c).generateObjects(500);
         }
@@ -485,6 +489,10 @@ public class RandoopObjectGenerator extends GenTests{
         TODO: esto esta feo, pq siempre retorna el ultimo de la lista tal vez hay una mejor opcion jeje
          */
         return explorer.getAllObjects().get(explorer.getAllObjects().size()-1);
+    }
+
+    public Set<Sequence> getSequences(){
+        return explorer.getAllSequences();
     }
 
 }
