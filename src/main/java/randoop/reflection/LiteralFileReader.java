@@ -53,7 +53,7 @@ import randoop.util.RecordProcessor;
  */
 public class LiteralFileReader {
   private static final List<String> integerList = Arrays.asList(
-          "Integer:-10",
+          "int:-10",
           "int:-99",
           "int:-98",
           "int:-97",
@@ -69,7 +69,23 @@ public class LiteralFileReader {
           "int:-87",
           "int:-86",
           "int:-85",
-          "int:-84"
+          "int:-84",
+          "int:0",
+          "int:1",
+          "int:2",
+          "int:3",
+          "int:4",
+          "int:5",
+          "int:6",
+          "int:7",
+          "int:8",
+          "int:9",
+          "int:10",
+          "int:100",
+          "int:200",
+          "int:300",
+          "int:400",
+          "int:500"
   );
   private static final List<String> stringList = Arrays.asList(
           "String:\"8080\"",
@@ -174,10 +190,10 @@ public class LiteralFileReader {
         TypedOperation operation = NonreceiverTerm.parse(str);
         map.add(ClassOrInterfaceType.forClass(String.class), new Sequence().extend(operation, new ArrayList<Variable>(0)));
       }
-//      for (String str : integerList){
-//            TypedOperation operation = NonreceiverTerm.parse(str);
-//            map.add(ClassOrInterfaceType.forClass(Integer.class), new Sequence().extend(operation, new ArrayList<Variable>(0)));
-//        }
+      for (String str : integerList){
+            TypedOperation operation = NonreceiverTerm.parse(str);
+            map.add(ClassOrInterfaceType.forClass(Integer.class), new Sequence().extend(operation, new ArrayList<Variable>(0)));
+        }
     }catch (OperationParseException e) {
       throwRecordSyntaxError(e);
     }
