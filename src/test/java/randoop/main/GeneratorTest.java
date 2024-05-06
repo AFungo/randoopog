@@ -7,17 +7,14 @@ import org.assertj.core.api.Assertions;
 
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.plumelib.util.SystemPlume;
 import randoop.sequence.Sequence;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import java.lang.reflect.Type;
-import java.lang.reflect.ParameterizedType;
+
 public class GeneratorTest {
 
     /**
@@ -49,11 +46,10 @@ public class GeneratorTest {
         rog.setSeed(100);
         for (int i = 0; i < 10; i++) {
             Object o = rog.generateOneObject();
+            Set<Sequence> l = rog.getSequences();
             System.out.println("Object = " + o +
-                    "\n Sequence = " + new ArrayList<>(rog.getSequences()).get(i)
-            );///hago esa cosa fea de pasarlo a array pq tengo un set de secuencias
-                // no se si estoy haciendo bien en get(i)
-                // pq nada me asegura que se corresponda con el objeto actual
+                    "\n Sequence = " + new ArrayList<>(l).get(l.size()-1)
+            );
         }
     }
 
