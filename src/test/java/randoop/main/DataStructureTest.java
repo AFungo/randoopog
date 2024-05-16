@@ -15,14 +15,12 @@ public class DataStructureTest {
     @Test
     public void printObjectAndSequenceTest(){
         RandoopObjectGenerator rog = new RandoopObjectGenerator(PilaSobreListasEnlazadas.class);
-//        RandoopObjectGenerator rog = new RandoopObjectGenerator(Date.class);
-//        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashMap.class);
         rog.setSeed(100);
         for (int i = 0; i < 10; i++) {
             Object o = rog.generateOneObject();
             Set<Sequence> l = rog.getSequences();
-            System.out.println("Object = " + o +
-                    "\nSequence = " + new ArrayList<>(l).get(l.size()-1)
+            System.out.println("-------------Object------------- \n" + o +
+                    "\n-------------Sequence-------------\n" + new ArrayList<>(l).get(l.size()-1)
             );
         }
     }
@@ -31,9 +29,8 @@ public class DataStructureTest {
     public void printObjectTest(){
         RandoopObjectGenerator rog = new RandoopObjectGenerator(PilaSobreListasEnlazadas.class);
         rog.setSeed(100);
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 1000; i++) {
             Object o = rog.generateOneObject();
-            Set<Sequence> l = rog.getSequences();
             System.out.println(o);
         }
     }
