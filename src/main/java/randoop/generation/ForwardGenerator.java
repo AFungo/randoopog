@@ -253,6 +253,7 @@ public class ForwardGenerator extends AbstractGenerator {
 
     ExecutableSequence eSeq = createNewUniqueSequence();
 
+
     if (eSeq == null) {
       long gentimeNanos = System.nanoTime() - startTimeNanos;
       if (gentimeNanos > timeWarningLimitNanos) {
@@ -261,6 +262,9 @@ public class ForwardGenerator extends AbstractGenerator {
       }
       return null;
     }
+
+    //Here the new sequence found is become in an object
+    buildAndSaveNewObject(eSeq);
 
     if (GenInputsAbstract.dontexecute) {
       this.componentManager.addGeneratedSequence(eSeq.sequence);
@@ -560,41 +564,14 @@ public class ForwardGenerator extends AbstractGenerator {
 
     randoopConsistencyTests(newSequence);
 
+//    buildAndSaveNewObject(newSequence);
 
-  //My own filter for duplicates sequences
-//    List<ExecutableSequence> regressionSequences = this.getRegressionSequences();
-    Class<?> clazz;
-    clazz = this.objectsClass;
-
-    //No se cual forma es mejor a lo mejor hay una forma mas interesante
-//    try {
-//      clazz = Class.forName(GenInputsAbstract.testclass.get(0));//Fixme: this way to get a class not looks reliable. We need think in a better way
-//    } catch (ClassNotFoundException ex) {
-//      throw new RuntimeException(ex);
-//    }
-
-    ExecutableSequence e = new ExecutableSequence(newSequence);
-    Variable var = loadCUTVars(clazz, e);
-
-    if (var != null) {
-      Object o = ExecutableSequence.getRuntimeValuesForVars(Collections.singletonList(var), e.executionResults)[0];
-      if (this.allObjects.contains(o)) {
-        operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
-        Log.logPrintf("Sequence discarded: the same sequence was previously created.%n");
-        return null;
-      }else{
-        //TODO: aca si añadimos un nuevo objeto incrementamos en 1 el contador
-        this.allObjects.add(o);
-        this.cantObjects++;
-      }
-    }else{
-      // TODO: We should modify this condition or add a new one in order to discard duplicated objects.
-      // Discard if sequence is a duplicate.
-      if (this.allSequences.contains(newSequence)) {
-        operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
-        Log.logPrintf("Sequence discarded: the same sequence was previously created.%n");
-        return null;
-      }
+    // TODO: We should modify this condition or add a new one in order to discard duplicated objects.
+    // Discard if sequence is a duplicate.
+    if (this.allSequences.contains(newSequence)) {
+      operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
+      Log.logPrintf("Sequence discarded: the same sequence was previously created.%n");
+      return null;
     }
 
     this.allSequences.add(newSequence);
@@ -609,6 +586,26 @@ public class ForwardGenerator extends AbstractGenerator {
     result.componentSequences = inputs.sequences;
 
     return result;
+  }
+
+  /**
+   * This method get a sequence and try to build a new object of the looking type if you have success save it
+   * @param sequence sequence for build the object
+   */
+  private void buildAndSaveNewObject(ExecutableSequence e){
+//    ExecutableSequence e = new ExecutableSequence(sequence);
+    Variable var = loadCUTVars(this.objectsClass, e);
+    if (var != null) {//no se pq si cambio de orden estos ifs se cuelga para siempre
+      //Check if the sequence has an exception
+      if(e.isNormalExecution()) {
+        Object newObject = ExecutableSequence.getRuntimeValuesForVars(
+                Collections.singletonList(var), e.executionResults)[0];
+        if (!this.allObjects.contains(newObject)) {
+          this.allObjects.add(newObject);
+          this.cantObjects++;
+        }
+      }
+    }
   }
 
   /**
