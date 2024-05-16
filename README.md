@@ -41,5 +41,6 @@ Run test =
 ./gradlew test --tests randoop.main.GeneratorTest
 
 Docker = 
-  docker build -t randoopOG .  //Esto te va a correr todos los test
-
+  docker build -t randoop-og .  //Esto te va a correr todos los test
+	docker run -it randoop-og git [Command] //corre command en nuestro container
+	docker run -it randoop-og ./gradlew test --tests randoop.main.DataStructureTest > test-log.txt
