@@ -21,13 +21,12 @@ public class  ParameterizedObjectGeneratorTest{
     //es que en el toString es igual pero por debajo cambian los milisegundos (suele pasar cuando toma la fecha actual)
     @Test
     public void printObjectAndSequenceTest(){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(Stack.class, String.class);
+        RandoopObjectGenerator rog = new RandoopObjectGenerator(Stack.class, String.class, 100);
 //        RandoopObjectGenerator rog = new RandoopObjectGenerator(Stack.class, Integer.class);
 //        RandoopObjectGenerator rog = new RandoopObjectGenerator(Stack.class, Date.class);
 //        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashMap.class, Arrays.asList(Stack.class, String.class));
 //        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashMap.class, Arrays.asList(Integer.class, String.class));
 //        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashMap.class, Arrays.asList(Integer.class, Date.class));
-        rog.setSeed(100);
         for (int i = 0; i < 10; i++) {
             Object o = rog.generateOneObject();
             System.out.println("Object = " + o +
@@ -41,16 +40,14 @@ public class  ParameterizedObjectGeneratorTest{
     @ParameterizedTest
     @MethodSource("amountAndSeedGenerator")
     public void objectAmountGenerationTest(int amount, Class<?> clazz, List<Class<?>> parameterizedClazz,int seed){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, parameterizedClazz);
-        rog.setSeed(seed);
+        RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, parameterizedClazz, seed);
         assertThat(rog.generateObjects(amount).size(), CoreMatchers.is(amount));
     }
 
     @ParameterizedTest
     @MethodSource("amountAndSeedGenerator")
     public void noRepeatedObjectGenerationTest(int amount, Class<?> clazz, List<Class<?>> parameterizedClazz, int seed){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, parameterizedClazz);
-        rog.setSeed(seed);
+        RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, parameterizedClazz, seed);
         List<Object> list = rog.generateObjects(amount);
         Assertions.assertThat(list).doesNotHaveDuplicates();
     }
@@ -58,8 +55,7 @@ public class  ParameterizedObjectGeneratorTest{
     @ParameterizedTest
     @MethodSource("amountAndSeedGenerator")
     public void classMatchWithGeneratedObjectTest(int amount, Class<?> clazz, List<Class<?>> parameterizedClazz, int seed){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, parameterizedClazz);
-        rog.setSeed(seed);
+        RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, parameterizedClazz, seed);
         List<Object> list = rog.generateObjects(amount);
         Assertions.assertThat(list).allMatch(clazz::isInstance);
     }

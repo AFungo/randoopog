@@ -14,8 +14,7 @@ public class DataStructureTest {
 
     @Test
     public void printObjectAndSequenceTest(){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(PilaSobreListasEnlazadas.class);
-        rog.setSeed(100);
+        RandoopObjectGenerator rog = new RandoopObjectGenerator(PilaSobreListasEnlazadas.class, 10);
         for (int i = 0; i < 10; i++) {
             Object o = rog.generateOneObject();
             Set<Sequence> l = rog.getSequences();
@@ -27,9 +26,8 @@ public class DataStructureTest {
 
     @Test
     public void printObjectTest(){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(PilaSobreListasEnlazadas.class);
-        rog.setSeed(100);
-        for (int i = 0; i < 1000; i++) {
+        RandoopObjectGenerator rog = new RandoopObjectGenerator(PilaSobreListasEnlazadas.class, 231);
+        for (int i = 0; i < 5; i++) {
             Object o = rog.generateOneObject();
             System.out.println(o);
         }

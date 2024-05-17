@@ -39,7 +39,7 @@ public class RandoopObjectGenerator extends GenTests{
     private final Class<?> objectClass;
     private Map<TypeVariable, Class<?>> parameterizedClasses = new HashMap<>();
     private AbstractGenerator explorer;
-    public RandoopObjectGenerator(Class<?> objectClass){
+    public RandoopObjectGenerator(Class<?> objectClass, int seed){
         super();
         this.objectClass = objectClass;
         randoopFlagMap = new HashMap<>();
@@ -49,14 +49,16 @@ public class RandoopObjectGenerator extends GenTests{
         addFlag(new ProgressIntervalMillis(-1));
         addFlag(new ProgressIntervalSteps(-1));
         addFlag(new LiteralsLevelFlag("ALL"));
+        setSeed(seed);
+//        addFlag(new CheckException("INVALID"));
         setUpGenerator(1);
     }
-    public RandoopObjectGenerator(Class<?> objectClass, Class<?> parameterizedClass){
-        this(objectClass, Collections.singletonList(parameterizedClass));
+    public RandoopObjectGenerator(Class<?> objectClass, Class<?> parameterizedClass, int seed){
+        this(objectClass, Collections.singletonList(parameterizedClass), seed);
     }
 //cambiar nombre de parameterized class son instacian de las clases
-    public RandoopObjectGenerator(Class<?> objectClass, List<Class<?>> parameterizedClass){
-        this(objectClass);
+    public RandoopObjectGenerator(Class<?> objectClass, List<Class<?>> parameterizedClass, int seed){
+        this(objectClass, seed);
         List<TypeVariable> s = ClassOrInterfaceType.forClass(objectClass).getTypeParameters() ;
         if(s.size() < parameterizedClass.size())
             throw new IllegalArgumentException("More parameterized types than parameters");//Note: No se como describirlo!!!!!
@@ -66,7 +68,7 @@ public class RandoopObjectGenerator extends GenTests{
              * TODO: arreglar este hardcode
              */
             if(!c.equals(Integer.class) && !c.equals(String.class))
-                new RandoopObjectGenerator(c).generateObjects(500);
+                new RandoopObjectGenerator(c, seed).generateObjects(500);
         }
         //provisoriamente llamo a este metodo aca que setapea el fowardGenerator (el 1 es configurar la flag de cantidad de objetos que uqeremos en 1)
         setUpGenerator(1);
