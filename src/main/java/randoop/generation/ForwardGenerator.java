@@ -80,10 +80,7 @@ public class ForwardGenerator extends AbstractGenerator {
   private Set<Object> runtimePrimitivesSeen = new LinkedHashSet<>();
 
 
-  /**
-   * This attribute have the class which  the user want to generate objects
-   */
-  private Class<?> objectsClass;
+
 
   /**
    * This attribute have the class which  the user want to generate objects
@@ -130,7 +127,7 @@ public class ForwardGenerator extends AbstractGenerator {
             componentManager,
             stopper,
             classesUnderTest);
-    this.objectsClass = objectsClass;
+    super.objectsClass = objectsClass;
     this.parameterizedClass = null;
   }
 
@@ -264,7 +261,7 @@ public class ForwardGenerator extends AbstractGenerator {
     }
 
     //Here the new sequence found is become in an object
-    buildAndSaveNewObject(eSeq);
+//    buildAndSaveNewObject(eSeq);
 
     if (GenInputsAbstract.dontexecute) {
       this.componentManager.addGeneratedSequence(eSeq.sequence);
@@ -564,8 +561,6 @@ public class ForwardGenerator extends AbstractGenerator {
 
     randoopConsistencyTests(newSequence);
 
-//    buildAndSaveNewObject(newSequence);
-
     // TODO: We should modify this condition or add a new one in order to discard duplicated objects.
     // Discard if sequence is a duplicate.
     if (this.allSequences.contains(newSequence)) {
@@ -588,25 +583,7 @@ public class ForwardGenerator extends AbstractGenerator {
     return result;
   }
 
-  /**
-   * This method get a sequence and try to build a new object of the looking type if you have success save it
-   * @param sequence sequence for build the object
-   */
-  private void buildAndSaveNewObject(ExecutableSequence e){
-//    ExecutableSequence e = new ExecutableSequence(sequence);
-    Variable var = loadCUTVars(this.objectsClass, e);
-    if (var != null) {//no se pq si cambio de orden estos ifs se cuelga para siempre
-      //Check if the sequence has an exception
-      if(e.isNormalExecution()) {
-        Object newObject = ExecutableSequence.getRuntimeValuesForVars(
-                Collections.singletonList(var), e.executionResults)[0];
-        if (!this.allObjects.contains(newObject)) {
-          this.allObjects.add(newObject);
-          this.cantObjects++;
-        }
-      }
-    }
-  }
+
 
   /**
    * Adds the given operation to a new {@code Sequence} with the statements of this object as a
@@ -711,7 +688,6 @@ public class ForwardGenerator extends AbstractGenerator {
     // The input types for `operation`.
     TypeTuple inputTypes = operation.getInputTypes();
     Log.logPrintf("selectInputs:  inputTypes=%s%n", inputTypes);
-
     // The rest of the code in this method will attempt to create
     // a sequence that creates at least one value of type T for
     // every type T in inputTypes, and thus can be used to create all the
@@ -722,7 +698,6 @@ public class ForwardGenerator extends AbstractGenerator {
     // (This representation choice is for efficiency: it is cheaper to perform
     // a single concatenation of the subsequences in the end than to repeatedly
     // extend S.)
-
     // This might be shorter than inputTypes if some value is re-used as two inputs.
     List<Sequence> sequences = new ArrayList<>();
 
@@ -753,6 +728,8 @@ public class ForwardGenerator extends AbstractGenerator {
     //   `typesToVars` maps each type to all variable indices in S of the given type.
     SubTypeSet types = new SubTypeSet(false);
     MultiMap<Type, Integer> typesToVars = new MultiMap<>(inputTypes.size());
+
+//    Type operationObjectType = inputTypes.get(0);
 
     for (int i = 0; i < inputTypes.size(); i++) {
       Type inputType = inputTypes.get(i);
@@ -790,6 +767,7 @@ public class ForwardGenerator extends AbstractGenerator {
       // The user may have requested that we use null values as inputs with some given frequency.
       // If this is the case, then use null instead with some probability.
       if (!isReceiver
+          && !GenInputsAbstract.forbid_null
           && GenInputsAbstract.null_ratio != 0
           && Randomness.weightedCoinFlip(GenInputsAbstract.null_ratio)) {
         Log.logPrintf("Using null as input.%n");
