@@ -30,9 +30,13 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static randoop.reflection.AccessibilityPredicate.IS_PUBLIC;
 
+/**
+ * Randoop object generator class
+ */
 public class RandoopObjectGenerator extends GenTests{
 
     private Map<String, RandoopFlag> randoopFlagMap;
@@ -48,7 +52,7 @@ public class RandoopObjectGenerator extends GenTests{
         addFlag(new ProgressiveDisplayFlag(false));//no display randoop info
         addFlag(new ProgressIntervalMillis(-1));
         addFlag(new ProgressIntervalSteps(-1));
-        addFlag(new LiteralsLevelFlag("ALL"));
+//        addFlag(new LiteralsLevelFlag("CLASS"));
         setSeed(seed);
 //        addFlag(new CheckException("INVALID"));
         setUpGenerator(1);
@@ -70,9 +74,7 @@ public class RandoopObjectGenerator extends GenTests{
             if(!c.equals(Integer.class) && !c.equals(String.class))
                 new RandoopObjectGenerator(c, seed).generateObjects(500);
         }
-        //provisoriamente llamo a este metodo aca que setapea el fowardGenerator (el 1 es configurar la flag de cantidad de objetos que uqeremos en 1)
         setUpGenerator(1);
-        //NOTE: ver la flag de --classlist para pasarle muchas clases
     }
     public void setSeed(int seed){
     addFlag(new RandomSeedFlag(seed));
@@ -90,6 +92,16 @@ public class RandoopObjectGenerator extends GenTests{
         randoopFlagMap.put(flag.getFlagName(), flag);
     }
     @SuppressWarnings("unchecked")
+
+    public void setIntegerRange(int min, int max){
+        Set<Integer> integerSet = IntStream.range(min, max).boxed().collect(Collectors.toSet());
+        MultiMap<ClassOrInterfaceType, Sequence> literalmap = CustomLiterals.parseIntegerLiterals(integerSet);
+        for(ClassOrInterfaceType type : literalmap.keySet()) {
+            for(Sequence seq : literalmap.getValues(type)) {
+                explorer.componentManager.addClassLevelLiteral(ClassOrInterfaceType.forClass(objectClass), seq);
+            }
+        }
+    }
 
     /*
     *en este metodo hace el setup inicial del foward generator y las flags el object amount esta feo feo jajaja
@@ -312,7 +324,6 @@ public class RandoopObjectGenerator extends GenTests{
          */
         Set<Sequence> defaultSeeds = SeedSequences.defaultSeeds();
         Set<Sequence> annotatedTestValues = operationModel.getAnnotatedTestValues();
-        //TODO: Aca le agrega objectos literales por default a randoop no se si sacando todos estos no afectaria ala ejecucion, ya que a lomejor necesito un int o un char y yo desde m definicion no se lo doy :)
         Set<Sequence> components =
                 new LinkedHashSet<>(
                         CollectionsPlume.mapCapacity(defaultSeeds.size() + annotatedTestValues.size()));
@@ -322,8 +333,8 @@ public class RandoopObjectGenerator extends GenTests{
         ComponentManager componentMgr = new ComponentManager(components);
         operationModel.addClassLiterals(
                 componentMgr, GenInputsAbstract.literals_file, GenInputsAbstract.literals_level);
-//TODO: Here i add default string list to literals
-        operationModel.addDefaultLiterals(componentMgr, GenInputsAbstract.literals_level);
+
+
         MultiMap<Type, TypedClassOperation> sideEffectFreeMethodsByType = readSideEffectFreeMethods();
 
         Set<TypedOperation> sideEffectFreeMethods = new LinkedHashSet<>();

@@ -309,13 +309,7 @@ public class OperationModel {
   public void addDefaultLiterals(
           ComponentManager compMgr, ClassLiteralsMode literalsLevel) {
 
-//Maybe we can adapt a method or something for add new objects or something like this
-    MultiMap<ClassOrInterfaceType, Sequence> literalmap;
-    literalmap = LiteralFileReader.loadDefaultLiterals();
-
-    /**
-     * TODO: para mi todo lo de abajo no va pero ni idea que hace
-     */
+    MultiMap<ClassOrInterfaceType, Sequence> literalmap = CustomLiterals.loadDefaultLiterals();
 
     for (ClassOrInterfaceType type : literalmap.keySet()) {
       Package pkg = (literalsLevel == ClassLiteralsMode.PACKAGE ? type.getPackage() : null);

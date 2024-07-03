@@ -11,6 +11,7 @@ import java.util.TreeSet;
 import randoop.Globals;
 import randoop.SubTypeSet;
 import randoop.main.GenInputsAbstract;
+import randoop.main.RandoopObjectGenerator;
 import randoop.reflection.TypeInstantiator;
 import randoop.types.ClassOrInterfaceType;
 import randoop.types.InstantiatedType;
