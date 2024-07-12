@@ -52,11 +52,11 @@ public class RandoopObjectGenerator extends GenTests{
         addFlag(new ProgressiveDisplayFlag(false));//no display randoop info
         addFlag(new ProgressIntervalMillis(-1));
         addFlag(new ProgressIntervalSteps(-1));
-//        addFlag(new LiteralsLevelFlag("CLASS"));
         setSeed(seed);
-//        addFlag(new CheckException("INVALID"));
+
         setUpGenerator(1);
     }
+
     public RandoopObjectGenerator(Class<?> objectClass, Class<?> parameterizedClass, int seed){
         this(objectClass, Collections.singletonList(parameterizedClass), seed);
     }
@@ -68,11 +68,11 @@ public class RandoopObjectGenerator extends GenTests{
             throw new IllegalArgumentException("More parameterized types than parameters");//Note: No se como describirlo!!!!!
         for(Class<?> c : parameterizedClass){
             this.parameterizedClasses.put(s.remove(0), c);
-            /**
+            /*
              * TODO: arreglar este hardcode
              */
             if(!c.equals(Integer.class) && !c.equals(String.class))
-                new RandoopObjectGenerator(c, seed).generateObjects(500);
+                new RandoopObjectGenerator(c, seed).generateObjects(10);
         }
         setUpGenerator(1);
     }
@@ -103,6 +103,10 @@ public class RandoopObjectGenerator extends GenTests{
         }
     }
 
+    public void setOmitMethods(String regex){
+        addFlag(new OmitMethodsFlag("isEmpty|length|top|toList|toString|equals|hash"));
+        setUpGenerator(1);
+    }
     /*
     *en este metodo hace el setup inicial del foward generator y las flags el object amount esta feo feo jajaja
     * */
