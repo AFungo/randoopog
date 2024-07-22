@@ -43,6 +43,7 @@ public class RandoopObjectGenerator extends GenTests{
     private final Class<?> objectClass;
     private Map<TypeVariable, Class<?>> parameterizedClasses = new HashMap<>();
     private AbstractGenerator explorer;
+    private Map<Class<?>, RandoopObjectGenerator> classesGenerators = new HashMap<>();
     public RandoopObjectGenerator(Class<?> objectClass, int seed){
         super();
         this.objectClass = objectClass;
@@ -68,20 +69,19 @@ public class RandoopObjectGenerator extends GenTests{
             throw new IllegalArgumentException("More parameterized types than parameters");//Note: No se como describirlo!!!!!
         for(Class<?> c : parameterizedClass){
             this.parameterizedClasses.put(s.remove(0), c);
-            /*
-             * TODO: arreglar este hardcode
-             */
-            if(!c.equals(Integer.class) && !c.equals(String.class))
-                new RandoopObjectGenerator(c, seed).generateObjects(10);
+            this.classesGenerators.put(c, new RandoopObjectGenerator(c, seed));
         }
         setUpGenerator(1);
     }
+
     public void setSeed(int seed){
-    addFlag(new RandomSeedFlag(seed));
+        addFlag(new RandomSeedFlag(seed));
     }
+
     public void setRunTime(int seconds){
-    addFlag(new TimeLimitFlag(seconds));
+        addFlag(new TimeLimitFlag(seconds));
     }
+
     private void setOutputLimitFlag(int limit){
         addFlag(new OutputLimitFlag(limit));
     }
@@ -247,7 +247,7 @@ public class RandoopObjectGenerator extends GenTests{
                                 accessibility,
                                 reflectionPredicate,
                                 omit_methods,
-                                classnames,
+                                Collections.singleton(this.objectClass.getName()),
                                 coveredClassnames,
                                 classNameErrorHandler,
                                 GenInputsAbstract.literals_file,
@@ -454,6 +454,7 @@ public class RandoopObjectGenerator extends GenTests{
             Log.logPrintf("Initial sequences (seeds):%n");
             componentMgr.log();
         }
+        explorer.setClassesGenerator(this.classesGenerators);
     }
 
     public List<Object> generateObjects(int objectsAmount) {
