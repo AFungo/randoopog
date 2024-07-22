@@ -12,6 +12,7 @@ import randoop.NormalExecution;
 import randoop.SubTypeSet;
 import randoop.main.GenInputsAbstract;
 import randoop.main.RandoopBug;
+import randoop.main.RandoopObjectGenerator;
 import randoop.operation.NonreceiverTerm;
 import randoop.operation.Operation;
 import randoop.operation.TypedClassOperation;
@@ -740,7 +741,7 @@ public class ForwardGenerator extends AbstractGenerator {
 
       // Attempt with some probability to use a variable already in S.
       if (GenInputsAbstract.alias_ratio != 0
-          && Randomness.weightedCoinFlip(GenInputsAbstract.alias_ratio)) {
+              && Randomness.weightedCoinFlip(GenInputsAbstract.alias_ratio)) {
 
         // For each type T in S compatible with inputTypes[i], add all the indices in S of type T.
         Set<Type> matches = types.getMatches(inputType);
@@ -767,9 +768,9 @@ public class ForwardGenerator extends AbstractGenerator {
       // The user may have requested that we use null values as inputs with some given frequency.
       // If this is the case, then use null instead with some probability.
       if (!isReceiver
-          && !GenInputsAbstract.forbid_null
-          && GenInputsAbstract.null_ratio != 0
-          && Randomness.weightedCoinFlip(GenInputsAbstract.null_ratio)) {
+              && !GenInputsAbstract.forbid_null
+              && GenInputsAbstract.null_ratio != 0
+              && Randomness.weightedCoinFlip(GenInputsAbstract.null_ratio)) {
         Log.logPrintf("Using null as input.%n");
         TypedOperation st = TypedOperation.createNullOrZeroInitializationForType(inputType);
         Sequence seq = new Sequence().extend(st, Collections.emptyList());
@@ -798,7 +799,7 @@ public class ForwardGenerator extends AbstractGenerator {
         Log.logPrintf("Array creation heuristic: will create helper array of type %s%n", inputType);
         SimpleList<Sequence> l1 = componentManager.getSequencesForType(operation, i, isReceiver);
         SimpleList<Sequence> l2 =
-            HelperSequenceCreator.createArraySequence(componentManager, inputType);
+                HelperSequenceCreator.createArraySequence(componentManager, inputType);
         candidates = new ListOfLists<>(l1, l2);
         Log.logPrintf("Array creation heuristic: " + candidates.size() + " candidates%n");
 
@@ -835,13 +836,27 @@ public class ForwardGenerator extends AbstractGenerator {
           Log.logPrintf("No sequences of receiver type.%n");
           return new InputsAndSuccessFlag(false, null, null);
         } else if (GenInputsAbstract.forbid_null) {
+
+          Class<?> clazz = inputType.getRuntimeClass();
+          if (this.classesGenerators.containsKey(clazz)) {
+
+            Sequence seq = getNextSequenceForClass(clazz);
+            Variable randomVariable = seq.randomVariableForTypeLastStatement(inputType, isReceiver);
+            variables.add(totStatements + randomVariable.index);
+            sequences.add(seq);
+            totStatements += seq.size();
+            // Null is not an interesting value to add to the set of
+            // possible values to reuse, so we don't update typesToVars or types.
+            continue;
+          }
           Log.logPrintf(
-              "No sequences of type, and forbid-null option is true."
-                  + " Failed to create new sequence.%n");
+                  "No sequences of type, and forbid-null option is true."
+                          + " Failed to create new sequence.%n");
+
           return new InputsAndSuccessFlag(false, null, null);
         } else {
           Log.logPrintf(
-              "Found no sequences of required type; will use null as " + i + "-th input%n");
+                  "Found no sequences of required type; will use null as " + i + "-th input%n");
           TypedOperation st = TypedOperation.createNullOrZeroInitializationForType(inputType);
           Sequence seq = new Sequence().extend(st, Collections.emptyList());
           variables.add(totStatements);
@@ -854,11 +869,24 @@ public class ForwardGenerator extends AbstractGenerator {
         }
       }
 
-      // At this point, we have a list of candidate sequences and need to select a
-      // randomly-chosen sequence from the list.
-      VarAndSeq varAndSeq = randomVariable(candidates, inputType, isReceiver);
-      Variable randomVariable = varAndSeq.var;
-      Sequence chosenSeq = varAndSeq.seq;
+      Class<?> clazz = inputType.getRuntimeClass();
+      if (this.classesGenerators.containsKey(clazz) && Randomness.weightedCoinFlip(0.5)) {
+        Sequence seq = getNextSequenceForClass(clazz);
+        Variable randomVariable = seq.randomVariableForTypeLastStatement(inputType, isReceiver);
+        variables.add(totStatements + randomVariable.index);
+        sequences.add(seq);
+        totStatements += seq.size();
+        // Null is not an interesting value to add to the set of
+        // possible values to reuse, so we don't update typesToVars or types.
+        continue;
+      }
+        Variable randomVariable;
+        Sequence chosenSeq;
+        // At this point, we have a list of candidate sequences and need to select a
+        // randomly-chosen sequence from the list.
+        VarAndSeq varAndSeq = randomVariable(candidates, inputType, isReceiver);
+        randomVariable = varAndSeq.var;
+        chosenSeq = varAndSeq.seq;
 
       // [Optimization.] Update optimization-related variables "types" and "typesToVars".
       if (GenInputsAbstract.alias_ratio != 0) {
@@ -881,6 +909,13 @@ public class ForwardGenerator extends AbstractGenerator {
     }
 
     return new InputsAndSuccessFlag(true, sequences, variables);
+  }
+
+  private Sequence getNextSequenceForClass(Class<?> clazz) {
+    RandoopObjectGenerator rog = this.classesGenerators.get(clazz);
+    rog.generateOneObject();
+    Set<Sequence> l = rog.getSequences();
+    return new ArrayList<>(l).get(l.size() - 1);
   }
 
   // A pair of a variable and a sequence
@@ -1012,6 +1047,7 @@ public class ForwardGenerator extends AbstractGenerator {
         + ")";
   }
 
+  @Override
   public List<Object> getAllObjects(){
     return this.allObjects;
   }
