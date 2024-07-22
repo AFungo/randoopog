@@ -32,7 +32,7 @@ The source directories follow the conventions of the Gradle Java plugin, where
 each directory has a _java_ subdirectory containing Java source, and,
 in some cases, a _resources_ subdirectory containing other files.
 
-#RandoopOG
+# RandoopOG
 
 JAVA version = openjdk 11.0.22 2024-01-16
 Build = ./gradlew build
