@@ -12,6 +12,7 @@ import randoop.DummyVisitor;
 import randoop.ExecutionVisitor;
 import randoop.MultiVisitor;
 import randoop.main.GenInputsAbstract;
+import randoop.main.RandoopObjectGenerator;
 import randoop.operation.TypedOperation;
 import randoop.sequence.ExecutableSequence;
 import randoop.sequence.Sequence;
@@ -149,6 +150,11 @@ public abstract class AbstractGenerator {
    * This attribute have the class which  the user want to generate objects
    */
   protected Class<?> objectsClass;
+
+  /**
+   * This attribute stores all RandoopObjectGenerator for each class we have to generate sequence
+   */
+  protected Map<Class<?>, RandoopObjectGenerator> classesGenerators = new HashMap<>();
 
   /**
    * Constructs a generator with the given parameters.
@@ -521,4 +527,9 @@ public abstract class AbstractGenerator {
    * @return all objects generated
    */
   public abstract List<Object> getAllObjects();
+  
+  public void setClassesGenerator(Map<Class<?>, RandoopObjectGenerator> classesGenerators) {
+    this.classesGenerators = classesGenerators;
+  }
+
 }
