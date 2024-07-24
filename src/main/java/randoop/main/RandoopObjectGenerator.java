@@ -74,9 +74,12 @@ public class RandoopObjectGenerator extends GenTests {
      */
     private Set<Integer> customIntegers = new HashSet<>();
 
+    Integer seed;
+
     public RandoopObjectGenerator(Class<?> objectClass, int seed){
         super();
         this.objectClass = objectClass;
+        this.seed = seed;
         randoopFlagMap = new HashMap<>();
         addFlag(new TestClassFlag(objectClass));
         addFlag(new ForbidNullFlag(true));//Try not use null
@@ -102,6 +105,12 @@ public class RandoopObjectGenerator extends GenTests {
         }
     }
 
+    public void setNecessaryClasses(Set<Class<?>> classes){
+        for(Class<?> c : classes){
+            this.classesGenerators.put(c, new RandoopObjectGenerator(c, this.seed));
+        }
+        explorerIsSet = false;
+    }
     public void setSeed(int seed){
         addFlag(new RandomSeedFlag(seed));
         explorerIsSet = false;
