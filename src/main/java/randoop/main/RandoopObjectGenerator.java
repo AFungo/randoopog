@@ -37,13 +37,43 @@ import static randoop.reflection.AccessibilityPredicate.IS_PUBLIC;
 /**
  * Randoop object generator class
  */
-public class RandoopObjectGenerator extends GenTests{
+public class RandoopObjectGenerator extends GenTests {
 
+    /**
+     * This map stores all randoop flags
+     */
     private Map<String, RandoopFlag> randoopFlagMap;
+
+    /**
+     * Return type of generate object
+     */
     private final Class<?> objectClass;
+
+    /**
+     * Map the type variable (T, Q) of @objectClass with the parameterization
+     */
     private Map<TypeVariable, Class<?>> parameterizedClasses = new HashMap<>();
+
+    /**
+     * Object generator
+     */
     private AbstractGenerator explorer;
-    private Map<Class<?>, RandoopObjectGenerator> classesGenerators = new HashMap<>();
+
+    /**
+     *
+     */
+    private boolean explorerIsSet = false;
+
+    /**
+     * Generators for each class necessary for generate @objectClass Objects
+     */
+    private final Map<Class<?>, RandoopObjectGenerator> classesGenerators = new HashMap<>();
+
+    /**
+     * Set of custom integers for use like parameter in methods of @objectClass
+     */
+    private Set<Integer> customIntegers = new HashSet<>();
+
     public RandoopObjectGenerator(Class<?> objectClass, int seed){
         super();
         this.objectClass = objectClass;
@@ -53,15 +83,14 @@ public class RandoopObjectGenerator extends GenTests{
         addFlag(new ProgressiveDisplayFlag(false));//no display randoop info
         addFlag(new ProgressIntervalMillis(-1));
         addFlag(new ProgressIntervalSteps(-1));
-        setSeed(seed);
-
-        setUpGenerator(1);
+        addFlag(new RandomSeedFlag(seed));
+        addFlag(new OutputLimitFlag(1));
     }
 
     public RandoopObjectGenerator(Class<?> objectClass, Class<?> parameterizedClass, int seed){
         this(objectClass, Collections.singletonList(parameterizedClass), seed);
     }
-//cambiar nombre de parameterized class son instacian de las clases
+
     public RandoopObjectGenerator(Class<?> objectClass, List<Class<?>> parameterizedClass, int seed){
         this(objectClass, seed);
         List<TypeVariable> s = ClassOrInterfaceType.forClass(objectClass).getTypeParameters() ;
@@ -71,48 +100,58 @@ public class RandoopObjectGenerator extends GenTests{
             this.parameterizedClasses.put(s.remove(0), c);
             this.classesGenerators.put(c, new RandoopObjectGenerator(c, seed));
         }
-        setUpGenerator(1);
     }
 
     public void setSeed(int seed){
         addFlag(new RandomSeedFlag(seed));
+        explorerIsSet = false;
     }
 
     public void setRunTime(int seconds){
         addFlag(new TimeLimitFlag(seconds));
+        explorerIsSet = false;
     }
 
-    private void setOutputLimitFlag(int limit){
-        addFlag(new OutputLimitFlag(limit));
-    }
+//    private void setOutputLimitFlag(int limit){
+//        addFlag(new OutputLimitFlag(limit));
+//    }
+
     private String[] flagsToString(){
         return randoopFlagMap.values().stream().map(RandoopFlag::createFlag).toArray(String[]::new);
     }
+
     public void addFlag(RandoopFlag flag){
         randoopFlagMap.put(flag.getFlagName(), flag);
     }
-    @SuppressWarnings("unchecked")
 
-    public void setIntegerRange(int min, int max){
-        Set<Integer> integerSet = IntStream.range(min, max).boxed().collect(Collectors.toSet());
-        MultiMap<ClassOrInterfaceType, Sequence> literalmap = CustomLiterals.parseIntegerLiterals(integerSet);
-        for(ClassOrInterfaceType type : literalmap.keySet()) {
-            for(Sequence seq : literalmap.getValues(type)) {
-                explorer.componentManager.addClassLevelLiteral(ClassOrInterfaceType.forClass(objectClass), seq);
+
+
+    public void setCustomIntegers(Set<Integer> customIntegers){
+        this.customIntegers = customIntegers;
+        explorerIsSet = false;
+    }
+
+    private void addCustomIntegersToExplorer(){
+        if(!customIntegers.isEmpty()) {
+            MultiMap<ClassOrInterfaceType, Sequence> literals = CustomLiterals.parseIntegerLiterals(customIntegers);
+            for (ClassOrInterfaceType type : literals.keySet()) {
+                for (Sequence seq : literals.getValues(type)) {
+                    explorer.componentManager.addClassLevelLiteral(ClassOrInterfaceType.forClass(objectClass), seq);
+                }
             }
         }
     }
 
     public void setOmitMethods(String regex){
         addFlag(new OmitMethodsFlag("isEmpty|length|top|toList|toString|equals|hash"));
-        setUpGenerator(1);
+        explorerIsSet = false;
     }
-    /*
-    *en este metodo hace el setup inicial del foward generator y las flags el object amount esta feo feo jajaja
-    * */
-    private void setUpGenerator(int objectsAmount){
 
-        setOutputLimitFlag(objectsAmount);
+    /**
+     * This method setup explorer with all the flags in @randoopFlagMap
+    */
+    private void setUpGenerator(){
+
         String[] args = flagsToString();
 
         System.out.println(Arrays.toString(args));
@@ -454,38 +493,18 @@ public class RandoopObjectGenerator extends GenTests{
             Log.logPrintf("Initial sequences (seeds):%n");
             componentMgr.log();
         }
+
+        addCustomIntegersToExplorer();
         explorer.setClassesGenerator(this.classesGenerators);
-    }
-
-    public List<Object> generateObjects(int objectsAmount) {
-        //TODO aca cada vez que se llame el metodo se va a reiniciar el foward generator
-        setUpGenerator(objectsAmount);
-        // Generate tests
-        try {
-            explorer.createAndClassifySequences();
-        } catch (SequenceExceptionError e) {
-            printSequenceExceptionError(explorer, e);
-            System.exit(1);
-        } catch (RandoopInstantiationError e) {
-            throw new RandoopBug("Error instantiating operation " + e.getOpName(), e);
-        } catch (RandoopGenerationError e) {
-            throw new RandoopBug("Error in generation with operation " + e.getInstantiatedOperation(), e);
-        } catch (SequenceExecutionException e) {
-            throw new RandoopBug("Error executing generated sequence", e);
-        } catch (RandoopLoggingError e) {
-            throw new RandoopBug("Logging error", e);
-        } catch (Throwable e) {
-            System.out.printf(
-                "createAndClassifySequences threw an exception%n%s%n", UtilPlume.stackTraceToString(e));
-            throw e;
-        }
-
-
-        return explorer.getAllObjects();
+        explorerIsSet = true;
     }
 
     public Object generate(){
-        try {
+        if(!explorerIsSet){
+            setUpGenerator();
+        }
+
+        try{
             explorer.createAndClassifySequences();
         } catch (SequenceExceptionError e) {
             printSequenceExceptionError(explorer, e);
