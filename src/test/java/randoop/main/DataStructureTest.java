@@ -12,9 +12,9 @@ public class DataStructureTest {
     @Test
     public void printObjectAndSequenceTest(){
         RandoopObjectGenerator rog = new RandoopObjectGenerator(PilaSobreListasEnlazadas.class, 10);
-        rog.setOmitMethods("isEmpty|length|top|toList|toString|equals|hash");
+//        rog.setOmitMethods("isEmpty|length|top|toList|toString|equals|hash");
         for (int i = 0; i < 10; i++) {
-            Object o = rog.generateOneObject();
+            Object o = rog.generate();
             Set<Sequence> l = rog.getSequences();
             System.out.println("-------------Object------------- \n" + o +
                     "\n-------------Sequence-------------\n" + new ArrayList<>(l).get(l.size()-1)
@@ -28,7 +28,7 @@ public class DataStructureTest {
         rog.setOmitMethods("isEmpty|length|top|toList|toString|equals|hash");
         rog.setIntegerRange(140, 150);
         for (int i = 0; i < 100; i++) {
-            PilaSobreListasEnlazadas o = (PilaSobreListasEnlazadas) rog.generateOneObject();
+            PilaSobreListasEnlazadas o = (PilaSobreListasEnlazadas) rog.generate();
             System.out.println(o + " - size = " +  o.length());
         }
     }

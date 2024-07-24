@@ -10,7 +10,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import randoop.sequence.Sequence;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,7 +29,7 @@ public class GeneratorTest {
 //        RandoopObjectGenerator rog = new RandoopObjectGenerator(Date.class);
 //        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashMap.class);
         for (int i = 0; i < 10; i++) {
-            Object o = rog.generateOneObject();
+            Object o = rog.generate();
             Set<Sequence> l = rog.getSequences();
             System.out.println("Object = " + o +
                     "\n Sequence = " + new ArrayList<>(l).get(l.size()-1)

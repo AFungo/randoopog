@@ -34,8 +34,6 @@ import randoop.util.Randomness;
 import randoop.util.SimpleArrayList;
 import randoop.util.SimpleList;
 
-import static randoop.main.GenTests.loadCUTVars;
-
 /** Randoop's forward, component-based generator. */
 public class ForwardGenerator extends AbstractGenerator {
 
@@ -880,13 +878,12 @@ public class ForwardGenerator extends AbstractGenerator {
         // possible values to reuse, so we don't update typesToVars or types.
         continue;
       }
-        Variable randomVariable;
-        Sequence chosenSeq;
-        // At this point, we have a list of candidate sequences and need to select a
-        // randomly-chosen sequence from the list.
-        VarAndSeq varAndSeq = randomVariable(candidates, inputType, isReceiver);
-        randomVariable = varAndSeq.var;
-        chosenSeq = varAndSeq.seq;
+
+      // At this point, we have a list of candidate sequences and need to select a
+      // randomly-chosen sequence from the list.
+      VarAndSeq varAndSeq = randomVariable(candidates, inputType, isReceiver);
+      Variable randomVariable = varAndSeq.var;
+      Sequence chosenSeq = varAndSeq.seq;
 
       // [Optimization.] Update optimization-related variables "types" and "typesToVars".
       if (GenInputsAbstract.alias_ratio != 0) {
@@ -913,7 +910,7 @@ public class ForwardGenerator extends AbstractGenerator {
 
   private Sequence getNextSequenceForClass(Class<?> clazz) {
     RandoopObjectGenerator rog = this.classesGenerators.get(clazz);
-    rog.generateOneObject();
+    rog.generate();
     Set<Sequence> l = rog.getSequences();
     return new ArrayList<>(l).get(l.size() - 1);
   }

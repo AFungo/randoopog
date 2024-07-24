@@ -1,5 +1,6 @@
 package randoop.main;
 
+import examples.datastructure.PilaSobreListasEnlazadas;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -8,32 +9,29 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import java.lang.reflect.Type;
-import java.lang.reflect.ParameterizedType;
+
 public class  ParameterizedObjectGeneratorTest{
 
     //Tener en cuenta que cuando usamos date parece que genera siempre el mismo objeto pero lo que pasa
     //es que en el toString es igual pero por debajo cambian los milisegundos (suele pasar cuando toma la fecha actual)
     @Test
     public void printObjectAndSequenceTest(){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(Stack.class, String.class, 100);
+//        RandoopObjectGenerator rog = new RandoopObjectGenerator(Stack.class, String.class, 100);
 //        RandoopObjectGenerator rog = new RandoopObjectGenerator(Stack.class, Integer.class);
-//        RandoopObjectGenerator rog = new RandoopObjectGenerator(Stack.class, Date.class);
+        RandoopObjectGenerator rog = new RandoopObjectGenerator(Stack.class, PilaSobreListasEnlazadas.class, 100);
 //        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashMap.class, Arrays.asList(Stack.class, String.class));
 //        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashMap.class, Arrays.asList(Integer.class, String.class));
 //        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashMap.class, Arrays.asList(Integer.class, Date.class));
         for (int i = 0; i < 10; i++) {
-            Object o = rog.generateOneObject();
-            System.out.println("Object = " + o +
-                    "\n Sequence = " + new ArrayList<>(rog.getSequences()).get(i)
-            );///hago esa cosa fea de pasarlo a array pq tengo un set de secuencias
-            // no se si estoy haciendo bien en get(i)
-            // pq nada me asegura que se corresponda con el objeto actual
+            Object o = rog.generate();
+            System.out.println("Object = " + o);
+//            System.out.println("Object = " + o +
+//                    "\n Sequence = " + new ArrayList<>(rog.getSequences()).get(i)
+//            );
         }
     }
 

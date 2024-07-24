@@ -484,7 +484,7 @@ public class RandoopObjectGenerator extends GenTests{
         return explorer.getAllObjects();
     }
 
-    public Object generateOneObject(){
+    public Object generate(){
         try {
             explorer.createAndClassifySequences();
         } catch (SequenceExceptionError e) {
