@@ -859,7 +859,8 @@ public class ForwardGenerator extends AbstractGenerator {
       }
 
       Class<?> clazz = inputType.getRuntimeClass();
-      if (this.classesGenerators.containsKey(clazz) && Randomness.weightedCoinFlip(0.5)) {
+      if (this.classesGenerators.containsKey(clazz) &&
+              Randomness.weightedCoinFlip(GenInputsAbstract.new_dependency_object_ratio)) {
         Sequence seq = getNextSequenceForClass(clazz);
         Variable randomVariable = seq.randomVariableForTypeLastStatement(inputType, isReceiver);
         variables.add(totStatements + randomVariable.index);

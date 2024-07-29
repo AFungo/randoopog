@@ -600,6 +600,16 @@ public abstract class GenInputsAbstract extends CommandHandler {
   public static double null_ratio = 0.05;
 
   /**
+   * Create a new sequence of a dependency with the given frequency
+   *
+   * <p>If frequency are 0 always use the first sequence generated for the dependency
+   */
+  ///////////////////////////////////////////////////////////////////
+  @OptionGroup("Values used in object generation")
+  @Option("Create a new sequence for the dependency class with the given frequency")
+  public static double new_dependency_object_ratio = 0.1;
+
+  /**
    * Do not use {@code null} as input to methods or constructors, even when no other argument value
    * can be generated.
    *

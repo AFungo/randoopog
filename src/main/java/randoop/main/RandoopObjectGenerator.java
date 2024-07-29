@@ -158,6 +158,9 @@ public class RandoopObjectGenerator extends GenTests {
         explorerIsSet = false;
     }
 
+    public void setNewObjectDependencyRatio(double ratio){
+        GenInputsAbstract.new_dependency_object_ratio = ratio;
+    }
     /**
      * This method setup explorer with all the flags in @randoopFlagMap
     */
