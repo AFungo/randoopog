@@ -13,4 +13,8 @@ public class OmitMethodsFlag extends RandoopFlag{
     protected String flagParameterToString() {
         return regex;
     }
+
+    public void extendMethods(String regex){
+        this.regex +="|"+regex;
+    }
 }

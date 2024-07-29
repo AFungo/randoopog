@@ -88,6 +88,7 @@ public class RandoopObjectGenerator extends GenTests {
         addFlag(new ProgressIntervalSteps(-1));
         addFlag(new RandomSeedFlag(seed));
         addFlag(new OutputLimitFlag(1));
+        addFlag(new OmitMethodsFlag("isEmpty|length|size|toList|toString|equals|hash"));
     }
 
     public RandoopObjectGenerator(Class<?> objectClass, Class<?> parameterizedClass, int seed){
@@ -152,7 +153,8 @@ public class RandoopObjectGenerator extends GenTests {
     }
 
     public void setOmitMethods(String regex){
-        addFlag(new OmitMethodsFlag("isEmpty|length|top|toList|toString|equals|hash"));
+        OmitMethodsFlag flag = (OmitMethodsFlag) randoopFlagMap.get("omit-methods");
+        flag.extendMethods(regex);
         explorerIsSet = false;
     }
 
