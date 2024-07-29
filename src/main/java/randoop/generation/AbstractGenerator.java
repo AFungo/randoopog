@@ -540,6 +540,11 @@ public abstract class AbstractGenerator {
   public abstract List<Object> getAllObjects();
 
   /**
+   * @return new random Object than meet all class restrictions
+   */
+  public abstract Object generateObject();
+
+  /**
    * @return the last generated sequence than match with the last valid object
    */
   public Sequence getLastSequence(){

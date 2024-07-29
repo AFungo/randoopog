@@ -6,6 +6,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.plumelib.util.CollectionsPlume;
 import org.plumelib.util.StringsPlume;
 import org.plumelib.util.SystemPlume;
+import org.plumelib.util.UtilPlume;
 import randoop.DummyVisitor;
 import randoop.Globals;
 import randoop.NormalExecution;
@@ -19,20 +20,10 @@ import randoop.operation.TypedClassOperation;
 import randoop.operation.TypedOperation;
 import randoop.reflection.RandoopInstantiationError;
 import randoop.reflection.TypeInstantiator;
-import randoop.sequence.ExecutableSequence;
-import randoop.sequence.Sequence;
-import randoop.sequence.SequenceExceptionError;
-import randoop.sequence.Statement;
-import randoop.sequence.Value;
-import randoop.sequence.Variable;
+import randoop.sequence.*;
 import randoop.test.DummyCheckGenerator;
 import randoop.types.*;
-import randoop.util.ListOfLists;
-import randoop.util.Log;
-import randoop.util.MultiMap;
-import randoop.util.Randomness;
-import randoop.util.SimpleArrayList;
-import randoop.util.SimpleList;
+import randoop.util.*;
 
 /** Randoop's forward, component-based generator. */
 public class ForwardGenerator extends AbstractGenerator {
@@ -911,8 +902,7 @@ public class ForwardGenerator extends AbstractGenerator {
   private Sequence getNextSequenceForClass(Class<?> clazz) {
     RandoopObjectGenerator rog = this.classesGenerators.get(clazz);
     rog.generate();
-    Set<Sequence> l = rog.getSequences();
-    return new ArrayList<>(l).get(l.size() - 1);
+    return rog.getLastSequence();
   }
 
   // A pair of a variable and a sequence
@@ -1047,5 +1037,27 @@ public class ForwardGenerator extends AbstractGenerator {
   @Override
   public List<Object> getAllObjects(){
     return this.allObjects;
+  }
+
+  @Override
+  public Object generateObject() {
+    try{
+      this.createAndClassifySequences();
+    } catch (SequenceExceptionError e) {
+      System.exit(1);
+    } catch (RandoopInstantiationError e) {
+      throw new RandoopBug("Error instantiating operation " + e.getOpName(), e);
+    } catch (RandoopGenerationError e) {
+      throw new RandoopBug("Error in generation with operation " + e.getInstantiatedOperation(), e);
+    } catch (SequenceExecutionException e) {
+      throw new RandoopBug("Error executing generated sequence", e);
+    } catch (RandoopLoggingError e) {
+      throw new RandoopBug("Logging error", e);
+    } catch (Throwable e) {
+      System.out.printf(
+              "createAndClassifySequences threw an exception%n%s%n", UtilPlume.stackTraceToString(e));
+      throw e;
+    }
+    return lastObject;
   }
 }

@@ -19,9 +19,9 @@ public class DataStructureTest {
 //        rog.setOmitMethods("isEmpty|length|top|toList|toString|equals|hash");
         for (int i = 0; i < 10; i++) {
             Object o = rog.generate();
-            Set<Sequence> l = rog.getSequences();
+            Sequence seq = rog.getLastSequence();
             System.out.println("-------------Object------------- \n" + o +
-                    "\n-------------Sequence-------------\n" + new ArrayList<>(l).get(l.size()-1)
+                    "\n-------------Sequence-------------\n" + seq
             );
         }
     }
@@ -44,11 +44,12 @@ public class DataStructureTest {
         rog.setOmitMethods("toString|equals|hash");
         Set<Integer> integers = IntStream.range(110, 120).boxed().collect(Collectors.toSet());
         rog.setCustomIntegers(integers);
+
         rog.setNecessaryClasses(Collections.singleton(PilaSobreListasEnlazadas.class));
+
         for (int i = 0; i < 100; i++) {
             PilasTuple o = (PilasTuple) rog.generate();
-            Set<Sequence> seq = rog.getSequences();
-            System.out.println("----------\n" + o + "\n" + new ArrayList<>(seq).get(seq.size()-1) + "\n----------\n");
+            System.out.println("----------\n" + o + "\n" + rog.getLastSequence() + "\n----------\n");
         }
     }
 }

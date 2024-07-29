@@ -513,33 +513,15 @@ public class RandoopObjectGenerator extends GenTests {
             setUpGenerator();
         }
 
-        try{
-            explorer.createAndClassifySequences();
-        } catch (SequenceExceptionError e) {
-            printSequenceExceptionError(explorer, e);
-            System.exit(1);
-        } catch (RandoopInstantiationError e) {
-            throw new RandoopBug("Error instantiating operation " + e.getOpName(), e);
-        } catch (RandoopGenerationError e) {
-            throw new RandoopBug("Error in generation with operation " + e.getInstantiatedOperation(), e);
-        } catch (SequenceExecutionException e) {
-            throw new RandoopBug("Error executing generated sequence", e);
-        } catch (RandoopLoggingError e) {
-            throw new RandoopBug("Logging error", e);
-        } catch (Throwable e) {
-            System.out.printf(
-                    "createAndClassifySequences threw an exception%n%s%n", UtilPlume.stackTraceToString(e));
-            throw e;
-        }
-        /*
-        TODO: esto esta feo, pq siempre retorna el ultimo de la lista tal vez hay una mejor opcion jeje
-         */
-        return explorer.getAllObjects().get(explorer.getAllObjects().size()-1);
+        return explorer.generateObject();
     }
 
     public Set<Sequence> getSequences(){
         return explorer.getAllSequences();
     }
 
+    public Sequence getLastSequence(){
+        return explorer.getLastSequence();
+    }
 }
 
