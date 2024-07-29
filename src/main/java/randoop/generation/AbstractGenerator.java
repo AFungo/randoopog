@@ -147,6 +147,17 @@ public abstract class AbstractGenerator {
   protected int objectsAmount = 0;
 
   /**
+   * Store last generated valid object
+   */
+  Object lastObject = null;
+
+  /**
+   * Store last sequence of lastObject
+   */
+  Sequence lastSeq = null;
+
+
+  /**
    * This attribute have the class which  the user want to generate objects
    */
   protected Class<?> objectsClass;
@@ -417,7 +428,6 @@ public abstract class AbstractGenerator {
    * @param sequence sequence for build the object
    */
   private void buildAndSaveNewObject(ExecutableSequence sequence){
-//    ExecutableSequence e = new ExecutableSequence(sequence);
     Variable var = loadCUTVars(this.objectsClass, sequence);
     if (var != null) {//no se pq si cambio de orden estos ifs se cuelga para siempre
       //Check if the sequence has an exception
@@ -427,6 +437,8 @@ public abstract class AbstractGenerator {
         if (!this.allObjects.contains(newObject)) {
           this.allObjects.add(newObject);
           this.objectsAmount++;
+          this.lastObject = newObject;
+          this.lastSeq = sequence.sequence;
         }
       }
     }
@@ -523,11 +535,17 @@ public abstract class AbstractGenerator {
   public abstract void newRegressionTestHook(Sequence sequence);
 
   /**
-   *
    * @return all objects generated
    */
   public abstract List<Object> getAllObjects();
-  
+
+  /**
+   * @return the last generated sequence than match with the last valid object
+   */
+  public Sequence getLastSequence(){
+    return this.lastSeq;
+  }
+
   public void setClassesGenerator(Map<Class<?>, RandoopObjectGenerator> classesGenerators) {
     this.classesGenerators = classesGenerators;
   }
