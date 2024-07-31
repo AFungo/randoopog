@@ -28,9 +28,8 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.file.*;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static randoop.reflection.AccessibilityPredicate.IS_PUBLIC;
 
@@ -74,7 +73,9 @@ public class RandoopObjectGenerator extends GenTests {
      */
     private Set<Integer> customIntegers = new HashSet<>();
 
-    Integer seed;
+    private Integer seed;
+
+    private Function<Object, Boolean> assume;
 
     public RandoopObjectGenerator(Class<?> objectClass, int seed){
         super();
@@ -104,6 +105,11 @@ public class RandoopObjectGenerator extends GenTests {
             this.parameterizedClasses.put(s.remove(0), c);
             this.classesGenerators.put(c, new RandoopObjectGenerator(c, seed));
         }
+    }
+
+    public void setAssume(Function<Object, Boolean> assume){
+        this.assume = assume;
+        this.explorerIsSet = false;
     }
 
     public void setNecessaryClasses(Set<Class<?>> classes){
@@ -510,6 +516,9 @@ public class RandoopObjectGenerator extends GenTests {
 
         addCustomIntegersToExplorer();
         explorer.setClassesGenerator(this.classesGenerators);
+        if(this.assume != null) {
+            explorer.setAssume(this.assume);
+        }
         explorerIsSet = true;
     }
 
