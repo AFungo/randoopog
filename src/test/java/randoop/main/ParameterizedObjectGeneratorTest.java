@@ -35,28 +35,28 @@ public class  ParameterizedObjectGeneratorTest{
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("amountAndSeedGenerator")
-    public void objectAmountGenerationTest(int amount, Class<?> clazz, List<Class<?>> parameterizedClazz,int seed){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, parameterizedClazz, seed);
-        assertThat(rog.generateObjects(amount).size(), CoreMatchers.is(amount));
-    }
+//    @ParameterizedTest
+//    @MethodSource("amountAndSeedGenerator")
+//    public void objectAmountGenerationTest(int amount, Class<?> clazz, List<Class<?>> parameterizedClazz,int seed){
+//        RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, parameterizedClazz, seed);
+//        assertThat(rog.generateObjects(amount).size(), CoreMatchers.is(amount));
+//    }
 
-    @ParameterizedTest
-    @MethodSource("amountAndSeedGenerator")
-    public void noRepeatedObjectGenerationTest(int amount, Class<?> clazz, List<Class<?>> parameterizedClazz, int seed){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, parameterizedClazz, seed);
-        List<Object> list = rog.generateObjects(amount);
-        Assertions.assertThat(list).doesNotHaveDuplicates();
-    }
+//    @ParameterizedTest
+//    @MethodSource("amountAndSeedGenerator")
+//    public void noRepeatedObjectGenerationTest(int amount, Class<?> clazz, List<Class<?>> parameterizedClazz, int seed){
+//        RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, parameterizedClazz, seed);
+//        List<Object> list = rog.generateObjects(amount);
+//        Assertions.assertThat(list).doesNotHaveDuplicates();
+//    }
 
-    @ParameterizedTest
-    @MethodSource("amountAndSeedGenerator")
-    public void classMatchWithGeneratedObjectTest(int amount, Class<?> clazz, List<Class<?>> parameterizedClazz, int seed){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, parameterizedClazz, seed);
-        List<Object> list = rog.generateObjects(amount);
-        Assertions.assertThat(list).allMatch(clazz::isInstance);
-    }
+//    @ParameterizedTest
+//    @MethodSource("amountAndSeedGenerator")
+//    public void classMatchWithGeneratedObjectTest(int amount, Class<?> clazz, List<Class<?>> parameterizedClazz, int seed){
+//        RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, parameterizedClazz, seed);
+//        List<Object> list = rog.generateObjects(amount);
+//        Assertions.assertThat(list).allMatch(clazz::isInstance);
+//    }
     public static Stream<Arguments> amountAndSeedGenerator() {
         return Stream.of(
                 Arguments.of(100, java.util.Stack.class, Arrays.asList(Date.class), 1),

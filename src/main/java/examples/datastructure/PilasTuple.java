@@ -12,6 +12,10 @@ public class PilasTuple {
         this.number = number;
     }
 
+    public PilaSobreListasEnlazadas getStack(){
+        return stack;
+    }
+
     public void setPilas(PilaSobreListasEnlazadas stack) {
         this.stack = stack;
     }
