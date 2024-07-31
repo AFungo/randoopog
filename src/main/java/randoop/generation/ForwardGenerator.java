@@ -8,6 +8,7 @@ import org.plumelib.util.CollectionsPlume;
 import org.plumelib.util.StringsPlume;
 import org.plumelib.util.SystemPlume;
 import org.plumelib.util.UtilPlume;
+import org.reflections.Reflections;
 import randoop.DummyVisitor;
 import randoop.Globals;
 import randoop.NormalExecution;
@@ -912,6 +913,14 @@ public class ForwardGenerator extends AbstractGenerator {
             this.classesGenerators.put(clazz, rog);
             return rog;
           }
+        }
+        Reflections reflections = new Reflections(clazz.getPackage());
+        Set<Class<?>> implementations = new HashSet<>(reflections.getSubTypesOf(clazz));
+        if(!implementations.isEmpty()){
+          Class<?> c = implementations.stream().findAny().get();
+          RandoopObjectGenerator rog = new RandoopObjectGenerator(c, GenInputsAbstract.randomseed);
+          this.classesGenerators.put(clazz, rog);
+          return rog;
         }
         return null;
       }
