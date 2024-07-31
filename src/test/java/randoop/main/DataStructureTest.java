@@ -37,18 +37,42 @@ public class DataStructureTest {
         }
     }
 
+    public static boolean assume(Object t){
+        return !((PilasTuple) t).getStack().isEmpty();
+    }
+
     @Test
     public void pilasTupleTest(){
         RandoopObjectGenerator rog = new RandoopObjectGenerator(PilasTuple.class, 231);
-        rog.setOmitMethods("toString|equals|hash");
+        rog.setOmitMethods("getStack");
         Set<Integer> integers = IntStream.range(110, 120).boxed().collect(Collectors.toSet());
         rog.setCustomIntegers(integers);
 
-        rog.setNecessaryClasses(Collections.singleton(PilaSobreListasEnlazadas.class));
-
+//        rog.setNecessaryClasses(Collections.singleton(PilaSobreListasEnlazadas.class));
+        rog.setNewObjectDependencyRatio(0.05);
+        rog.setAssume(DataStructureTest::assume);
         for (int i = 0; i < 100; i++) {
             PilasTuple o = (PilasTuple) rog.generate();
-            System.out.println("----------\n" + o + "\n" + rog.getLastSequence() + "\n----------\n");
+            System.out.println("----------\n" + o + "\n");
+//                    + rog.getLastSequence() + "\n----------\n");
         }
     }
+
+    @Test
+    public void stackTupleTest(){
+        RandoopObjectGenerator rog = new RandoopObjectGenerator(PilasTuple.class, 231);
+        rog.setOmitMethods("getStack");
+        Set<Integer> integers = IntStream.range(110, 120).boxed().collect(Collectors.toSet());
+        rog.setCustomIntegers(integers);
+
+//        rog.setNecessaryClasses(Collections.singleton(PilaSobreListasEnlazadas.class));
+        rog.setNewObjectDependencyRatio(0.05);
+        rog.setAssume(DataStructureTest::assume);
+        for (int i = 0; i < 10; i++) {
+            PilasTuple o = (PilasTuple) rog.generate();
+            System.out.println("----------\n" + o + "\n"//);
+                    + rog.getLastSequence() + "\n----------\n");
+        }
+    }
+
 }

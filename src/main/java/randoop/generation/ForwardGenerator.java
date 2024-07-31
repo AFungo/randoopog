@@ -1,5 +1,6 @@
 package randoop.generation;
 
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -827,22 +828,20 @@ public class ForwardGenerator extends AbstractGenerator {
         } else if (GenInputsAbstract.forbid_null) {
 
           Class<?> clazz = inputType.getRuntimeClass();
-          if (this.classesGenerators.containsKey(clazz)) {
-
-            Sequence seq = getNextSequenceForClass(clazz);
-            Variable randomVariable = seq.randomVariableForTypeLastStatement(inputType, isReceiver);
-            variables.add(totStatements + randomVariable.index);
-            sequences.add(seq);
-            totStatements += seq.size();
-            // Null is not an interesting value to add to the set of
-            // possible values to reuse, so we don't update typesToVars or types.
-            continue;
+          //if the generator aren't declared we create one
+          Sequence seq = getNextSequenceForClass(clazz);
+          if(seq == null){
+            Log.logPrintf(
+                    "No sequences of type, and forbid-null option is true."
+                            + " Failed to create new sequence.%n");
+            return new InputsAndSuccessFlag(false, null, null);
           }
-          Log.logPrintf(
-                  "No sequences of type, and forbid-null option is true."
-                          + " Failed to create new sequence.%n");
+          Variable randomVariable = seq.randomVariableForTypeLastStatement(inputType, isReceiver);
+          variables.add(totStatements + randomVariable.index);
+          sequences.add(seq);
+          totStatements += seq.size();
+          continue;
 
-          return new InputsAndSuccessFlag(false, null, null);
         } else {
           Log.logPrintf(
                   "Found no sequences of required type; will use null as " + i + "-th input%n");
@@ -862,12 +861,16 @@ public class ForwardGenerator extends AbstractGenerator {
       if (this.classesGenerators.containsKey(clazz) &&
               Randomness.weightedCoinFlip(GenInputsAbstract.new_dependency_object_ratio)) {
         Sequence seq = getNextSequenceForClass(clazz);
+        if(seq == null){
+          Log.logPrintf(
+                  "No sequences of type, and forbid-null option is true."
+                          + " Failed to create new sequence.%n");
+          return new InputsAndSuccessFlag(false, null, null);
+        }
         Variable randomVariable = seq.randomVariableForTypeLastStatement(inputType, isReceiver);
         variables.add(totStatements + randomVariable.index);
         sequences.add(seq);
         totStatements += seq.size();
-        // Null is not an interesting value to add to the set of
-        // possible values to reuse, so we don't update typesToVars or types.
         continue;
       }
 
@@ -900,8 +903,28 @@ public class ForwardGenerator extends AbstractGenerator {
     return new InputsAndSuccessFlag(true, sequences, variables);
   }
 
+  private RandoopObjectGenerator lookForGenerator(Class<?> clazz) {
+    if (!this.classesGenerators.containsKey(clazz)) {
+      if(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
+        for (Class<?> key : this.classesGenerators.keySet()) {
+          if (clazz.isAssignableFrom(key)) {
+            RandoopObjectGenerator rog = this.classesGenerators.get(key);
+            this.classesGenerators.put(clazz, rog);
+            return rog;
+          }
+        }
+        return null;
+      }
+      this.classesGenerators.put(clazz, new RandoopObjectGenerator(clazz, GenInputsAbstract.randomseed));
+    }
+    return this.classesGenerators.get(clazz);
+  }
+
   private Sequence getNextSequenceForClass(Class<?> clazz) {
-    RandoopObjectGenerator rog = this.classesGenerators.get(clazz);
+    RandoopObjectGenerator rog = this.lookForGenerator(clazz);
+    if(rog == null){
+      return null;
+    }
     rog.generate();
     return rog.getLastSequence();
   }
