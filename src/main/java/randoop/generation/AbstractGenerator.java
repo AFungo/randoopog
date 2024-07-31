@@ -164,7 +164,7 @@ public abstract class AbstractGenerator {
   /**
    * The list of all generated objects from the execution of the new sequences
    */
-  protected final List<Object> allObjects = new LinkedList<>();
+  protected final List<Object> allObjects = new ArrayList<>();
 
   /**
    * Amount of objects we generate in each run
@@ -408,7 +408,7 @@ public abstract class AbstractGenerator {
         if (eSeq.hasInvalidBehavior()) {
           invalidSequenceCount++;
         } else if (eSeq.hasFailure()) {
-          /**
+          /*
            * NOTE: aca es cuando se fija si el check rep fallo, lo agrega a las failing sequences
            * por lo que no va a ser elegido para generar una proxima secuencia
            */
@@ -568,16 +568,19 @@ public abstract class AbstractGenerator {
   public abstract void newRegressionTestHook(Sequence sequence);
 
   /**
+   * Returns all objects generated.
    * @return all objects generated
    */
   public abstract List<Object> getAllObjects();
 
   /**
+   * Returns new random Object than meet all class restrictions
    * @return new random Object than meet all class restrictions
    */
   public abstract Object generateObject();
 
   /**
+   * Returns the last generated sequence than match with the last valid object
    * @return the last generated sequence than match with the last valid object
    */
   public Sequence getLastSequence(){

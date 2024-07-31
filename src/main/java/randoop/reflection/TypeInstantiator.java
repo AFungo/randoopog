@@ -69,12 +69,6 @@ public class TypeInstantiator {
 
   public void setParameterizedClass(Map<TypeVariable, Class<?>> parameterizedClass){
     this.parameterizedClass.putAll(parameterizedClass);
-    //NOTE: No supe recuperar la clase con la cual instanciamos a target class..., seria facil si se la pasamos como parametro en algun lado, pero de alguna manera jqwik lo hace (creo que deberia intentar verlo)
-    //TODO: hay que añadir la clase de la que queremos instanciar a esta lista
-//    if(!this.inputTypes.contains(Type.forClass(parameterizedClass))){
-//      RandoopObjectGenerator rog = new RandoopObjectGenerator(parameterizedClass);
-//      rog.generateObjects(100);
-//    }
     for(Class<?> c: parameterizedClass.values()){
       this.inputTypes.add(Type.forClass(c));
     }
@@ -478,7 +472,6 @@ public class TypeInstantiator {
     List<ReferenceType> selectedTypes = new ArrayList<>(parameters.size());
 
     for (TypeVariable typeArgument : parameters) {
-      Type t = typeArgument.getRawtype();
       List<ReferenceType> candidates = candidateTypes(typeArgument);
       //NotE: hay que preguntar si esta la clase que queremos instanciar y esto lo retorna
       Class<?> clazz = parameterizedClass.get(typeArgument);

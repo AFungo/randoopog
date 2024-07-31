@@ -71,14 +71,6 @@ public class ForwardGenerator extends AbstractGenerator {
    */
   private Set<Object> runtimePrimitivesSeen = new LinkedHashSet<>();
 
-
-
-
-  /**
-   * This attribute have the class which  the user want to generate objects
-   */
-  private Map<TypeVariable, Class<?>> parameterizedClass;
-
   /**
    * Create a forward generator.
    *
@@ -120,7 +112,6 @@ public class ForwardGenerator extends AbstractGenerator {
             stopper,
             classesUnderTest);
     super.objectsClass = objectsClass;
-    this.parameterizedClass = null;
   }
 
   public ForwardGenerator(
@@ -141,7 +132,6 @@ public class ForwardGenerator extends AbstractGenerator {
             stopper,
             classesUnderTest,
             objectsClass);
-    this.parameterizedClass = parameterizedClass;
     this.instantiator.setParameterizedClass(parameterizedClass);
   }
 
