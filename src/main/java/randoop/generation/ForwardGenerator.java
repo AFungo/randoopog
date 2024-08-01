@@ -894,33 +894,45 @@ public class ForwardGenerator extends AbstractGenerator {
     return new InputsAndSuccessFlag(true, sequences, variables);
   }
 
-  private RandoopObjectGenerator lookForGenerator(Class<?> clazz) {
+  private Optional<Class<?>> findAssignableClass(Class<?> clazz){
+    Optional<Class<?>> assignableClass =  this.classesGenerators.keySet().stream().
+                                            filter(clazz::isAssignableFrom).findAny();
+    if(assignableClass.isPresent()) {
+      return assignableClass;
+    }else {
+      Reflections reflections = new Reflections(clazz.getPackage());
+      Set<Class<?>> implementations = new HashSet<>(reflections.getSubTypesOf(clazz));
+      if (!implementations.isEmpty()) {
+        return implementations.stream().findAny();
+      }
+    }
+    return Optional.empty();
+  }
+
+  private RandoopObjectGenerator getGeneratorForInterface(Class<?> clazz){
+    Optional<Class<?>> assignableClass = findAssignableClass(clazz);
+    if(assignableClass.isPresent()) {
+        RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, GenInputsAbstract.randomseed);
+        this.classesGenerators.put(clazz, rog);
+        return rog;
+    }
+    return null;
+  }
+
+  private RandoopObjectGenerator getGeneratorFor(Class<?> clazz) {
     if (!this.classesGenerators.containsKey(clazz)) {
       if(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
-        for (Class<?> key : this.classesGenerators.keySet()) {
-          if (clazz.isAssignableFrom(key)) {
-            RandoopObjectGenerator rog = this.classesGenerators.get(key);
-            this.classesGenerators.put(clazz, rog);
-            return rog;
-          }
-        }
-        Reflections reflections = new Reflections(clazz.getPackage());
-        Set<Class<?>> implementations = new HashSet<>(reflections.getSubTypesOf(clazz));
-        if(!implementations.isEmpty()){
-          Class<?> c = implementations.stream().findAny().get();
-          RandoopObjectGenerator rog = new RandoopObjectGenerator(c, GenInputsAbstract.randomseed);
-          this.classesGenerators.put(clazz, rog);
-          return rog;
-        }
-        return null;
+        return getGeneratorForInterface(clazz);
+      }else {
+        this.classesGenerators.put(clazz,
+                new RandoopObjectGenerator(clazz, GenInputsAbstract.randomseed));
       }
-      this.classesGenerators.put(clazz, new RandoopObjectGenerator(clazz, GenInputsAbstract.randomseed));
     }
     return this.classesGenerators.get(clazz);
   }
 
   private Sequence getNextSequenceForClass(Class<?> clazz) {
-    RandoopObjectGenerator rog = this.lookForGenerator(clazz);
+    RandoopObjectGenerator rog = this.getGeneratorFor(clazz);
     if(rog == null){
       return null;
     }
