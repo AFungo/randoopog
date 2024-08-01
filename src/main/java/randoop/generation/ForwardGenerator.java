@@ -218,7 +218,7 @@ public class ForwardGenerator extends AbstractGenerator {
     final int nanoPerMilli = 1000000;
     final long nanoPerOne = 1000000000L;
     // 1 second, in nanoseconds
-    final long timeWarningLimitNanos = 1 * nanoPerOne;
+    final long timeWarningLimitNanos = 5 * nanoPerOne;//cuanto le pongo? es la variable de time limit warning
 
     long startTimeNanos = System.nanoTime();
 
