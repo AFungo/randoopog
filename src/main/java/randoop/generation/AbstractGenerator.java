@@ -187,10 +187,6 @@ public abstract class AbstractGenerator {
    */
   protected Class<?> objectsClass;
 
-  /**
-   * This attribute stores all RandoopObjectGenerator for each class we have to generate sequence
-   */
-  protected Map<Class<?>, RandoopObjectGenerator> classesGenerators = new HashMap<>();
 
   /**
    * A function used to filter generated objects. This function takes an object as input and returns
@@ -585,10 +581,6 @@ public abstract class AbstractGenerator {
    */
   public Sequence getLastSequence(){
     return this.lastSeq;
-  }
-
-  public void setClassesGenerator(Map<Class<?>, RandoopObjectGenerator> classesGenerators) {
-    this.classesGenerators = classesGenerators;
   }
 
   /**
