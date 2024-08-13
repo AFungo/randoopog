@@ -3,7 +3,6 @@ package randoop.main;
 import org.checkerframework.checker.signature.qual.ClassGetName;
 import org.plumelib.options.Options;
 import org.plumelib.util.CollectionsPlume;
-import org.plumelib.util.UtilPlume;
 import randoop.ExecutionVisitor;
 import randoop.Globals;
 import randoop.MethodReplacements;
@@ -64,23 +63,15 @@ public class RandoopObjectGenerator extends GenTests {
     private boolean explorerIsSet = false;
 
     /**
-     * Generators for each class necessary for generate @objectClass Objects
-     */
-    private final Map<Class<?>, RandoopObjectGenerator> classesGenerators = new HashMap<>();
-
-    /**
      * Set of custom integers for use like parameter in methods of @objectClass
      */
     private Set<Integer> customIntegers = new HashSet<>();
-
-    private Integer seed;
 
     private Function<Object, Boolean> assume;
 
     public RandoopObjectGenerator(Class<?> objectClass, int seed){
         super();
         this.objectClass = objectClass;
-        this.seed = seed;
         randoopFlagMap = new HashMap<>();
         addFlag(new TestClassFlag(objectClass));
         addFlag(new ForbidNullFlag(true));//Try not use null
@@ -90,7 +81,7 @@ public class RandoopObjectGenerator extends GenTests {
         addFlag(new RandomSeedFlag(seed));
         addFlag(new OutputLimitFlag(1));
         addFlag(new OmitMethodsFlag("isEmpty|length|size|toList|toString|equals|hash"));
-        this.classesGenerators.put(objectClass, this);
+        classesGenerators.put(objectClass, this);
     }
 
     public RandoopObjectGenerator(Class<?> objectClass, Class<?> parameterizedClass, int seed){
@@ -104,7 +95,8 @@ public class RandoopObjectGenerator extends GenTests {
             throw new IllegalArgumentException("More parameterized types than parameters");//Note: No se como describirlo!!!!!
         for(Class<?> c : parameterizedClass){
             this.parameterizedClasses.put(s.remove(0), c);
-            this.classesGenerators.put(c, new RandoopObjectGenerator(c, seed));
+            if(!c.equals(Integer.class) && !c.equals(String.class))
+                classesGenerators.put(c, new RandoopObjectGenerator(c, seed));
         }
     }
 
@@ -115,13 +107,12 @@ public class RandoopObjectGenerator extends GenTests {
 
     public void setNecessaryClasses(Set<Class<?>> classes){
         for(Class<?> c : classes){
-            this.classesGenerators.put(c, new RandoopObjectGenerator(c, this.seed));
+            classesGenerators.put(c, new RandoopObjectGenerator(c, GenInputsAbstract.randomseed));
         }
-        explorerIsSet = false;
     }
+
     public void setSeed(int seed){
-        addFlag(new RandomSeedFlag(seed));
-        explorerIsSet = false;
+        GenInputsAbstract.randomseed = seed;
     }
 
     public void setRunTime(int seconds){
@@ -516,7 +507,6 @@ public class RandoopObjectGenerator extends GenTests {
         }
 
         addCustomIntegersToExplorer();
-        explorer.setClassesGenerator(this.classesGenerators);
         if(this.assume != null) {
             explorer.setAssume(this.assume);
         }

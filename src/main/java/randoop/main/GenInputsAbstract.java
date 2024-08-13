@@ -5,12 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -27,6 +22,9 @@ import org.plumelib.reflection.ReflectionPlume;
 import org.plumelib.reflection.Signatures;
 import org.plumelib.util.EntryReader;
 import org.plumelib.util.FileWriterWithName;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.util.ConfigurationBuilder;
 import randoop.Globals;
 import randoop.reflection.AccessibilityPredicate;
 import randoop.util.Randomness;
@@ -1350,5 +1348,24 @@ public abstract class GenInputsAbstract extends CommandHandler {
       }
     }
     return elementSet;
+  }
+
+  /**
+   * This attribute stores all RandoopObjectGenerator for each class we have to generate sequence
+   */
+  public static Map<Class<?>, RandoopObjectGenerator> classesGenerators = new HashMap<>();
+
+  public static Optional<Class<?>> findAssignableClass(Class<?> clazz){
+    Optional<Class<?>> assignableClass =  classesGenerators.keySet().stream().
+            filter(c -> clazz.isAssignableFrom(c) && !c.equals(clazz)).findAny();
+    if(assignableClass.isPresent()) {
+      return assignableClass;
+    }
+//    else {
+//      Reflections reflections = new Reflections(new ConfigurationBuilder().forPackage(clazz.getPackage().toString()).addScanners(new SubTypesScanner()));
+//      Set<Class<?>> implementations = new HashSet<>(reflections.getSubTypesOf(clazz));
+//      return implementations.stream().findAny();
+//    }
+    return Optional.empty();
   }
 }

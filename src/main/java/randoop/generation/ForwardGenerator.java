@@ -1,5 +1,6 @@
 package randoop.generation;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
@@ -26,6 +27,9 @@ import randoop.sequence.*;
 import randoop.test.DummyCheckGenerator;
 import randoop.types.*;
 import randoop.util.*;
+
+import static randoop.main.GenInputsAbstract.classesGenerators;
+import static randoop.main.GenInputsAbstract.findAssignableClass;
 
 /** Randoop's forward, component-based generator. */
 public class ForwardGenerator extends AbstractGenerator {
@@ -241,9 +245,6 @@ public class ForwardGenerator extends AbstractGenerator {
       }
       return null;
     }
-
-    //Here the new sequence found is become in an object
-//    buildAndSaveNewObject(eSeq);
 
     if (GenInputsAbstract.dontexecute) {
       this.componentManager.addGeneratedSequence(eSeq.sequence);
@@ -849,7 +850,7 @@ public class ForwardGenerator extends AbstractGenerator {
       }
 
       Class<?> clazz = inputType.getRuntimeClass();
-      if (this.classesGenerators.containsKey(clazz) &&
+      if (classesGenerators.containsKey(clazz) &&
               Randomness.weightedCoinFlip(GenInputsAbstract.new_dependency_object_ratio)) {
         Sequence seq = getNextSequenceForClass(clazz);
         if(seq == null){
@@ -894,41 +895,26 @@ public class ForwardGenerator extends AbstractGenerator {
     return new InputsAndSuccessFlag(true, sequences, variables);
   }
 
-  private Optional<Class<?>> findAssignableClass(Class<?> clazz){
-    Optional<Class<?>> assignableClass =  this.classesGenerators.keySet().stream().
-                                            filter(clazz::isAssignableFrom).findAny();
-    if(assignableClass.isPresent()) {
-      return assignableClass;
-    }else {
-      Reflections reflections = new Reflections(clazz.getPackage());
-      Set<Class<?>> implementations = new HashSet<>(reflections.getSubTypesOf(clazz));
-      if (!implementations.isEmpty()) {
-        return implementations.stream().findAny();
-      }
-    }
-    return Optional.empty();
-  }
-
   private RandoopObjectGenerator getGeneratorForInterface(Class<?> clazz){
     Optional<Class<?>> assignableClass = findAssignableClass(clazz);
     if(assignableClass.isPresent()) {
         RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, GenInputsAbstract.randomseed);
-        this.classesGenerators.put(clazz, rog);
+        classesGenerators.put(clazz, rog);
         return rog;
     }
     return null;
   }
 
   private RandoopObjectGenerator getGeneratorFor(Class<?> clazz) {
-    if (!this.classesGenerators.containsKey(clazz)) {
+    if (!classesGenerators.containsKey(clazz)) {
       if(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
         return getGeneratorForInterface(clazz);
       }else {
-        this.classesGenerators.put(clazz,
+        classesGenerators.put(clazz,
                 new RandoopObjectGenerator(clazz, GenInputsAbstract.randomseed));
       }
     }
-    return this.classesGenerators.get(clazz);
+    return classesGenerators.get(clazz);
   }
 
   private Sequence getNextSequenceForClass(Class<?> clazz) {
