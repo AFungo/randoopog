@@ -155,6 +155,21 @@ public class CustomLiterals {
     return map;
   }
 
+  public static MultiMap<ClassOrInterfaceType, Sequence> parseDoubleLiterals(Set<Double> doubleSet) {
+    final MultiMap<ClassOrInterfaceType, Sequence> map = new MultiMap<>();
+    try {
+      for (Double i : doubleSet) {
+        String str = "double:" + i;
+        TypedOperation operation = NonreceiverTerm.parse(str);
+        operation = TypedOperation.createNonreceiverInitialization(new NonreceiverTerm(Type.forClass(Double.class), i));
+        map.add(ClassOrInterfaceType.forClass(Double.class), new Sequence().extend(operation, new ArrayList<Variable>(0)));
+      }
+    } catch (OperationParseException e) {
+      throw new Error(e);
+    }
+    return map;
+  }
+
   public static MultiMap<ClassOrInterfaceType, Sequence> parseStringLiterals(Set<String> stringSet) {
     final MultiMap<ClassOrInterfaceType, Sequence> map = new MultiMap<>();
     try {

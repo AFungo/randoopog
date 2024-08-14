@@ -95,7 +95,7 @@ public class RandoopObjectGenerator extends GenTests {
             throw new IllegalArgumentException("More parameterized types than parameters");//Note: No se como describirlo!!!!!
         for(Class<?> c : parameterizedClass){
             this.parameterizedClasses.put(s.remove(0), c);
-            if(!c.equals(Integer.class) && !c.equals(String.class))
+            if(!c.equals(Integer.class) && !c.equals(String.class) && !c.equals(Double.class))
                 classesGenerators.put(c, new RandoopObjectGenerator(c, seed));
         }
     }
@@ -140,6 +140,24 @@ public class RandoopObjectGenerator extends GenTests {
     private void addCustomIntegersToExplorer(){
         if(!customIntegers.isEmpty()) {
             MultiMap<ClassOrInterfaceType, Sequence> literals = CustomLiterals.parseIntegerLiterals(customIntegers);
+            for (ClassOrInterfaceType type : literals.keySet()) {
+                for (Sequence seq : literals.getValues(type)) {
+                    explorer.componentManager.addClassLevelLiteral(ClassOrInterfaceType.forClass(objectClass), seq);
+                    explorer.componentManager.addGeneratedSequence(seq);
+                }
+            }
+        }
+    }
+    Set<Double> customDoubles = new HashSet<>();
+
+    public void setCustomDoubles(Set<Double> customDoubles){
+        this.customDoubles = customDoubles;
+        explorerIsSet = false;
+    }
+
+    private void addCustomDoublesToExplorer(){
+        if(!customDoubles.isEmpty()) {
+            MultiMap<ClassOrInterfaceType, Sequence> literals = CustomLiterals.parseDoubleLiterals(customDoubles);
             for (ClassOrInterfaceType type : literals.keySet()) {
                 for (Sequence seq : literals.getValues(type)) {
                     explorer.componentManager.addClassLevelLiteral(ClassOrInterfaceType.forClass(objectClass), seq);
