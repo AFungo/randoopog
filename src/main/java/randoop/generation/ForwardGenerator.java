@@ -238,21 +238,21 @@ public class ForwardGenerator extends AbstractGenerator {
 
 
     if (eSeq == null) {
-      long gentimeNanos = System.nanoTime() - startTimeNanos;
-      if (gentimeNanos > timeWarningLimitNanos) {
-        System.out.printf(
-            "Long generation time %d msec for null sequence.%n", gentimeNanos / nanoPerMilli);
-      }
+//      long gentimeNanos = System.nanoTime() - startTimeNanos;
+//      if (gentimeNanos > timeWarningLimitNanos) {
+//        System.out.printf(
+//            "Long generation time %d msec for null sequence.%n", gentimeNanos / nanoPerMilli);
+//      }
       return null;
     }
 
     if (GenInputsAbstract.dontexecute) {
       this.componentManager.addGeneratedSequence(eSeq.sequence);
-      long gentimeNanos = System.nanoTime() - startTimeNanos;
-      if (gentimeNanos > timeWarningLimitNanos) {
-        System.out.printf("Long generation time %d msec for%n", gentimeNanos / nanoPerMilli);
-        System.out.println(eSeq.sequence);
-      }
+//      long gentimeNanos = System.nanoTime() - startTimeNanos;
+//      if (gentimeNanos > timeWarningLimitNanos) {
+//        System.out.printf("Long generation time %d msec for%n", gentimeNanos / nanoPerMilli);
+//        System.out.println(eSeq.sequence);
+//      }
       return null;
     }
 
@@ -279,14 +279,14 @@ public class ForwardGenerator extends AbstractGenerator {
 
     eSeq.gentimeNanos = gentimeNanos1 + gentimeNanos2;
 
-    if (eSeq.gentimeNanos > timeWarningLimitNanos) {
-      System.out.printf(
-          "Long generation time %d msec (= %d + %d) for%n",
-          eSeq.gentimeNanos / nanoPerMilli,
-          gentimeNanos1 / nanoPerMilli,
-          gentimeNanos2 / nanoPerMilli);
-      System.out.println(eSeq.sequence);
-    }
+//    if (eSeq.gentimeNanos > timeWarningLimitNanos) {
+//      System.out.printf(
+//          "Long generation time %d msec (= %d + %d) for%n",
+//          eSeq.gentimeNanos / nanoPerMilli,
+//          gentimeNanos1 / nanoPerMilli,
+//          gentimeNanos2 / nanoPerMilli);
+//      System.out.println(eSeq.sequence);
+//    }
     if (eSeq.exectime > 10 * timeWarningLimitNanos) {
       System.out.printf("Long execution time %d sec for%n", eSeq.exectime / nanoPerOne);
       System.out.println(eSeq.sequence);
