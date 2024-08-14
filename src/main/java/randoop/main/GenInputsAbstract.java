@@ -1358,14 +1358,13 @@ public abstract class GenInputsAbstract extends CommandHandler {
   public static Optional<Class<?>> findAssignableClass(Class<?> clazz){
     Optional<Class<?>> assignableClass =  classesGenerators.keySet().stream().
             filter(c -> clazz.isAssignableFrom(c) && !c.equals(clazz)).findAny();
-    if(assignableClass.isPresent()) {
+//    if(assignableClass.isPresent()) {
       return assignableClass;
-    }
+//    }
 //    else {
 //      Reflections reflections = new Reflections(new ConfigurationBuilder().forPackage(clazz.getPackage().toString()).addScanners(new SubTypesScanner()));
 //      Set<Class<?>> implementations = new HashSet<>(reflections.getSubTypesOf(clazz));
 //      return implementations.stream().findAny();
 //    }
-    return Optional.empty();
   }
 }
