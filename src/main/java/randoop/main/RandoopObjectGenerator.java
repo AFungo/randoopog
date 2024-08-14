@@ -145,6 +145,7 @@ public class RandoopObjectGenerator extends GenTests {
             for (ClassOrInterfaceType type : literals.keySet()) {
                 for (Sequence seq : literals.getValues(type)) {
                     explorer.componentManager.addClassLevelLiteral(ClassOrInterfaceType.forClass(objectClass), seq);
+                    explorer.componentManager.addGeneratedSequence(seq);
                 }
             }
         }
