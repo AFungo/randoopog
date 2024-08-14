@@ -463,11 +463,13 @@ public abstract class AbstractGenerator {
       if(sequence.isNormalExecution() && !sequence.hasFailure() && !sequence.hasInvalidBehavior()) {
         Object newObject = ExecutableSequence.getRuntimeValuesForVars(
                 Collections.singletonList(var), sequence.executionResults)[0];
-        if (!this.allObjects.contains(newObject) && this.assume.apply(newObject)) {
+        if (!this.allObjects.contains(newObject)) {
           this.allObjects.add(newObject);
-          this.objectsAmount++;
-          this.lastObject = newObject;
-          this.lastSeq = sequence.sequence;
+          if(this.assume.apply(newObject)) {
+            this.objectsAmount++;
+            this.lastObject = newObject;
+            this.lastSeq = sequence.sequence;
+          }
         }
       }
     }
