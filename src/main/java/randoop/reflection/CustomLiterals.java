@@ -154,7 +154,21 @@ public class CustomLiterals {
     }
     return map;
   }
-  // Add more strings...
+
+  public static MultiMap<ClassOrInterfaceType, Sequence> parseStringLiterals(Set<String> stringSet) {
+    final MultiMap<ClassOrInterfaceType, Sequence> map = new MultiMap<>();
+    try {
+      for (String i : stringSet) {
+        String str = "String:\"" + i+"\"";
+        NonreceiverTerm.parse(str);
+        TypedOperation operation = TypedOperation.createNonreceiverInitialization(new NonreceiverTerm(Type.forClass(String.class), i));
+        map.add(ClassOrInterfaceType.forClass(String.class), new Sequence().extend(operation, new ArrayList<Variable>(0)));
+      }
+    } catch (OperationParseException e) {
+      throw new Error(e);
+    }
+    return map;
+  }
 
   /**
    * Returns a map from class to list of constants.

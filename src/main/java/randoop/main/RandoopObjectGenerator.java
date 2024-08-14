@@ -132,8 +132,6 @@ public class RandoopObjectGenerator extends GenTests {
         randoopFlagMap.put(flag.getFlagName(), flag);
     }
 
-
-
     public void setCustomIntegers(Set<Integer> customIntegers){
         this.customIntegers = customIntegers;
         explorerIsSet = false;
@@ -142,6 +140,24 @@ public class RandoopObjectGenerator extends GenTests {
     private void addCustomIntegersToExplorer(){
         if(!customIntegers.isEmpty()) {
             MultiMap<ClassOrInterfaceType, Sequence> literals = CustomLiterals.parseIntegerLiterals(customIntegers);
+            for (ClassOrInterfaceType type : literals.keySet()) {
+                for (Sequence seq : literals.getValues(type)) {
+                    explorer.componentManager.addClassLevelLiteral(ClassOrInterfaceType.forClass(objectClass), seq);
+                    explorer.componentManager.addGeneratedSequence(seq);
+                }
+            }
+        }
+    }
+
+    Set<String> customStrings = new HashSet<>();
+    public void setCustomStrings(Set<String> customStrings){
+        this.customStrings = customStrings;
+        explorerIsSet = false;
+    }
+
+    private void addCustomStringsToExplorer(){
+        if(!customStrings.isEmpty()) {
+            MultiMap<ClassOrInterfaceType, Sequence> literals = CustomLiterals.parseStringLiterals(customStrings);
             for (ClassOrInterfaceType type : literals.keySet()) {
                 for (Sequence seq : literals.getValues(type)) {
                     explorer.componentManager.addClassLevelLiteral(ClassOrInterfaceType.forClass(objectClass), seq);
@@ -508,6 +524,7 @@ public class RandoopObjectGenerator extends GenTests {
         }
 
         addCustomIntegersToExplorer();
+        addCustomStringsToExplorer();
         if(this.assume != null) {
             explorer.setAssume(this.assume);
         }
