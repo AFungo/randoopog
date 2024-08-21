@@ -201,7 +201,7 @@ public class RandoopObjectGenerator extends GenTests {
 
         String[] args = flagsToString();
 
-        System.out.println(Arrays.toString(args));
+//        System.out.println(Arrays.toString(args));
         try {
             String[] nonargs = options.parse(args);
             if (nonargs.length > 0) {
