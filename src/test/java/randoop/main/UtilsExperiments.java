@@ -31,7 +31,7 @@ public class UtilsExperiments {
 
     @Test
     public void sortedGeneration(){
-        runExperiment(ArrayList.class, List.of(Integer.class), (Function<Object, Boolean>) UtilsExperiments::isSorted,"clear|clone|contains|ensureCapacity|get|indexOf|isEmpty|iterator|lastIndexOf|remove|size|toArray|listIterator|removeAll|removeIf|removeRange|replaceAll|retainAll|subList|spliterator|trimToSize|addAll", 10);
+        runExperiment(ArrayList.class, List.of(Integer.class), (Function<Object, Boolean>) UtilsExperiments::isSorted,"clear|clone|contains|ensureCapacity|get|indexOf|isEmpty|iterator|lastIndexOf|remove|size|toArray|listIterator|removeAll|removeIf|removeRange|replaceAll|retainAll|subList|spliterator|trimToSize|addAll", 100);
     }
 
     /*
@@ -51,7 +51,7 @@ public class UtilsExperiments {
     @Test
     public void containsSelfMapping(){
         runExperiment(HashMap.class, List.of(Integer.class, Integer.class), (Function<Object, Boolean>) UtilsExperiments::containsSelfMapping,"clear|clone|containsKey|containsValue|compute|computeIfAbsent|computeIfPresent|entrySet|forEach|get|getOrDefault|isEmpty|keySet|" +
-                "merge|remove|replaceAll|replace|size|values", 10);
+                "merge|remove|replaceAll|replace|size|values", 100);
     }
 
 
@@ -67,7 +67,7 @@ public class UtilsExperiments {
     @Test
     public void mapContainsKey(){
         runExperiment(HashMap.class, List.of(Integer.class, Integer.class), (Function<Object, Boolean>) UtilsExperiments::containsKey,"clear|clone|containsKey|containsValue|compute|computeIfAbsent|computeIfPresent|entrySet|forEach|get|getOrDefault|isEmpty|keySet|" +
-                "merge|remove|replaceAll|replace|size|values", 10);
+                "merge|remove|replaceAll|replace|size|values", 100);
     }
 
 
@@ -81,7 +81,7 @@ public class UtilsExperiments {
 
     @Test
     public void minimumSetSize(){
-        runExperiment(HashSet.class, List.of(Integer.class), (Function<Object, Boolean>) UtilsExperiments::hasMinimumSize,"clear|clone|contains|isEmpty|iterator|remove|size|spliterator", 10);
+        runExperiment(HashSet.class, List.of(Integer.class), (Function<Object, Boolean>) UtilsExperiments::hasMinimumSize,"clear|clone|contains|isEmpty|iterator|remove|size|spliterator", 100);
     }
 
     /*
@@ -94,7 +94,7 @@ public class UtilsExperiments {
 
     @Test
     public void oddSet(){
-        runExperiment(HashSet.class, List.of(Integer.class), (Function<Object, Boolean>) UtilsExperiments::allOddElemets,"clear|clone|contains|isEmpty|iterator|remove|size|spliterator", 10);
+        runExperiment(HashSet.class, List.of(Integer.class), (Function<Object, Boolean>) UtilsExperiments::allOddElemets,"clear|clone|contains|isEmpty|iterator|remove|size|spliterator", 100);
     }
 
     /*
@@ -109,7 +109,7 @@ public class UtilsExperiments {
     public void linkedListHasOddSize(){
         runExperiment(LinkedList.class, List.of(Integer.class), (Function<Object, Boolean>) UtilsExperiments::hasOddSize, "clear|clone|contains|descendingIterator|element|get|getFirst|getLast|indexOf|lastIndexOf|listIterator|" +
                 "peek|peekFirst|peekLast|poll|pollFirst|pollLast|pop|remove|removeFirst|removeFirstOccurrence|removeLast|removeLastOccurrence" +
-                "|size|spliterator|toArray", 10);
+                "|size|spliterator|toArray", 100);
     }
 
     /*
@@ -126,7 +126,7 @@ public class UtilsExperiments {
     public void circularLinkedList(){
         runExperiment(LinkedList.class, List.of(Integer.class), (Function<Object, Boolean>) UtilsExperiments::isCircularLinkedList, "clear|clone|contains|descendingIterator|element|get|getFirst|getLast|indexOf|lastIndexOf|listIterator|" +
                 "peek|peekFirst|peekLast|poll|pollFirst|pollLast|pop|remove|removeFirst|removeFirstOccurrence|removeLast|removeLastOccurrence" +
-                "|size|spliterator|toArray", 10);
+                "|size|spliterator|toArray", 100);
     }
 
     /*
@@ -139,7 +139,7 @@ public class UtilsExperiments {
 
     @Test
     public void headSmallestPriorityQueue(){
-        runExperiment(PriorityQueue.class, Collections.singletonList(Integer.class), (Function<Object, Boolean>) UtilsExperiments::isHeadSmallest, "clear|comparator|contains|iterator|peek|poll|remove|size|spliterator|toArray", 10);
+        runExperiment(PriorityQueue.class, Collections.singletonList(Integer.class), (Function<Object, Boolean>) UtilsExperiments::isHeadSmallest, "clear|comparator|contains|iterator|peek|poll|remove|size|spliterator|toArray", 100);
     }
 
     /*
@@ -168,7 +168,7 @@ public class UtilsExperiments {
 
 //    @Test
 //    public void validPriorityQueue(){
-//        runExperiment(PriorityQueue.class, Collections.singletonList(Integer.class), (Function<Object, Boolean>) UtilsExperiments::isValidPriorityQueue, "clear|comparator|contains|iterator|peek|poll|remove|size|spliterator|toArray", 10);
+//        runExperiment(PriorityQueue.class, Collections.singletonList(Integer.class), (Function<Object, Boolean>) UtilsExperiments::isValidPriorityQueue, "clear|comparator|contains|iterator|peek|poll|remove|size|spliterator|toArray", 100);
 //    }
 
     public void runExperiment(Class<?> clazz, List<Class<?>> types, Function<Object, Boolean> assume, String ommitMethods, int amount) {
