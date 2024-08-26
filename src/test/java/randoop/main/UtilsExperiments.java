@@ -298,7 +298,7 @@ public class UtilsExperiments {
                                 "peek|peekFirst|peekLast|poll|pollFirst|pollLast|pop|remove|removeFirst|removeFirstOccurrence|removeLast|removeLastOccurrence" +
                                 "|size|spliterator|toArray"),
                 Arguments.of(PriorityQueue.class, List.of(Integer.class),
-                        (Function<Object, Boolean>) UtilsExperiments::isCircularLinkedList, "clear|comparator|contains|iterator|peek|poll|remove|size|spliterator|toArray")
+                        (Function<Object, Boolean>) UtilsExperiments::isHeadSmallest, "clear|comparator|contains|iterator|peek|poll|remove|size|spliterator|toArray")
 //                Arguments.of(PriorityQueue.class, List.of(Integer.class),
 //                        (Function<Object, Boolean>) UtilsExperiments::isValidPriorityQueue, "clear|comparator|contains|iterator|peek|poll|remove|size|spliterator|toArray")
                 );
