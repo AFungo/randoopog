@@ -31,39 +31,7 @@ public class UtilsExperiments {
 
     @Test
     public void sortedGeneration(){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(ArrayList.class, Integer.class,231);
-        rog.setAssume(UtilsExperiments::isSorted);
-        Set<Integer> integers = IntStream.range(110, 120).boxed().collect(Collectors.toSet());
-        rog.setCustomIntegers(integers);
-        //TODO: hacer una prueba sin los addall
-        rog.setOmitMethods("clear|clone|contains|ensureCapacity|get|indexOf|isEmpty|iterator|lastIndexOf|remove|size|toArray|listIterator|removeAll|removeIf|removeRange|replaceAll|retainAll|subList|spliterator|trimToSize");
-        for (int i = 0; i < 10; i++) {//5 minutos
-            ArrayList<Integer> list = (ArrayList<Integer>) rog.generate();
-            System.out.println("----------\n" + list + "\n"
-                    + rog.getLastSequence() + "\n----------\n");
-        }
-    }
-
-    public static boolean isKeyPresent(Object o){
-        HashMap<Integer, String> map = (HashMap<Integer, String>) o;
-        return map.containsKey(115) && map.size() > 3;
-    }
-
-    @Test
-    public void containsKey(){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashMap.class, List.of(Integer.class, String.class),231);
-        rog.setAssume(UtilsExperiments::isKeyPresent);
-        Set<Integer> integers = IntStream.range(110, 120).boxed().collect(Collectors.toSet());
-        rog.setCustomIntegers(integers);
-        rog.setCustomStrings(stringSet);
-        rog.setOmitMethods("clear|clone|containsKey|containsValue|compute|computeIfAbsent|computeIfPresent|entrySet|forEach|get|getOrDefault|isEmpty|keySet|" +
-                "merge|remove|replaceAll|replace|size|values");
-
-        for (int i = 0; i < 10; i++) {// 1 minuto
-            HashMap<Integer, String> map = (HashMap<Integer, String>) rog.generate();
-            System.out.println("----------\n" + map + "\n"
-                    + rog.getLastSequence() + "\n----------\n");
-        }
+        runExperiment(ArrayList.class, List.of(Integer.class), (Function<Object, Boolean>) UtilsExperiments::isSorted,"clear|clone|contains|ensureCapacity|get|indexOf|isEmpty|iterator|lastIndexOf|remove|size|toArray|listIterator|removeAll|removeIf|removeRange|replaceAll|retainAll|subList|spliterator|trimToSize|addAll", 10);
     }
 
     /*
@@ -82,17 +50,8 @@ public class UtilsExperiments {
 
     @Test
     public void containsSelfMapping(){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashMap.class, List.of(Integer.class, Integer.class),231);
-        rog.setAssume(UtilsExperiments::containsSelfMapping);
-        Set<Integer> integers = IntStream.range(110, 120).boxed().collect(Collectors.toSet());
-        rog.setCustomIntegers(integers);
-        rog.setOmitMethods("clear|clone|containsKey|containsValue|compute|computeIfAbsent|computeIfPresent|entrySet|forEach|get|getOrDefault|isEmpty|keySet|" +
-                "merge|remove|replaceAll|replace|size|values");
-        for (int i = 0; i < 10; i++) {//45 seg
-            HashMap<Integer, Integer> map = (HashMap<Integer, Integer>) rog.generate();
-            System.out.println("----------\n" + map + "\n"
-                    + rog.getLastSequence() + "\n----------\n");
-        }
+        runExperiment(HashMap.class, List.of(Integer.class, Integer.class), (Function<Object, Boolean>) UtilsExperiments::containsSelfMapping,"clear|clone|containsKey|containsValue|compute|computeIfAbsent|computeIfPresent|entrySet|forEach|get|getOrDefault|isEmpty|keySet|" +
+                "merge|remove|replaceAll|replace|size|values", 10);
     }
 
 
@@ -107,17 +66,8 @@ public class UtilsExperiments {
 
     @Test
     public void mapContainsKey(){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashMap.class, List.of(Integer.class, Integer.class),231);
-        rog.setAssume(UtilsExperiments::containsKey);
-        Set<Integer> integers = IntStream.range(100, 200).boxed().collect(Collectors.toSet());
-        rog.setCustomIntegers(integers);
-        rog.setOmitMethods("clear|clone|containsKey|containsValue|compute|computeIfAbsent|computeIfPresent|entrySet|forEach|get|getOrDefault|isEmpty|keySet|" +
-                "merge|remove|replaceAll|replace|size|values");
-        for (int i = 0; i < 10; i++) {
-            HashMap<Integer, String> map = (HashMap<Integer, String>) rog.generate();
-            System.out.println("----------\n" + map + "\n"
-                    + rog.getLastSequence() + "\n----------\n");
-        }
+        runExperiment(HashMap.class, List.of(Integer.class, Integer.class), (Function<Object, Boolean>) UtilsExperiments::containsKey,"clear|clone|containsKey|containsValue|compute|computeIfAbsent|computeIfPresent|entrySet|forEach|get|getOrDefault|isEmpty|keySet|" +
+                "merge|remove|replaceAll|replace|size|values", 10);
     }
 
 
@@ -131,16 +81,7 @@ public class UtilsExperiments {
 
     @Test
     public void minimumSetSize(){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashSet.class, Integer.class,231);
-        rog.setAssume(UtilsExperiments::hasMinimumSize);
-        Set<Integer> integers = IntStream.range(110, 120).boxed().collect(Collectors.toSet());
-        rog.setCustomIntegers(integers);
-        rog.setOmitMethods("clear|clone|contains|isEmpty|iterator|remove|size|spliterator");
-        for (int i = 0; i < 10; i++) {
-            HashSet<Integer> set = (HashSet<Integer>) rog.generate();
-            System.out.println("----------\n" + set + "\n"
-                    + rog.getLastSequence() + "\n----------\n");
-        }
+        runExperiment(HashSet.class, List.of(Integer.class), (Function<Object, Boolean>) UtilsExperiments::hasMinimumSize,"clear|clone|contains|isEmpty|iterator|remove|size|spliterator", 10);
     }
 
     /*
@@ -153,16 +94,7 @@ public class UtilsExperiments {
 
     @Test
     public void oddSet(){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(HashSet.class, Integer.class,231);
-        rog.setAssume(UtilsExperiments::allOddElemets);
-        Set<Integer> integers = IntStream.range(110, 130).boxed().collect(Collectors.toSet());
-        rog.setCustomIntegers(integers);
-        rog.setOmitMethods("clear|clone|contains|isEmpty|iterator|remove|size|spliterator");
-        for (int i = 0; i < 10; i++) {//7 minutos
-            HashSet<Integer> set = (HashSet<Integer>) rog.generate();
-            System.out.println("----------\n" + set + "\n"
-                    + rog.getLastSequence() + "\n----------\n");
-        }
+        runExperiment(HashSet.class, List.of(Integer.class), (Function<Object, Boolean>) UtilsExperiments::allOddElemets,"clear|clone|contains|isEmpty|iterator|remove|size|spliterator", 10);
     }
 
     /*
@@ -175,18 +107,9 @@ public class UtilsExperiments {
 
     @Test
     public void linkedListHasOddSize(){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(LinkedList.class, Integer.class,231);
-        rog.setAssume(UtilsExperiments::hasOddSize);
-        Set<Integer> integers = IntStream.range(110, 120).boxed().collect(Collectors.toSet());
-        rog.setCustomIntegers(integers);
-        rog.setOmitMethods("clear|clone|contains|descendingIterator|element|get|getFirst|getLast|indexOf|lastIndexOf|listIterator|" +
+        runExperiment(LinkedList.class, List.of(Integer.class), (Function<Object, Boolean>) UtilsExperiments::hasOddSize, "clear|clone|contains|descendingIterator|element|get|getFirst|getLast|indexOf|lastIndexOf|listIterator|" +
                 "peek|peekFirst|peekLast|poll|pollFirst|pollLast|pop|remove|removeFirst|removeFirstOccurrence|removeLast|removeLastOccurrence" +
-                "|size|spliterator|toArray");
-        for (int i = 0; i < 10; i++) {
-            LinkedList<Integer> list = (LinkedList<Integer>) rog.generate();
-            System.out.println("----------\n" + list + "\n"
-                    + rog.getLastSequence() + "\n----------\n");
-        }
+                "|size|spliterator|toArray", 10);
     }
 
     /*
@@ -201,18 +124,9 @@ public class UtilsExperiments {
 
     @Test
     public void circularLinkedList(){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(LinkedList.class, Integer.class,231);
-        rog.setAssume(UtilsExperiments::isCircularLinkedList);
-        Set<Integer> integers = IntStream.range(110, 120).boxed().collect(Collectors.toSet());
-        rog.setCustomIntegers(integers);
-        rog.setOmitMethods("clear|clone|contains|descendingIterator|element|get|getFirst|getLast|indexOf|lastIndexOf|listIterator|" +
+        runExperiment(LinkedList.class, List.of(Integer.class), (Function<Object, Boolean>) UtilsExperiments::isCircularLinkedList, "clear|clone|contains|descendingIterator|element|get|getFirst|getLast|indexOf|lastIndexOf|listIterator|" +
                 "peek|peekFirst|peekLast|poll|pollFirst|pollLast|pop|remove|removeFirst|removeFirstOccurrence|removeLast|removeLastOccurrence" +
-                "|size|spliterator|toArray");
-        for (int i = 0; i < 10; i++) {
-            LinkedList<Integer> list = (LinkedList<Integer>) rog.generate();
-            System.out.println("----------\n" + list + "\n"
-                    + rog.getLastSequence() + "\n----------\n");
-        }
+                "|size|spliterator|toArray", 10);
     }
 
     /*
@@ -225,17 +139,7 @@ public class UtilsExperiments {
 
     @Test
     public void headSmallestPriorityQueue(){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(PriorityQueue.class, Integer.class,231);
-        rog.setAssume(UtilsExperiments::isHeadSmallest);
-        Set<Integer> integers = IntStream.range(110, 120).boxed().collect(Collectors.toSet());
-        rog.setCustomIntegers(integers);
-        rog.setOmitMethods("clear|comparator|contains|iterator|" +
-                "peek|poll|remove|size|spliterator|toArray");
-        for (int i = 0; i < 10; i++) {//20 sec
-            PriorityQueue<Integer> list = (PriorityQueue<Integer>) rog.generate();
-            System.out.println("----------\n" + list + "\n"
-                    + rog.getLastSequence() + "\n----------\n");
-        }
+        runExperiment(PriorityQueue.class, Collections.singletonList(Integer.class), (Function<Object, Boolean>) UtilsExperiments::isHeadSmallest, "clear|comparator|contains|iterator|peek|poll|remove|size|spliterator|toArray", 10);
     }
 
     /*
@@ -262,51 +166,12 @@ public class UtilsExperiments {
         return true;
     }
 
-    @Test
-    public void validPriorityQueue(){
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(PriorityQueue.class, Integer.class,231);
-        rog.setAssume(UtilsExperiments::isValidPriorityQueue);
-        Set<Integer> integers = IntStream.range(110, 130).boxed().collect(Collectors.toSet());
-        rog.setCustomIntegers(integers);
-        rog.setOmitMethods("clear|comparator|contains|iterator|" +
-                "peek|poll|remove|size|spliterator|toArray");
-        for (int i = 0; i < 10; i++) {
-            PriorityQueue<Integer> list = (PriorityQueue<Integer>) rog.generate();
-            System.out.println("----------\n" + list + "\n"
-                    + rog.getLastSequence() + "\n----------\n");
-        }
-    }
+//    @Test
+//    public void validPriorityQueue(){
+//        runExperiment(PriorityQueue.class, Collections.singletonList(Integer.class), (Function<Object, Boolean>) UtilsExperiments::isValidPriorityQueue, "clear|comparator|contains|iterator|peek|poll|remove|size|spliterator|toArray", 10);
+//    }
 
-    public static Stream<Arguments> generationSource() {
-        return Stream.of(
-                Arguments.of(ArrayList.class, List.of(Integer.class),
-                        (Function<Object, Boolean>) UtilsExperiments::isSorted, "clear|clone|contains|ensureCapacity|get|indexOf|isEmpty|iterator|lastIndexOf|remove|size|toArray|listIterator|removeAll|removeIf|removeRange|replaceAll|retainAll|subList|spliterator|trimToSize"),
-                Arguments.of(HashMap.class, List.of(Integer.class, String.class),
-                        (Function<Object, Boolean>) UtilsExperiments::isKeyPresent, "clear|clone|containsKey|containsValue|compute|computeIfAbsent|computeIfPresent|entrySet|forEach|get|getOrDefault|isEmpty|keySet|merge|remove|replaceAll|replace|size|values"),
-                Arguments.of(HashMap.class, List.of(Integer.class, Integer.class),
-                        (Function<Object, Boolean>) UtilsExperiments::containsSelfMapping, "clear|clone|containsKey|containsValue|compute|computeIfAbsent|computeIfPresent|entrySet|forEach|get|getOrDefault|isEmpty|keySet|merge|remove|replaceAll|replace|size|values"),
-                Arguments.of(HashSet.class, List.of(Integer.class),
-                        (Function<Object, Boolean>) UtilsExperiments::hasMinimumSize, "clear|clone|contains|isEmpty|iterator|remove|size|spliterator"),
-                Arguments.of(HashSet.class, List.of(Integer.class),
-                        (Function<Object, Boolean>) UtilsExperiments::allOddElemets, "clear|clone|contains|isEmpty|iterator|remove|size|spliterator"),
-                Arguments.of(LinkedList.class, List.of(Integer.class),
-                        (Function<Object, Boolean>) UtilsExperiments::hasOddSize, "clear|clone|contains|descendingIterator|element|get|getFirst|getLast|indexOf|lastIndexOf|listIterator|" +
-                                "peek|peekFirst|peekLast|poll|pollFirst|pollLast|pop|remove|removeFirst|removeFirstOccurrence|removeLast|removeLastOccurrence" +
-                                "|size|spliterator|toArray"),
-                Arguments.of(LinkedList.class, List.of(Integer.class),
-                        (Function<Object, Boolean>) UtilsExperiments::isCircularLinkedList, "clear|clone|contains|descendingIterator|element|get|getFirst|getLast|indexOf|lastIndexOf|listIterator|" +
-                                "peek|peekFirst|peekLast|poll|pollFirst|pollLast|pop|remove|removeFirst|removeFirstOccurrence|removeLast|removeLastOccurrence" +
-                                "|size|spliterator|toArray"),
-                Arguments.of(PriorityQueue.class, List.of(Integer.class),
-                        (Function<Object, Boolean>) UtilsExperiments::isHeadSmallest, "clear|comparator|contains|iterator|peek|poll|remove|size|spliterator|toArray")
-//                Arguments.of(PriorityQueue.class, List.of(Integer.class),
-//                        (Function<Object, Boolean>) UtilsExperiments::isValidPriorityQueue, "clear|comparator|contains|iterator|peek|poll|remove|size|spliterator|toArray")
-                );
-    }
-
-    @ParameterizedTest
-    @MethodSource("generationSource")
-    public void experiments(Class<?> clazz, List<Class<?>> types, Function<Object, Boolean> assume, String ommitMethods) {
+    public void runExperiment(Class<?> clazz, List<Class<?>> types, Function<Object, Boolean> assume, String ommitMethods, int amount) {
         RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, types, 231);
         rog.setAssume(assume);
         Set<Integer> integers = IntStream.range(110, 120).boxed().collect(Collectors.toSet());
@@ -321,7 +186,7 @@ public class UtilsExperiments {
         long firstObjectTime = firstEndTime - firstStartTime;  // Tiempo que tarda el primer objeto
 
         long intermediateStartTime = System.nanoTime();  // Tiempo antes del segundo objeto
-        for (int i = 1; i < 10; i++) {  // Bucle para los objetos restantes
+        for (int i = 1; i < amount; i++) {  // Bucle para los objetos restantes
             rog.generate();
         }
         long lastEndTime = System.nanoTime();  // Tiempo después del último objeto
@@ -329,9 +194,9 @@ public class UtilsExperiments {
         long totalTime = lastEndTime - totalStartTime;  // Tiempo total
         long intermediateTime = lastEndTime - intermediateStartTime;  // Tiempo entre el segundo y el último objeto
         double averageTimePerObject = (double) totalTime / 10;  // Tiempo promedio por objeto
-        System.out.println(assume + " " + TimeUnit.SECONDS.convert(firstObjectTime, TimeUnit.NANOSECONDS) +
-                " " + TimeUnit.SECONDS.convert(intermediateTime, TimeUnit.NANOSECONDS) + " "
-                + TimeUnit.SECONDS.convert((long) averageTimePerObject, TimeUnit.NANOSECONDS) + " "
+        System.out.println("firstObjectTime: " + TimeUnit.SECONDS.convert(firstObjectTime, TimeUnit.NANOSECONDS) +
+                " secondToLast: " + TimeUnit.SECONDS.convert(intermediateTime, TimeUnit.NANOSECONDS) + " average: "
+                + TimeUnit.SECONDS.convert((long) averageTimePerObject, TimeUnit.NANOSECONDS) + " total: "
                 + TimeUnit.SECONDS.convert(totalTime, TimeUnit.NANOSECONDS));
     }
 }
