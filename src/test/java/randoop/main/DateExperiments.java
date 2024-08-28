@@ -24,7 +24,8 @@ public class DateExperiments {
     @Test
     public void leapDateGeneration() throws InterruptedException, ExecutionException{
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<?> future = executor.submit(() -> runExperiment(Date.class, DateExperiments::isLeapDate,"clear|clone|after|before|getTime|toInstant", 10));
+        Future<?> future = executor.submit(() -> runExperiment(Date.class, DateExperiments::isLeapDate,
+                "clear|clone|after|before|getTime|toInstant", 100));
         try {
             future.get(3, TimeUnit.MINUTES);
         } catch(TimeoutException t){
@@ -43,7 +44,8 @@ public class DateExperiments {
     @Test
     public void juneDateGeneration() throws InterruptedException, ExecutionException{
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<?> future = executor.submit(() -> runExperiment(Date.class, DateExperiments::isJune,"clear|clone|after|before|getTime|toInstant", 10));
+        Future<?> future = executor.submit(() -> runExperiment(Date.class, DateExperiments::isJune,
+                "clear|clone|after|before|getTime|toInstant", 100));
         try {
             future.get(3, TimeUnit.MINUTES);
         } catch(TimeoutException t){
@@ -62,7 +64,8 @@ public class DateExperiments {
     @Test
     public void endOfYearGeneration() throws InterruptedException, ExecutionException{
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<?> future = executor.submit(() -> runExperiment(Date.class, DateExperiments::isEndOfYear,"clear|clone|after|before|getTime|toInstant", 10));
+        Future<?> future = executor.submit(() -> runExperiment(Date.class, DateExperiments::isEndOfYear,
+                "clear|clone|after|before|getTime|toInstant", 100));
         try {
             future.get(3, TimeUnit.MINUTES);
         } catch(TimeoutException t){
@@ -82,7 +85,8 @@ public class DateExperiments {
     @Test
     public void weekendDateGeneration() throws InterruptedException, ExecutionException{
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<?> future = executor.submit(() -> runExperiment(Date.class, DateExperiments::isWeekend,"clear|clone|after|before|getTime|toInstant", 10));
+        Future<?> future = executor.submit(() -> runExperiment(Date.class, DateExperiments::isWeekend,
+                "clear|clone|after|before|getTime|toInstant", 100));
         try {
             future.get(3, TimeUnit.MINUTES);
         } catch(TimeoutException t){
@@ -101,7 +105,8 @@ public class DateExperiments {
     @Test
     public void payDayGeneration() throws InterruptedException, ExecutionException{
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<?> future = executor.submit(() -> runExperiment(Date.class, DateExperiments::isPayDayOfMonth,"clear|clone|after|before|getTime|toInstant", 10));
+        Future<?> future = executor.submit(() -> runExperiment(Date.class, DateExperiments::isPayDayOfMonth,
+                "clear|clone|after|before|getTime|toInstant", 100));
         try {
             future.get(3, TimeUnit.MINUTES);
         } catch(TimeoutException t){
@@ -120,7 +125,8 @@ public class DateExperiments {
     @Test
     public void year2000DateGeneration() throws InterruptedException, ExecutionException{
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<?> future = executor.submit(() -> runExperiment(Date.class, DateExperiments::isInYear2000,"clear|clone|after|before|getTime|toInstant", 10));
+        Future<?> future = executor.submit(() -> runExperiment(Date.class, DateExperiments::isInYear2000,
+                "clear|clone|after|before|getTime|toInstant", 100));
         try {
             future.get(3, TimeUnit.MINUTES);
         } catch(TimeoutException t){
@@ -140,7 +146,8 @@ public class DateExperiments {
     @Test
     public void workingDayDateGeneration() throws InterruptedException, ExecutionException{
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<?> future = executor.submit(() -> runExperiment(Date.class, DateExperiments::isWorkingDay,"clear|clone|after|before|getTime|toInstant", 10));
+        Future<?> future = executor.submit(() -> runExperiment(Date.class, DateExperiments::isWorkingDay,
+                "clear|clone|after|before|getTime|toInstant", 100));
         try {
             future.get(3, TimeUnit.MINUTES);
         } catch(TimeoutException t){
