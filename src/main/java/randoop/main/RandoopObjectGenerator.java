@@ -29,6 +29,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 import static randoop.reflection.AccessibilityPredicate.IS_PUBLIC;
 
@@ -68,6 +69,8 @@ public class RandoopObjectGenerator extends GenTests {
     private Set<Integer> customIntegers = new HashSet<>();
 
     private Function<Object, Boolean> assume;
+
+    private Pattern methodsToUse = null;
 
     public RandoopObjectGenerator(Class<?> objectClass, int seed){
         super();
@@ -189,6 +192,22 @@ public class RandoopObjectGenerator extends GenTests {
         OmitMethodsFlag flag = (OmitMethodsFlag) randoopFlagMap.get("omit-methods");
         flag.extendMethods(regex);
         explorerIsSet = false;
+    }
+
+    public void setMethodsToUse(List<String> regex){
+        String classFullName = objectClass.getName().replace(".", "\\.");
+
+        StringBuilder metodsRegex = new StringBuilder(classFullName + "\\(.*\\)");
+        for(String method : regex){
+            metodsRegex.append("|")
+                    .append(".*")
+                    .append(method)
+                    .append("\\(.*\\)");
+        }
+        methodsToUse = Pattern.compile("^(?!("+ metodsRegex +")$)\\.*");
+        explorerIsSet = false;
+
+
     }
 
     public void setNewObjectDependencyRatio(double ratio){
@@ -328,11 +347,14 @@ public class RandoopObjectGenerator extends GenTests {
                      SpecificationCollection.create(GenInputsAbstract.specifications)) {
 
             try {
+                List<Pattern> ommitMethods = new ArrayList<>(omit_methods);
+                if(methodsToUse != null)
+                    ommitMethods.add(methodsToUse);
                 operationModel =
                         OperationModel.createModel(
                                 accessibility,
                                 reflectionPredicate,
-                                omit_methods,
+                                ommitMethods,
                                 Collections.singleton(this.objectClass.getName()),
                                 coveredClassnames,
                                 classNameErrorHandler,
