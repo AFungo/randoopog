@@ -818,7 +818,6 @@ public class ForwardGenerator extends AbstractGenerator {
           Log.logPrintf("No sequences of receiver type.%n");
           return new InputsAndSuccessFlag(false, null, null);
         } else if (GenInputsAbstract.forbid_null) {
-
           Class<?> clazz = inputType.getRuntimeClass();
           //if the generator aren't declared we create one
           Sequence seq = getNextSequenceForClass(clazz);
@@ -850,7 +849,8 @@ public class ForwardGenerator extends AbstractGenerator {
       }
 
       Class<?> clazz = inputType.getRuntimeClass();
-      if (classesGenerators.containsKey(clazz) &&
+      if (!clazz.equals(objectsClass) &&
+              classesGenerators.containsKey(clazz) &&
               Randomness.weightedCoinFlip(GenInputsAbstract.new_dependency_object_ratio)) {
         Sequence seq = getNextSequenceForClass(clazz);
         if(seq == null){
@@ -898,7 +898,7 @@ public class ForwardGenerator extends AbstractGenerator {
   private RandoopObjectGenerator getGeneratorForInterface(Class<?> clazz){
     Optional<Class<?>> assignableClass = findAssignableClass(clazz);
     if(assignableClass.isPresent()) {
-        RandoopObjectGenerator rog = new RandoopObjectGenerator(clazz, GenInputsAbstract.randomseed);
+        RandoopObjectGenerator rog = new RandoopObjectGenerator(assignableClass.get(), GenInputsAbstract.randomseed);
         classesGenerators.put(clazz, rog);
         return rog;
     }
