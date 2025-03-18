@@ -286,13 +286,14 @@ public abstract class AbstractGenerator {
    * @return true iff any stopping criterion is met
    */
   protected boolean shouldStop() {
-    return (limits.time_limit_millis != 0 && elapsedTime() >= limits.time_limit_millis) //Este lo dejo? corta segun el tiempo transcurrido
-          || (numAttemptedSequences() >= limits.attempted_limit)
-          || (numGeneratedSequences() >= limits.generated_limit)
-          || (numObjectsGenerated() >= limits.output_limit)//este metodo antes retornaba el tamaño del set que guarda los objetos ahora retorna la cantidad generado en la corrida parcial
+    return
+//            (limits.time_limit_millis != 0 && elapsedTime() >= limits.time_limit_millis) //Este lo dejo? corta segun el tiempo transcurrido
+//          || (numAttemptedSequences() >= limits.attempted_limit)
+//          || (numGeneratedSequences() >= limits.generated_limit)
+          (numObjectsGenerated() >= limits.output_limit);//este metodo antes retornaba el tamaño del set que guarda los objetos ahora retorna la cantidad generado en la corrida parcial
 //        || (numOutputSequences() >= limits.output_limit) //that is the oiginal condition
-          || (GenInputsAbstract.stop_on_error_test && numErrorSequences() > 0)
-          || (stopper != null && stopper.shouldStop());
+//          || (GenInputsAbstract.stop_on_error_test && numErrorSequences() > 0)
+//          || (stopper != null && stopper.shouldStop());
   }
 
   /**
@@ -499,12 +500,8 @@ public abstract class AbstractGenerator {
         operationHistory.add(es.getOperation(), OperationOutcome.SUBSUMED);
       } else {
         operationHistory.add(es.getOperation(), OperationOutcome.REGRESSION_SEQUENCE);
-        //modificado por mi aca entiendo que chequea si la secuancia generada da un onjeto de la clase stack.class.
-        //Fixme: ESta hardcodeada bien fea hay que mejorarla
-//        Variable var = loadCUTVars(Stack.class, es);;
-//        if (var != null) {
+
           unique_seqs.add(es);
-//        }
       }
     }
     return unique_seqs;
