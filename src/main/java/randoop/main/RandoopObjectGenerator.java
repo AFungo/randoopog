@@ -84,6 +84,7 @@ public class RandoopObjectGenerator extends GenTests {
         addFlag(new RandomSeedFlag(seed));
         addFlag(new OutputLimitFlag(1));
         addFlag(new OmitMethodsFlag("isEmpty|length|size|toList|toString|equals|hash"));
+        addFlag(new JDKSpecificationsFlag(false));
         classesGenerators.put(objectClass, this);
     }
 
