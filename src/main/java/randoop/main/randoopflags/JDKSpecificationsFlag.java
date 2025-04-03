@@ -1,16 +1,16 @@
 package randoop.main.randoopflags;
 
-public class JDKSpecificationsFlag extends RandoopFlag{
+public class JDKSpecificationsFlag extends RandoopFlag {
 
-    boolean useJDKSpecifications;
+  boolean useJDKSpecifications;
 
-    public JDKSpecificationsFlag(boolean useJDKSpecifications) {
-        this.flagName = "use-jdk-specifications";
-        this.useJDKSpecifications = useJDKSpecifications;
-    }
+  public JDKSpecificationsFlag(boolean useJDKSpecifications) {
+    this.flagName = "use-jdk-specifications";
+    this.useJDKSpecifications = useJDKSpecifications;
+  }
 
-    @Override
-    protected String flagParameterToString() {
-        return "" + useJDKSpecifications;
-    }
+  @Override
+  protected String flagParameterToString() {
+    return "" + useJDKSpecifications;
+  }
 }

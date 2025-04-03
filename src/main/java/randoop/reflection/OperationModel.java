@@ -285,7 +285,7 @@ public class OperationModel {
               compMgr.addPackageLevelLiteral(pkg, seq);
               break;
             case ALL:
-              compMgr.addGeneratedSequence(seq);//TODO: aca añade las secuencias de los literales, sp que para hecer los test
+              compMgr.addGeneratedSequence(seq);
               break;
             default:
               throw new Error(
@@ -306,8 +306,7 @@ public class OperationModel {
    * @param compMgr the component manager
    * @param literalsLevel the level of literals to add
    */
-  public void addDefaultLiterals(
-          ComponentManager compMgr, ClassLiteralsMode literalsLevel) {
+  public void addDefaultLiterals(ComponentManager compMgr, ClassLiteralsMode literalsLevel) {
 
     MultiMap<ClassOrInterfaceType, Sequence> literalmap = CustomLiterals.loadDefaultLiterals();
 
@@ -327,10 +326,10 @@ public class OperationModel {
             break;
           default:
             throw new Error(
-                    "Unexpected error in GenTests.  Please report at"
-                            + " https://github.com/randoop/randoop/issues , providing the information"
-                            + " requested at"
-                            + " https://randoop.github.io/randoop/manual/index.html#bug-reporting .");
+                "Unexpected error in GenTests.  Please report at"
+                    + " https://github.com/randoop/randoop/issues , providing the information"
+                    + " requested at"
+                    + " https://randoop.github.io/randoop/manual/index.html#bug-reporting .");
         }
       }
     }

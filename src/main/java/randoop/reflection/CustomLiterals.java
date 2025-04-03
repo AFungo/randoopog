@@ -1,7 +1,6 @@
 package randoop.reflection;
 
-import org.checkerframework.checker.signature.qual.ClassGetName;
-import randoop.Globals;
+import java.util.*;
 import randoop.operation.NonreceiverTerm;
 import randoop.operation.OperationParseException;
 import randoop.operation.TypedOperation;
@@ -10,48 +9,16 @@ import randoop.sequence.Variable;
 import randoop.types.ClassOrInterfaceType;
 import randoop.types.Type;
 import randoop.util.MultiMap;
-import randoop.util.RecordListReader;
-import randoop.util.RecordProcessor;
-
-import java.util.*;
 
 public class CustomLiterals {
-  private static final List<String> integerList = Arrays.asList(
-          "int:-10",
-          "int:-99",
-          "int:-98",
-          "int:-97",
-          "int:-96",
-          "int:-95",
-          "int:-94",
-          "int:-93",
-          "int:-92",
-          "int:-91",
-          "int:-90",
-          "int:-89",
-          "int:-88",
-          "int:-87",
-          "int:-86",
-          "int:-85",
-          "int:-84",
-          "int:0",
-          "int:1",
-          "int:2",
-          "int:3",
-          "int:4",
-          "int:5",
-          "int:6",
-          "int:7",
-          "int:8",
-          "int:9",
-          "int:10",
-          "int:100",
-          "int:200",
-          "int:300",
-          "int:400",
-          "int:500"
-  );
-  private static final List<String> stringList = Arrays.asList(
+  private static final List<String> integerList =
+      Arrays.asList(
+          "int:-10", "int:-99", "int:-98", "int:-97", "int:-96", "int:-95", "int:-94", "int:-93",
+          "int:-92", "int:-91", "int:-90", "int:-89", "int:-88", "int:-87", "int:-86", "int:-85",
+          "int:-84", "int:0", "int:1", "int:2", "int:3", "int:4", "int:5", "int:6", "int:7",
+          "int:8", "int:9", "int:10", "int:100", "int:200", "int:300", "int:400", "int:500");
+  private static final List<String> stringList =
+      Arrays.asList(
           "String:\"8080\"",
           "String:\"1234\"",
           "String:\"hi!\"",
@@ -133,21 +100,25 @@ public class CustomLiterals {
           "String:\"maroon\"",
           "String:\"navy\"",
           "String:\"olive\"",
-          "String:\"turquoise\""
-  );
+          "String:\"turquoise\"");
 
   private CustomLiterals() {
     throw new Error("Do not instantiate");
   }
 
-  public static MultiMap<ClassOrInterfaceType, Sequence> parseIntegerLiterals(Set<Integer> integerSet) {
+  public static MultiMap<ClassOrInterfaceType, Sequence> parseIntegerLiterals(
+      Set<Integer> integerSet) {
     final MultiMap<ClassOrInterfaceType, Sequence> map = new MultiMap<>();
     try {
       for (Integer i : integerSet) {
         String str = "int:" + i;
         TypedOperation operation = NonreceiverTerm.parse(str);
-        operation = TypedOperation.createNonreceiverInitialization(new NonreceiverTerm(Type.forClass(Integer.class), i));
-        map.add(ClassOrInterfaceType.forClass(Integer.class), new Sequence().extend(operation, new ArrayList<Variable>(0)));
+        operation =
+            TypedOperation.createNonreceiverInitialization(
+                new NonreceiverTerm(Type.forClass(Integer.class), i));
+        map.add(
+            ClassOrInterfaceType.forClass(Integer.class),
+            new Sequence().extend(operation, new ArrayList<Variable>(0)));
       }
     } catch (OperationParseException e) {
       throw new Error(e);
@@ -155,14 +126,19 @@ public class CustomLiterals {
     return map;
   }
 
-  public static MultiMap<ClassOrInterfaceType, Sequence> parseDoubleLiterals(Set<Double> doubleSet) {
+  public static MultiMap<ClassOrInterfaceType, Sequence> parseDoubleLiterals(
+      Set<Double> doubleSet) {
     final MultiMap<ClassOrInterfaceType, Sequence> map = new MultiMap<>();
     try {
       for (Double i : doubleSet) {
         String str = "double:" + i;
         TypedOperation operation = NonreceiverTerm.parse(str);
-        operation = TypedOperation.createNonreceiverInitialization(new NonreceiverTerm(Type.forClass(Double.class), i));
-        map.add(ClassOrInterfaceType.forClass(Double.class), new Sequence().extend(operation, new ArrayList<Variable>(0)));
+        operation =
+            TypedOperation.createNonreceiverInitialization(
+                new NonreceiverTerm(Type.forClass(Double.class), i));
+        map.add(
+            ClassOrInterfaceType.forClass(Double.class),
+            new Sequence().extend(operation, new ArrayList<Variable>(0)));
       }
     } catch (OperationParseException e) {
       throw new Error(e);
@@ -170,14 +146,19 @@ public class CustomLiterals {
     return map;
   }
 
-  public static MultiMap<ClassOrInterfaceType, Sequence> parseStringLiterals(Set<String> stringSet) {
+  public static MultiMap<ClassOrInterfaceType, Sequence> parseStringLiterals(
+      Set<String> stringSet) {
     final MultiMap<ClassOrInterfaceType, Sequence> map = new MultiMap<>();
     try {
       for (String i : stringSet) {
-        String str = "String:\"" + i+"\"";
+        String str = "String:\"" + i + "\"";
         NonreceiverTerm.parse(str);
-        TypedOperation operation = TypedOperation.createNonreceiverInitialization(new NonreceiverTerm(Type.forClass(String.class), i));
-        map.add(ClassOrInterfaceType.forClass(String.class), new Sequence().extend(operation, new ArrayList<Variable>(0)));
+        TypedOperation operation =
+            TypedOperation.createNonreceiverInitialization(
+                new NonreceiverTerm(Type.forClass(String.class), i));
+        map.add(
+            ClassOrInterfaceType.forClass(String.class),
+            new Sequence().extend(operation, new ArrayList<Variable>(0)));
       }
     } catch (OperationParseException e) {
       throw new Error(e);
@@ -195,11 +176,15 @@ public class CustomLiterals {
     try {
       for (String str : stringList) {
         TypedOperation operation = NonreceiverTerm.parse(str);
-        map.add(ClassOrInterfaceType.forClass(String.class), new Sequence().extend(operation, new ArrayList<Variable>(0)));
+        map.add(
+            ClassOrInterfaceType.forClass(String.class),
+            new Sequence().extend(operation, new ArrayList<Variable>(0)));
       }
       for (String str : integerList) {
         TypedOperation operation = NonreceiverTerm.parse(str);
-        map.add(ClassOrInterfaceType.forClass(Integer.class), new Sequence().extend(operation, new ArrayList<Variable>(0)));
+        map.add(
+            ClassOrInterfaceType.forClass(Integer.class),
+            new Sequence().extend(operation, new ArrayList<Variable>(0)));
       }
     } catch (OperationParseException e) {
       throw new Error(e);
@@ -207,6 +192,3 @@ public class CustomLiterals {
     return map;
   }
 }
-
-
-

@@ -22,9 +22,6 @@ import org.plumelib.reflection.ReflectionPlume;
 import org.plumelib.reflection.Signatures;
 import org.plumelib.util.EntryReader;
 import org.plumelib.util.FileWriterWithName;
-import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.util.ConfigurationBuilder;
 import randoop.Globals;
 import randoop.reflection.AccessibilityPredicate;
 import randoop.util.Randomness;
@@ -1355,16 +1352,20 @@ public abstract class GenInputsAbstract extends CommandHandler {
    */
   public static Map<Class<?>, RandoopObjectGenerator> classesGenerators = new HashMap<>();
 
-  public static Optional<Class<?>> findAssignableClass(Class<?> clazz){
-    Optional<Class<?>> assignableClass =  classesGenerators.keySet().stream().
-            filter(c -> clazz.isAssignableFrom(c) && !c.equals(clazz)).findAny();
-//    if(assignableClass.isPresent()) {
-      return assignableClass;
-//    }
-//    else {
-//      Reflections reflections = new Reflections(new ConfigurationBuilder().forPackage(clazz.getPackage().toString()).addScanners(new SubTypesScanner()));
-//      Set<Class<?>> implementations = new HashSet<>(reflections.getSubTypesOf(clazz));
-//      return implementations.stream().findAny();
-//    }
+  public static Optional<Class<?>> findAssignableClass(Class<?> clazz) {
+    Optional<Class<?>> assignableClass =
+        classesGenerators.keySet().stream()
+            .filter(c -> clazz.isAssignableFrom(c) && !c.equals(clazz))
+            .findAny();
+    //    if(assignableClass.isPresent()) {
+    return assignableClass;
+    //    }
+    //    else {
+    //      Reflections reflections = new Reflections(new
+    // ConfigurationBuilder().forPackage(clazz.getPackage().toString()).addScanners(new
+    // SubTypesScanner()));
+    //      Set<Class<?>> implementations = new HashSet<>(reflections.getSubTypesOf(clazz));
+    //      return implementations.stream().findAny();
+    //    }
   }
 }
