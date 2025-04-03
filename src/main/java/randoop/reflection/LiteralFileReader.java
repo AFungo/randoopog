@@ -1,7 +1,6 @@
 package randoop.reflection;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import org.checkerframework.checker.signature.qual.ClassGetName;
@@ -52,137 +51,11 @@ import randoop.util.RecordProcessor;
  * to only specific methods within a class.
  */
 public class LiteralFileReader {
-  private static final List<String> integerList = Arrays.asList(
-          "Integer:-10",
-          "int:-99",
-          "int:-98",
-          "int:-97",
-          "int:-96",
-          "int:-95",
-          "int:-94",
-          "int:-93",
-          "int:-92",
-          "int:-91",
-          "int:-90",
-          "int:-89",
-          "int:-88",
-          "int:-87",
-          "int:-86",
-          "int:-85",
-          "int:-84"
-  );
-  private static final List<String> stringList = Arrays.asList(
-          "String:\"8080\"",
-          "String:\"1234\"",
-          "String:\"hi!\"",
-          "String:\"hello\"",
-          "String:\"bye\"",
-          "String:\"randoop\"",
-          "String:\"metamorphic relation\"" ,
-          "String:\"spec\"" ,
-          "String:\"property\"" ,
-          "String:\"oracle\"" ,
-          "String:\"apple\"" ,
-          "String:\"banana\"" ,
-          "String:\"cherry\"" ,
-          "String:\"date\"" ,
-          "String:\"grape\"" ,
-          "String:\"kiwi\"" ,
-          "String:\"lemon\"" ,
-          "String:\"melon\"" ,
-          "String:\"orange\"" ,
-          "String:\"peach\"" ,
-          "String:\"pear\"" ,
-          "String:\"plum\"" ,
-          "String:\"strawberry\"" ,
-          "String:\"tomato\"" ,
-          "String:\"watermelon\"" ,
-          "String:\"blueberry\"" ,
-          "String:\"raspberry\"" ,
-          "String:\"blackberry\"" ,
-          "String:\"pomegranate\"" ,
-          "String:\"apricot\"" ,
-          "String:\"mango\"" ,
-          "String:\"pineapple\"" ,
-          "String:\"peanut\"" ,
-          "String:\"cashew\"" ,
-          "String:\"almond\"" ,
-          "String:\"walnut\"" ,
-          "String:\"pecan\"" ,
-          "String:\"hazelnut\"" ,
-          "String:\"pistachio\"" ,
-          "String:\"macadamia\"" ,
-          "String:\"coconut\"" ,
-          "String:\"chestnut\"" ,
-          "String:\"hickory\"" ,
-          "String:\"maple\"" ,
-          "String:\"oak\"" ,
-          "String:\"cedar\"" ,
-          "String:\"pine\"" ,
-          "String:\"fir\"" ,
-          "String:\"cypress\"" ,
-          "String:\"redwood\"" ,
-          "String:\"birch\"" ,
-          "String:\"aspen\"" ,
-          "String:\"willow\"" ,
-          "String:\"poplar\"" ,
-          "String:\"sycamore\"" ,
-          "String:\"elm\"" ,
-          "String:\"ash\"" ,
-          "String:\"sugar\"" ,
-          "String:\"silver\"" ,
-          "String:\"white\"" ,
-          "String:\"red\"" ,
-          "String:\"blue\"" ,
-          "String:\"green\"" ,
-          "String:\"yellow\"" ,
-          "String:\"orange\"" ,
-          "String:\"purple\"" ,
-          "String:\"violet\"" ,
-          "String:\"pink\"" ,
-          "String:\"brown\"" ,
-          "String:\"black\"" ,
-          "String:\"gray\"" ,
-          "String:\"cream\"" ,
-          "String:\"beige\"" ,
-          "String:\"taupe\"" ,
-          "String:\"mauve\"" ,
-          "String:\"teal\"" ,
-          "String:\"indigo\"" ,
-          "String:\"lavender\"" ,
-          "String:\"maroon\"" ,
-          "String:\"navy\"" ,
-          "String:\"olive\"" ,
-          "String:\"turquoise\""
-  );
 
   private LiteralFileReader() {
     throw new Error("Do not instantiate");
   }
 
-
-  // Add more strings...
-  /**
-   * Returns a map from class to list of constants.
-   *
-   * @return the map from types to literal values
-   */
-  public static MultiMap<ClassOrInterfaceType, Sequence> loadDefaultLiterals() {
-    final MultiMap<ClassOrInterfaceType, Sequence> map = new MultiMap<>();
-    try {
-      for (String str : stringList){
-        TypedOperation operation = NonreceiverTerm.parse(str);
-        map.add(ClassOrInterfaceType.forClass(String.class), new Sequence().extend(operation, new ArrayList<Variable>(0)));
-      }
-//      for (String str : integerList){
-//            TypedOperation operation = NonreceiverTerm.parse(str);
-//            map.add(ClassOrInterfaceType.forClass(Integer.class), new Sequence().extend(operation, new ArrayList<Variable>(0)));
-//        }
-    }catch (OperationParseException e) {
-      throwRecordSyntaxError(e);
-    }
-    return map;
-  }
   /**
    * Returns a map from class to list of constants.
    *
@@ -194,45 +67,45 @@ public class LiteralFileReader {
     final MultiMap<ClassOrInterfaceType, Sequence> map = new MultiMap<>();
 
     RecordProcessor processor =
-            new RecordProcessor() {
-              @Override
-              public void processRecord(List<String> lines) {
+        new RecordProcessor() {
+          @Override
+          public void processRecord(List<String> lines) {
 
-                if (!(lines.size() >= 1
-                        && lines.get(0).trim().toUpperCase(Locale.getDefault()).equals("CLASSNAME"))) {
-                  throwRecordSyntaxError("record does not begin with \"CLASSNAME\"", lines, 0);
-                }
+            if (!(lines.size() >= 1
+                && lines.get(0).trim().toUpperCase(Locale.getDefault()).equals("CLASSNAME"))) {
+              throwRecordSyntaxError("record does not begin with \"CLASSNAME\"", lines, 0);
+            }
 
-                if (!(lines.size() >= 2)) {
-                  throwRecordSyntaxError("class name missing", lines, 1);
-                }
+            if (!(lines.size() >= 2)) {
+              throwRecordSyntaxError("class name missing", lines, 1);
+            }
 
-                Class<?> cls = null;
-                try {
-                  @SuppressWarnings("signature") // reading from file, checked & exception thrown below
-                  @ClassGetName String className = lines.get(1);
-                  cls = TypeNames.getTypeForName(className);
-                } catch (ClassNotFoundException | NoClassDefFoundError e) {
-                  throwRecordSyntaxError(e);
-                }
-                assert cls != null;
-                ClassOrInterfaceType classType = ClassOrInterfaceType.forClass(cls);
+            Class<?> cls = null;
+            try {
+              @SuppressWarnings("signature") // reading from file, checked & exception thrown below
+              @ClassGetName String className = lines.get(1);
+              cls = TypeNames.getTypeForName(className);
+            } catch (ClassNotFoundException | NoClassDefFoundError e) {
+              throwRecordSyntaxError(e);
+            }
+            assert cls != null;
+            ClassOrInterfaceType classType = ClassOrInterfaceType.forClass(cls);
 
-                if (!(lines.size() >= 3
-                        && lines.get(2).trim().toUpperCase(Locale.getDefault()).equals("LITERALS"))) {
-                  throwRecordSyntaxError("Missing field \"LITERALS\"", lines, 2);
-                }
+            if (!(lines.size() >= 3
+                && lines.get(2).trim().toUpperCase(Locale.getDefault()).equals("LITERALS"))) {
+              throwRecordSyntaxError("Missing field \"LITERALS\"", lines, 2);
+            }
 
-                for (int i = 3; i < lines.size(); i++) {
-                  try {
-                    TypedOperation operation = NonreceiverTerm.parse(lines.get(i));
-                    map.add(classType, new Sequence().extend(operation, new ArrayList<Variable>(0)));
-                  } catch (OperationParseException e) {
-                    throwRecordSyntaxError(e);
-                  }
-                }
+            for (int i = 3; i < lines.size(); i++) {
+              try {
+                TypedOperation operation = NonreceiverTerm.parse(lines.get(i));
+                map.add(classType, new Sequence().extend(operation, new ArrayList<Variable>(0)));
+              } catch (OperationParseException e) {
+                throwRecordSyntaxError(e);
               }
-            };
+            }
+          }
+        };
 
     RecordListReader reader = new RecordListReader("CLASSLITERALS", processor);
     reader.parse(inFile);

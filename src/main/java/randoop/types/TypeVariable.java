@@ -38,7 +38,6 @@ public abstract class TypeVariable extends ParameterType {
     java.lang.reflect.TypeVariable<?> v = (java.lang.reflect.TypeVariable) type;
     Set<java.lang.reflect.TypeVariable<?>> variableSet = new HashSet<>(1);
     variableSet.add(v);
-//    if(type.equals(Stack.class));
     return new ExplicitTypeVariable(v, ParameterBound.forTypes(variableSet, v.getBounds()));
   }
 

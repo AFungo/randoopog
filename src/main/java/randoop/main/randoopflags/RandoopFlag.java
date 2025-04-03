@@ -4,25 +4,26 @@ import java.util.Objects;
 
 public abstract class RandoopFlag {
 
-    String flagName;
-    public String createFlag(){
-        return "--" + flagName + "=" + flagParameterToString();
-    }
+  String flagName;
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        return obj != null && !(obj instanceof RandoopFlag);
-    }
+  public String createFlag() {
+    return "--" + flagName + "=" + flagParameterToString();
+  }
 
-    public String getFlagName(){
-        return flagName;
-    }
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    return obj != null && !(obj instanceof RandoopFlag);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getClass());
-    }
+  public String getFlagName() {
+    return flagName;
+  }
 
-    protected abstract String flagParameterToString();
+  @Override
+  public int hashCode() {
+    return Objects.hash(getClass());
+  }
+
+  protected abstract String flagParameterToString();
 }

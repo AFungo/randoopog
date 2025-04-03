@@ -1,6 +1,7 @@
 package randoop.generation;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.plumelib.options.Option;
@@ -8,11 +9,11 @@ import org.plumelib.options.OptionGroup;
 import org.plumelib.options.Unpublicized;
 import org.plumelib.util.StringsPlume;
 import org.plumelib.util.SystemPlume;
-import org.plumelib.util.UtilPlume;
 import randoop.DummyVisitor;
 import randoop.ExecutionVisitor;
 import randoop.MultiVisitor;
 import randoop.main.GenInputsAbstract;
+import randoop.main.RandoopObjectGenerator;
 import randoop.operation.TypedOperation;
 import randoop.sequence.ExecutableSequence;
 import randoop.sequence.Sequence;
@@ -51,25 +52,39 @@ public abstract class AbstractGenerator {
    */
   public int num_steps = 0;
 
-  /** Number of steps that returned null. */
+  /**
+   * Number of steps that returned null.
+   */
   public int null_steps = 0;
 
-  /** Number of sequences generated. */
+  /**
+   * Number of sequences generated.
+   */
   public int num_sequences_generated = 0;
 
-  /** Number of failing sequences generated. */
+  /**
+   * Number of failing sequences generated.
+   */
   public int num_failing_sequences = 0;
 
-  /** Number of invalid sequences generated. */
+  /**
+   * Number of invalid sequences generated.
+   */
   public int invalidSequenceCount = 0;
 
-  /** Number of sequences that failed the output test. */
+  /**
+   * Number of sequences that failed the output test.
+   */
   public int num_failed_output_test = 0;
 
-  /** When the generator started (millisecond-based system timestamp). */
+  /**
+   * When the generator started (millisecond-based system timestamp).
+   */
   private long startTime = -1;
 
-  /** Sequences that are used in other sequences (and are thus redundant) */
+  /**
+   * Sequences that are used in other sequences (and are thus redundant)
+   */
   protected Set<Sequence> subsumed_sequences = new LinkedHashSet<>();
 
   /**
@@ -81,7 +96,9 @@ public abstract class AbstractGenerator {
     return System.currentTimeMillis() - startTime;
   }
 
-  /** Limits for generation, after which the generator will stop. */
+  /**
+   * Limits for generation, after which the generator will stop.
+   */
   public final GenInputsAbstract.Limits limits;
 
   /**
@@ -91,13 +108,19 @@ public abstract class AbstractGenerator {
    */
   protected final List<TypedOperation> operations;
 
-  /** Container for execution visitors used during execution of sequences. */
+  /**
+   * Container for execution visitors used during execution of sequences.
+   */
   protected ExecutionVisitor executionVisitor;
 
-  /** Component manager responsible for storing previously-generated sequences. */
+  /**
+   * Component manager responsible for storing previously-generated sequences.
+   */
   public ComponentManager componentManager;
 
-  /** Customizable stopping criterion in addition to time and sequence limits. */
+  /**
+   * Customizable stopping criterion in addition to time and sequence limits.
+   */
   private IStopper stopper;
 
   /**
@@ -131,15 +154,48 @@ public abstract class AbstractGenerator {
    */
   public Predicate<ExecutableSequence> outputTest;
 
-  /** Visitor to generate checks for a sequence. */
+  /**
+   * Visitor to generate checks for a sequence.
+   */
   protected TestCheckGenerator checkGenerator;
 
   protected OperationHistoryLogInterface operationHistory;
 
   /**
-   *The list of all generated objects from the execution of the new sequences
+   * The list of all generated objects from the execution of the new sequences
    */
-  protected final List<Object> allObjects = new LinkedList<>();
+  protected final List<Object> allObjects = new ArrayList<>();
+
+  /**
+   * Amount of objects we generate in each run
+   */
+  protected int objectsAmount = 0;
+
+  /**
+   * Store last generated valid object
+   */
+  Object lastObject = null;
+
+  /**
+   * Store last sequence of lastObject
+   */
+  Sequence lastSeq = null;
+
+
+  /**
+   * This attribute have the class which  the user want to generate objects
+   */
+  protected Class<?> objectsClass;
+
+
+  /**
+   * A function used to filter generated objects. This function takes an object as input and returns
+   * a Boolean value indicating whether the object meets the required conditions.
+   *
+   * <p>If the function returns {@code true}, the object is considered valid; otherwise, it is filtered out.
+   * The default implementation, {@link AbstractGenerator#noAssume}, always returns {@code true}, allowing all objects to pass.
+   */
+  Function<Object, Boolean> assume = AbstractGenerator::noAssume;
 
   /**
    * Constructs a generator with the given parameters.
@@ -231,13 +287,13 @@ public abstract class AbstractGenerator {
    */
   protected boolean shouldStop() {
     return
-            (limits.time_limit_millis != 0 && elapsedTime() >= limits.time_limit_millis)
-        || (numAttemptedSequences() >= limits.attempted_limit)
-        || (numGeneratedSequences() >= limits.generated_limit)
-        || (numObjectsGenerated() >= limits.output_limit)//new condition output limit now is compared here
+//            (limits.time_limit_millis != 0 && elapsedTime() >= limits.time_limit_millis) //Este lo dejo? corta segun el tiempo transcurrido
+//          || (numAttemptedSequences() >= limits.attempted_limit)
+//          || (numGeneratedSequences() >= limits.generated_limit)
+          (numObjectsGenerated() >= limits.output_limit);//este metodo antes retornaba el tamaño del set que guarda los objetos ahora retorna la cantidad generado en la corrida parcial
 //        || (numOutputSequences() >= limits.output_limit) //that is the oiginal condition
-        || (GenInputsAbstract.stop_on_error_test && numErrorSequences() > 0)
-        || (stopper != null && stopper.shouldStop());
+//          || (GenInputsAbstract.stop_on_error_test && numErrorSequences() > 0)
+//          || (stopper != null && stopper.shouldStop());
   }
 
   /**
@@ -278,8 +334,7 @@ public abstract class AbstractGenerator {
    * @return the number of generated objects for output
    */
   public int numObjectsGenerated(){
-//    System.out.println("Size = " + this.allObjects.size());
-    return this.allObjects.size();
+    return this.objectsAmount;//this.allObjects.size();
   }
 
   /**
@@ -309,6 +364,8 @@ public abstract class AbstractGenerator {
       progressDisplay.start();
     }
 
+    //Here we start to count the amount of generated objects
+    this.objectsAmount = 0;
     while (!shouldStop()) {
 
       num_steps++;
@@ -348,10 +405,15 @@ public abstract class AbstractGenerator {
         if (eSeq.hasInvalidBehavior()) {
           invalidSequenceCount++;
         } else if (eSeq.hasFailure()) {
+          /*
+           * NOTE: aca es cuando se fija si el check rep fallo, lo agrega a las failing sequences
+           * por lo que no va a ser elegido para generar una proxima secuencia
+           */
           operationHistory.add(eSeq.getOperation(), OperationOutcome.ERROR_SEQUENCE);
           num_failing_sequences++;
           outErrorSeqs.add(eSeq);
         } else {
+          buildAndSaveNewObject(eSeq);
           outRegressionSeqs.add(eSeq);
           newRegressionTestHook(eSeq.sequence);
         }
@@ -392,6 +454,29 @@ public abstract class AbstractGenerator {
   }
 
   /**
+   * This method get a sequence and try to build a new object of the looking type if you have success save it
+   * @param sequence sequence for build the object
+   */
+  private void buildAndSaveNewObject(ExecutableSequence sequence){
+    Variable var = loadCUTVars(this.objectsClass, sequence);
+    if (var != null) {
+      //Check if the sequence has an exception
+      if(sequence.isNormalExecution() && !sequence.hasFailure() && !sequence.hasInvalidBehavior()) {
+        Object newObject = ExecutableSequence.getRuntimeValuesForVars(
+                Collections.singletonList(var), sequence.executionResults)[0];
+        if (!this.allObjects.contains(newObject)) {
+          this.allObjects.add(newObject);
+          if(this.assume.apply(newObject)) {
+            this.objectsAmount++;
+            this.lastObject = newObject;
+            this.lastSeq = sequence.sequence;
+          }
+        }
+      }
+    }
+  }
+  
+  /**
    * Return all sequences generated by this object.
    *
    * @return all generated sequences
@@ -415,12 +500,8 @@ public abstract class AbstractGenerator {
         operationHistory.add(es.getOperation(), OperationOutcome.SUBSUMED);
       } else {
         operationHistory.add(es.getOperation(), OperationOutcome.REGRESSION_SEQUENCE);
-        //modificado por mi aca entiendo que chequea si la secuancia generada da un onjeto de la clase stack.class.
-        //Fixme: ESta hardcodeada bien fea hay que mejorarla
-//        Variable var = loadCUTVars(Stack.class, es);;
-//        if (var != null) {
+
           unique_seqs.add(es);
-//        }
       }
     }
     return unique_seqs;
@@ -482,8 +563,41 @@ public abstract class AbstractGenerator {
   public abstract void newRegressionTestHook(Sequence sequence);
 
   /**
-   *
+   * Returns all objects generated.
    * @return all objects generated
    */
   public abstract List<Object> getAllObjects();
+
+  /**
+   * Returns new random Object than meet all class restrictions
+   * @return new random Object than meet all class restrictions
+   */
+  public abstract Object generateObject();
+
+  /**
+   * Returns the last generated sequence than match with the last valid object
+   * @return the last generated sequence than match with the last valid object
+   */
+  public Sequence getLastSequence(){
+    return this.lastSeq;
+  }
+
+  /**
+   * set assume attribute
+   * @param assume function
+   */
+  public void setAssume(Function<Object, Boolean> assume) {
+    this.assume = assume;
+  }
+
+  /**
+   * Default function for assume parameter
+   * always return true because assume was not set
+   * @param o an object to filter
+   * @return always true
+   */
+  public static boolean noAssume(Object o){
+    return true;
+  }
+
 }

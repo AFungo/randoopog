@@ -467,7 +467,6 @@ public class ExecutableSequence {
     if (result instanceof NormalExecution) {
       return ((NormalExecution) result).getRuntimeValue();
     }
-    //Note: Change ERROR for exception
     throw new IllegalStateException("Abnormal execution in sequence: " + this);
   }
 
@@ -518,15 +517,14 @@ public class ExecutableSequence {
   public List<ReferenceValue> getAllValues() {
     Set<ReferenceValue> values = new LinkedHashSet<>();
     for (int i = 0; i < sequence.size() - 1; i++) {
-      // TODO: Should this be only reference values, not all values?
-      //Note: if we found an unormal sequence we ommit it
       try {
         Object value = getValue(i);
         if (value != null) {
           Variable variable = sequence.getVariable(i);
           addReferenceValue(variable, value, values);
         }
-      }catch (Exception ignored){}
+      } catch (Exception ignored) {
+      }
     }
     return new ArrayList<>(values);
   }

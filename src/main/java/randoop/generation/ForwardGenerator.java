@@ -1,39 +1,32 @@
 package randoop.generation;
 
-import java.util.*;
+import static randoop.main.GenInputsAbstract.classesGenerators;
+import static randoop.main.GenInputsAbstract.findAssignableClass;
 
+import java.lang.reflect.Modifier;
+import java.util.*;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.plumelib.util.CollectionsPlume;
 import org.plumelib.util.StringsPlume;
 import org.plumelib.util.SystemPlume;
+import org.plumelib.util.UtilPlume;
 import randoop.DummyVisitor;
 import randoop.Globals;
 import randoop.NormalExecution;
 import randoop.SubTypeSet;
 import randoop.main.GenInputsAbstract;
 import randoop.main.RandoopBug;
+import randoop.main.RandoopObjectGenerator;
 import randoop.operation.NonreceiverTerm;
 import randoop.operation.Operation;
 import randoop.operation.TypedClassOperation;
 import randoop.operation.TypedOperation;
 import randoop.reflection.RandoopInstantiationError;
 import randoop.reflection.TypeInstantiator;
-import randoop.sequence.ExecutableSequence;
-import randoop.sequence.Sequence;
-import randoop.sequence.SequenceExceptionError;
-import randoop.sequence.Statement;
-import randoop.sequence.Value;
-import randoop.sequence.Variable;
+import randoop.sequence.*;
 import randoop.test.DummyCheckGenerator;
 import randoop.types.*;
-import randoop.util.ListOfLists;
-import randoop.util.Log;
-import randoop.util.MultiMap;
-import randoop.util.Randomness;
-import randoop.util.SimpleArrayList;
-import randoop.util.SimpleList;
-
-import static randoop.main.GenTests.loadCUTVars;
+import randoop.util.*;
 
 /** Randoop's forward, component-based generator. */
 public class ForwardGenerator extends AbstractGenerator {
@@ -79,17 +72,6 @@ public class ForwardGenerator extends AbstractGenerator {
    */
   private Set<Object> runtimePrimitivesSeen = new LinkedHashSet<>();
 
-
-  /**
-   * This attribute have the class which  the user want to generate objects
-   */
-  private Class<?> objectsClass;
-
-  /**
-   * This attribute have the class which  the user want to generate objects
-   */
-  private Map<TypeVariable, Class<?>> parameterizedClass;
-
   /**
    * Create a forward generator.
    *
@@ -115,44 +97,34 @@ public class ForwardGenerator extends AbstractGenerator {
   }
 
   public ForwardGenerator(
-          List<TypedOperation> operations,
-          Set<TypedOperation> sideEffectFreeMethods,
-          GenInputsAbstract.Limits limits,
-          ComponentManager componentManager,
-          IStopper stopper,
-          Set<ClassOrInterfaceType> classesUnderTest,
-          Class<?> objectsClass
-          ) {
-    this(
-            operations,
-            sideEffectFreeMethods,
-            limits,
-            componentManager,
-            stopper,
-            classesUnderTest);
-    this.objectsClass = objectsClass;
-    this.parameterizedClass = null;
+      List<TypedOperation> operations,
+      Set<TypedOperation> sideEffectFreeMethods,
+      GenInputsAbstract.Limits limits,
+      ComponentManager componentManager,
+      IStopper stopper,
+      Set<ClassOrInterfaceType> classesUnderTest,
+      Class<?> objectsClass) {
+    this(operations, sideEffectFreeMethods, limits, componentManager, stopper, classesUnderTest);
+    super.objectsClass = objectsClass;
   }
 
   public ForwardGenerator(
-          List<TypedOperation> operations,
-          Set<TypedOperation> sideEffectFreeMethods,
-          GenInputsAbstract.Limits limits,
-          ComponentManager componentManager,
-          IStopper stopper,
-          Set<ClassOrInterfaceType> classesUnderTest,
-          Class<?> objectsClass,
-          Map<TypeVariable, Class<?>> parameterizedClass
-  ) {
+      List<TypedOperation> operations,
+      Set<TypedOperation> sideEffectFreeMethods,
+      GenInputsAbstract.Limits limits,
+      ComponentManager componentManager,
+      IStopper stopper,
+      Set<ClassOrInterfaceType> classesUnderTest,
+      Class<?> objectsClass,
+      Map<TypeVariable, Class<?>> parameterizedClass) {
     this(
-            operations,
-            sideEffectFreeMethods,
-            limits,
-            componentManager,
-            stopper,
-            classesUnderTest,
-            objectsClass);
-    this.parameterizedClass = parameterizedClass;
+        operations,
+        sideEffectFreeMethods,
+        limits,
+        componentManager,
+        stopper,
+        classesUnderTest,
+        objectsClass);
     this.instantiator.setParameterizedClass(parameterizedClass);
   }
 
@@ -166,14 +138,13 @@ public class ForwardGenerator extends AbstractGenerator {
    * @param stopper determines when the test generation process should conclude. Can be null.
    * @param classesUnderTest the classes that are under test
    */
-    public ForwardGenerator(
+  public ForwardGenerator(
       List<TypedOperation> operations,
       Set<TypedOperation> sideEffectFreeMethods,
       GenInputsAbstract.Limits limits,
       ComponentManager componentManager,
       IStopper stopper,
-      Set<ClassOrInterfaceType> classesUnderTest
-      ) {
+      Set<ClassOrInterfaceType> classesUnderTest) {
     super(operations, limits, componentManager, stopper);
 
     this.sideEffectFreeMethods = sideEffectFreeMethods;
@@ -239,7 +210,8 @@ public class ForwardGenerator extends AbstractGenerator {
     final int nanoPerMilli = 1000000;
     final long nanoPerOne = 1000000000L;
     // 1 second, in nanoseconds
-    final long timeWarningLimitNanos = 1 * nanoPerOne;
+    final long timeWarningLimitNanos =
+        5 * nanoPerOne; // cuanto le pongo? es la variable de time limit warning
 
     long startTimeNanos = System.nanoTime();
 
@@ -254,21 +226,23 @@ public class ForwardGenerator extends AbstractGenerator {
     ExecutableSequence eSeq = createNewUniqueSequence();
 
     if (eSeq == null) {
-      long gentimeNanos = System.nanoTime() - startTimeNanos;
-      if (gentimeNanos > timeWarningLimitNanos) {
-        System.out.printf(
-            "Long generation time %d msec for null sequence.%n", gentimeNanos / nanoPerMilli);
-      }
+      //      long gentimeNanos = System.nanoTime() - startTimeNanos;
+      //      if (gentimeNanos > timeWarningLimitNanos) {
+      //        System.out.printf(
+      //            "Long generation time %d msec for null sequence.%n", gentimeNanos /
+      // nanoPerMilli);
+      //      }
       return null;
     }
 
     if (GenInputsAbstract.dontexecute) {
       this.componentManager.addGeneratedSequence(eSeq.sequence);
-      long gentimeNanos = System.nanoTime() - startTimeNanos;
-      if (gentimeNanos > timeWarningLimitNanos) {
-        System.out.printf("Long generation time %d msec for%n", gentimeNanos / nanoPerMilli);
-        System.out.println(eSeq.sequence);
-      }
+      //      long gentimeNanos = System.nanoTime() - startTimeNanos;
+      //      if (gentimeNanos > timeWarningLimitNanos) {
+      //        System.out.printf("Long generation time %d msec for%n", gentimeNanos /
+      // nanoPerMilli);
+      //        System.out.println(eSeq.sequence);
+      //      }
       return null;
     }
 
@@ -295,14 +269,14 @@ public class ForwardGenerator extends AbstractGenerator {
 
     eSeq.gentimeNanos = gentimeNanos1 + gentimeNanos2;
 
-    if (eSeq.gentimeNanos > timeWarningLimitNanos) {
-      System.out.printf(
-          "Long generation time %d msec (= %d + %d) for%n",
-          eSeq.gentimeNanos / nanoPerMilli,
-          gentimeNanos1 / nanoPerMilli,
-          gentimeNanos2 / nanoPerMilli);
-      System.out.println(eSeq.sequence);
-    }
+    //    if (eSeq.gentimeNanos > timeWarningLimitNanos) {
+    //      System.out.printf(
+    //          "Long generation time %d msec (= %d + %d) for%n",
+    //          eSeq.gentimeNanos / nanoPerMilli,
+    //          gentimeNanos1 / nanoPerMilli,
+    //          gentimeNanos2 / nanoPerMilli);
+    //      System.out.println(eSeq.sequence);
+    //    }
     if (eSeq.exectime > 10 * timeWarningLimitNanos) {
       System.out.printf("Long execution time %d sec for%n", eSeq.exectime / nanoPerOne);
       System.out.println(eSeq.sequence);
@@ -560,39 +534,11 @@ public class ForwardGenerator extends AbstractGenerator {
 
     randoopConsistencyTests(newSequence);
 
-
-  //My own filter for duplicates sequences
-//    List<ExecutableSequence> regressionSequences = this.getRegressionSequences();
-    Class<?> clazz;
-    clazz = this.objectsClass;
-
-    //No se cual forma es mejor a lo mejor hay una forma mas interesante
-//    try {
-//      clazz = Class.forName(GenInputsAbstract.testclass.get(0));//Fixme: this way to get a class not looks reliable. We need think in a better way
-//    } catch (ClassNotFoundException ex) {
-//      throw new RuntimeException(ex);
-//    }
-
-    ExecutableSequence e = new ExecutableSequence(newSequence);
-    Variable var = loadCUTVars(clazz, e);
-
-    if (var != null) {
-      Object o = ExecutableSequence.getRuntimeValuesForVars(Collections.singletonList(var), e.executionResults)[0];
-      if (this.allObjects.contains(o)) {
-        operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
-        Log.logPrintf("Sequence discarded: the same sequence was previously created.%n");
-        return null;
-      }else{
-        this.allObjects.add(o);
-      }
-    }else{
-      // TODO: We should modify this condition or add a new one in order to discard duplicated objects.
-      // Discard if sequence is a duplicate.
-      if (this.allSequences.contains(newSequence)) {
-        operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
-        Log.logPrintf("Sequence discarded: the same sequence was previously created.%n");
-        return null;
-      }
+    // Discard if sequence is a duplicate.
+    if (this.allSequences.contains(newSequence)) {
+      operationHistory.add(operation, OperationOutcome.SEQUENCE_DISCARDED);
+      Log.logPrintf("Sequence discarded: the same sequence was previously created.%n");
+      return null;
     }
 
     this.allSequences.add(newSequence);
@@ -712,7 +658,6 @@ public class ForwardGenerator extends AbstractGenerator {
     // The input types for `operation`.
     TypeTuple inputTypes = operation.getInputTypes();
     Log.logPrintf("selectInputs:  inputTypes=%s%n", inputTypes);
-
     // The rest of the code in this method will attempt to create
     // a sequence that creates at least one value of type T for
     // every type T in inputTypes, and thus can be used to create all the
@@ -723,7 +668,6 @@ public class ForwardGenerator extends AbstractGenerator {
     // (This representation choice is for efficiency: it is cheaper to perform
     // a single concatenation of the subsequences in the end than to repeatedly
     // extend S.)
-
     // This might be shorter than inputTypes if some value is re-used as two inputs.
     List<Sequence> sequences = new ArrayList<>();
 
@@ -754,6 +698,8 @@ public class ForwardGenerator extends AbstractGenerator {
     //   `typesToVars` maps each type to all variable indices in S of the given type.
     SubTypeSet types = new SubTypeSet(false);
     MultiMap<Type, Integer> typesToVars = new MultiMap<>(inputTypes.size());
+
+    //    Type operationObjectType = inputTypes.get(0);
 
     for (int i = 0; i < inputTypes.size(); i++) {
       Type inputType = inputTypes.get(i);
@@ -791,6 +737,7 @@ public class ForwardGenerator extends AbstractGenerator {
       // The user may have requested that we use null values as inputs with some given frequency.
       // If this is the case, then use null instead with some probability.
       if (!isReceiver
+          && !GenInputsAbstract.forbid_null
           && GenInputsAbstract.null_ratio != 0
           && Randomness.weightedCoinFlip(GenInputsAbstract.null_ratio)) {
         Log.logPrintf("Using null as input.%n");
@@ -858,10 +805,21 @@ public class ForwardGenerator extends AbstractGenerator {
           Log.logPrintf("No sequences of receiver type.%n");
           return new InputsAndSuccessFlag(false, null, null);
         } else if (GenInputsAbstract.forbid_null) {
-          Log.logPrintf(
-              "No sequences of type, and forbid-null option is true."
-                  + " Failed to create new sequence.%n");
-          return new InputsAndSuccessFlag(false, null, null);
+          Class<?> clazz = inputType.getRuntimeClass();
+          // if the generator aren't declared we create one
+          Sequence seq = getNextSequenceForClass(clazz);
+          if (seq == null) {
+            Log.logPrintf(
+                "No sequences of type, and forbid-null option is true."
+                    + " Failed to create new sequence.%n");
+            return new InputsAndSuccessFlag(false, null, null);
+          }
+          Variable randomVariable = seq.randomVariableForTypeLastStatement(inputType, isReceiver);
+          variables.add(totStatements + randomVariable.index);
+          sequences.add(seq);
+          totStatements += seq.size();
+          continue;
+
         } else {
           Log.logPrintf(
               "Found no sequences of required type; will use null as " + i + "-th input%n");
@@ -875,6 +833,24 @@ public class ForwardGenerator extends AbstractGenerator {
           // possible values to reuse, so we don't update typesToVars or types.
           continue;
         }
+      }
+
+      Class<?> clazz = inputType.getRuntimeClass();
+      if (!clazz.equals(objectsClass)
+          && classesGenerators.containsKey(clazz)
+          && Randomness.weightedCoinFlip(GenInputsAbstract.new_dependency_object_ratio)) {
+        Sequence seq = getNextSequenceForClass(clazz);
+        if (seq == null) {
+          Log.logPrintf(
+              "No sequences of type, and forbid-null option is true."
+                  + " Failed to create new sequence.%n");
+          return new InputsAndSuccessFlag(false, null, null);
+        }
+        Variable randomVariable = seq.randomVariableForTypeLastStatement(inputType, isReceiver);
+        variables.add(totStatements + randomVariable.index);
+        sequences.add(seq);
+        totStatements += seq.size();
+        continue;
       }
 
       // At this point, we have a list of candidate sequences and need to select a
@@ -904,6 +880,38 @@ public class ForwardGenerator extends AbstractGenerator {
     }
 
     return new InputsAndSuccessFlag(true, sequences, variables);
+  }
+
+  private RandoopObjectGenerator getGeneratorForInterface(Class<?> clazz) {
+    Optional<Class<?>> assignableClass = findAssignableClass(clazz);
+    if (assignableClass.isPresent()) {
+      RandoopObjectGenerator rog =
+          new RandoopObjectGenerator(assignableClass.get(), GenInputsAbstract.randomseed);
+      classesGenerators.put(clazz, rog);
+      return rog;
+    }
+    return null;
+  }
+
+  private RandoopObjectGenerator getGeneratorFor(Class<?> clazz) {
+    if (!classesGenerators.containsKey(clazz)) {
+      if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
+        return getGeneratorForInterface(clazz);
+      } else {
+        classesGenerators.put(
+            clazz, new RandoopObjectGenerator(clazz, GenInputsAbstract.randomseed));
+      }
+    }
+    return classesGenerators.get(clazz);
+  }
+
+  private Sequence getNextSequenceForClass(Class<?> clazz) {
+    RandoopObjectGenerator rog = this.getGeneratorFor(clazz);
+    if (rog == null) {
+      return null;
+    }
+    rog.generate();
+    return rog.getLastSequence();
   }
 
   // A pair of a variable and a sequence
@@ -1035,7 +1043,30 @@ public class ForwardGenerator extends AbstractGenerator {
         + ")";
   }
 
-  public List<Object> getAllObjects(){
+  @Override
+  public List<Object> getAllObjects() {
     return this.allObjects;
+  }
+
+  @Override
+  public Object generateObject() {
+    try {
+      this.createAndClassifySequences();
+    } catch (SequenceExceptionError e) {
+      System.exit(1);
+    } catch (RandoopInstantiationError e) {
+      throw new RandoopBug("Error instantiating operation " + e.getOpName(), e);
+    } catch (RandoopGenerationError e) {
+      throw new RandoopBug("Error in generation with operation " + e.getInstantiatedOperation(), e);
+    } catch (SequenceExecutionException e) {
+      throw new RandoopBug("Error executing generated sequence", e);
+    } catch (RandoopLoggingError e) {
+      throw new RandoopBug("Logging error", e);
+    } catch (Throwable e) {
+      System.out.printf(
+          "createAndClassifySequences threw an exception%n%s%n", UtilPlume.stackTraceToString(e));
+      throw e;
+    }
+    return lastObject;
   }
 }

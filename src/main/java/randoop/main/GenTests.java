@@ -604,6 +604,10 @@ public class GenTests extends GenInputsAbstract {
       if (referenceValue.getType().getCanonicalName().equals(cut.getName())) {
         return seq.getVariable(referenceValue.getObjectValue());
       }
+//      else if(cut.isAssignableFrom(referenceValue.getType().getRuntimeClass())){
+//        //TODO: cambiar aca
+//        return seq.getVariable(referenceValue.getObjectValue());
+//      }
     }
     return null;
   }
@@ -1357,10 +1361,6 @@ public class GenTests extends GenInputsAbstract {
     FileSystem fileSystem = fileSystemCache.get(directoryURI);
     if (fileSystem == null) {
       try {
-        /*
-         * Note: duplique este codigo pero para que busque el jar de randoop en el repo de jqwik
-         *   en caso de que no lo encuentre en el de randoop
-         */
         Path projectRoot = Paths.get(System.getProperty("user.dir")).getParent();
         Path libsPath = projectRoot.resolve("libs/randoop-all-generator-4.3.2.jar");
 
@@ -1407,7 +1407,6 @@ public class GenTests extends GenInputsAbstract {
         throw new RuntimeException(e);
       }
     }
-//    System.out.println("---------------------\n\n" + fileSystem.getPath(resourceDirectory) + "----------------------\n");
     return fileSystem.getPath(resourceDirectory);
   }
 

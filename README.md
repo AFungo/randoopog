@@ -31,3 +31,16 @@ It automatically creates unit tests for your classes, in JUnit format.
 The source directories follow the conventions of the Gradle Java plugin, where
 each directory has a _java_ subdirectory containing Java source, and,
 in some cases, a _resources_ subdirectory containing other files.
+
+# RandoopOG
+
+JAVA version = openjdk 11.0.22 2024-01-16
+Build = ./gradlew build
+Run test = 
+./gradlew test --tests randoop.main.ParameterizedObjectGeneratorTest.printObjectAndSequenceTest
+./gradlew test --tests randoop.main.GeneratorTest
+
+Docker = 
+  docker build -t randoop-og .  //Esto te va a correr todos los test
+	docker run -it randoop-og git [Command] //corre command en nuestro container
+	docker run -it randoop-og ./gradlew test --tests randoop.main.DataStructureTest > test-log.txt

@@ -5,12 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -598,6 +593,16 @@ public abstract class GenInputsAbstract extends CommandHandler {
   @OptionGroup("Values used in tests")
   @Option("Use null as an input with the given frequency")
   public static double null_ratio = 0.05;
+
+  /**
+   * Create a new sequence of a dependency with the given frequency
+   *
+   * <p>If frequency are 0 always use the first sequence generated for the dependency
+   */
+  ///////////////////////////////////////////////////////////////////
+  @OptionGroup("Values used in object generation")
+  @Option("Create a new sequence for the dependency class with the given frequency")
+  public static double new_dependency_object_ratio = 0.1;
 
   /**
    * Do not use {@code null} as input to methods or constructors, even when no other argument value
@@ -1340,5 +1345,27 @@ public abstract class GenInputsAbstract extends CommandHandler {
       }
     }
     return elementSet;
+  }
+
+  /**
+   * This attribute stores all RandoopObjectGenerator for each class we have to generate sequence
+   */
+  public static Map<Class<?>, RandoopObjectGenerator> classesGenerators = new HashMap<>();
+
+  public static Optional<Class<?>> findAssignableClass(Class<?> clazz) {
+    Optional<Class<?>> assignableClass =
+        classesGenerators.keySet().stream()
+            .filter(c -> clazz.isAssignableFrom(c) && !c.equals(clazz))
+            .findAny();
+    //    if(assignableClass.isPresent()) {
+    return assignableClass;
+    //    }
+    //    else {
+    //      Reflections reflections = new Reflections(new
+    // ConfigurationBuilder().forPackage(clazz.getPackage().toString()).addScanners(new
+    // SubTypesScanner()));
+    //      Set<Class<?>> implementations = new HashSet<>(reflections.getSubTypesOf(clazz));
+    //      return implementations.stream().findAny();
+    //    }
   }
 }

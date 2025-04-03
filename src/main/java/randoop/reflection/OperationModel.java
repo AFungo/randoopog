@@ -285,7 +285,7 @@ public class OperationModel {
               compMgr.addPackageLevelLiteral(pkg, seq);
               break;
             case ALL:
-              compMgr.addGeneratedSequence(seq);//TODO: aca añade las secuencias de los literales, sp que para hecer los test
+              compMgr.addGeneratedSequence(seq);
               break;
             default:
               throw new Error(
@@ -306,16 +306,9 @@ public class OperationModel {
    * @param compMgr the component manager
    * @param literalsLevel the level of literals to add
    */
-  public void addDefaultLiterals(
-          ComponentManager compMgr, ClassLiteralsMode literalsLevel) {
+  public void addDefaultLiterals(ComponentManager compMgr, ClassLiteralsMode literalsLevel) {
 
-//Maybe we can adapt a method or something for add new objects or something like this
-    MultiMap<ClassOrInterfaceType, Sequence> literalmap;
-    literalmap = LiteralFileReader.loadDefaultLiterals();
-
-    /**
-     * TODO: para mi todo lo de abajo no va pero ni idea que hace
-     */
+    MultiMap<ClassOrInterfaceType, Sequence> literalmap = CustomLiterals.loadDefaultLiterals();
 
     for (ClassOrInterfaceType type : literalmap.keySet()) {
       Package pkg = (literalsLevel == ClassLiteralsMode.PACKAGE ? type.getPackage() : null);
@@ -333,10 +326,10 @@ public class OperationModel {
             break;
           default:
             throw new Error(
-                    "Unexpected error in GenTests.  Please report at"
-                            + " https://github.com/randoop/randoop/issues , providing the information"
-                            + " requested at"
-                            + " https://randoop.github.io/randoop/manual/index.html#bug-reporting .");
+                "Unexpected error in GenTests.  Please report at"
+                    + " https://github.com/randoop/randoop/issues , providing the information"
+                    + " requested at"
+                    + " https://randoop.github.io/randoop/manual/index.html#bug-reporting .");
         }
       }
     }
