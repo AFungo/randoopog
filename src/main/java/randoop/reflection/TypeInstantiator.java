@@ -3,6 +3,8 @@ package randoop.reflection;
 import static org.plumelib.util.CollectionsPlume.iteratorToIterable;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
 import org.plumelib.util.CombinationIterator;
 import randoop.operation.TypedClassOperation;
 import randoop.types.BoundsCheck;
@@ -37,7 +39,7 @@ public class TypeInstantiator {
   private final Set<Type> inputTypes;
 
   /** The class of parameterized type for this model. */
-  private Map<TypeVariable, Class<?>> parameterizedClass;
+  private Map<Class<?>, Map<TypeVariable, Class<?>>> parameterizedClasses;
 
   /**
    * Creates a {@link TypeInstantiator} object using the given types to construct instantiating
@@ -48,7 +50,7 @@ public class TypeInstantiator {
   public TypeInstantiator(Set<Type> inputTypes) {
     // No defensive copy:  the value changes with time, but this class doesn't change it.
     this.inputTypes = inputTypes;
-    this.parameterizedClass = new HashMap<>();
+    this.parameterizedClasses = new HashMap<>();
   }
 
   /**
@@ -57,16 +59,17 @@ public class TypeInstantiator {
    *
    * @param inputTypes the ground types for instantiations
    */
-  public TypeInstantiator(Set<Type> inputTypes, Map<TypeVariable, Class<?>> parameterizedClass) {
+  public TypeInstantiator(Set<Type> inputTypes, Map<Class<?>, Map<TypeVariable, Class<?>>> parameterizedClasses) {
     // No defensive copy:  the value changes with time, but this class doesn't change it.
     this.inputTypes = inputTypes;
-    this.parameterizedClass = parameterizedClass;
+    this.parameterizedClasses = parameterizedClasses;
   }
 
-  public void setParameterizedClass(Map<TypeVariable, Class<?>> parameterizedClass) {
-    this.parameterizedClass.putAll(parameterizedClass);
-    for (Class<?> c : parameterizedClass.values()) {
-      this.inputTypes.add(Type.forClass(c));
+  public void setParameterizedClass(Map<Class<?>, Map<TypeVariable, Class<?>>> parameterizedClasses) {
+    this.parameterizedClasses.putAll(parameterizedClasses);
+    this.inputTypes.addAll(parameterizedClasses.keySet().stream().map(Type::forClass).collect(Collectors.toList()));
+    for (Map<TypeVariable, Class<?>> map : parameterizedClasses.values()) {
+      this.inputTypes.addAll(map.values().stream().map(Type::forClass).collect(Collectors.toList()));
     }
   }
 
@@ -198,6 +201,10 @@ public class TypeInstantiator {
    * @return a substitution instantiating the given type; null if none is found
    */
   private Substitution instantiateClass(ClassOrInterfaceType type) {
+    if (parameterizedClasses.containsKey(type.getRuntimeClass())) {
+      return getSubstitutionForSelectedTypes(type);
+    }
+
     boolean tryPrevious = Randomness.weightedCoinFlip(0.5);
 
     if (tryPrevious) {
@@ -231,6 +238,15 @@ public class TypeInstantiator {
     }
 
     return null;
+  }
+
+  private Substitution getSubstitutionForSelectedTypes(ClassOrInterfaceType type) {
+    assert type.getTypeParameters().size() == parameterizedClasses.get(type.getRuntimeClass()).size();
+    List<ReferenceType> types = new ArrayList<>();
+    for (TypeVariable typeVariable : type.getTypeParameters()) {
+      types.add(ReferenceType.forClass(parameterizedClasses.get(type.getRuntimeClass()).get(typeVariable)));
+    }
+    return new Substitution(type.getTypeParameters(), types);
   }
 
   /**
@@ -467,11 +483,13 @@ public class TypeInstantiator {
   private Substitution selectSubstitutionIndependently(
       List<TypeVariable> parameters, Substitution substitution) {
     List<ReferenceType> selectedTypes = new ArrayList<>(parameters.size());
-
+    // FIXME: ola, aca no se cuando entramos, no me cierra, quizas es lo que quiero hacer, pero me parece mas sencilla
+    //  mi idea de leer el map simplemente y ya.
     for (TypeVariable typeArgument : parameters) {
       List<ReferenceType> candidates = candidateTypes(typeArgument);
+      Class<?> cut = Object.class;
       // NotE: hay que preguntar si esta la clase que queremos instanciar y esto lo retorna
-      Class<?> clazz = parameterizedClass.get(typeArgument);
+      Class<?> clazz = parameterizedClasses.get(cut).get(typeArgument);
       Optional<ReferenceType> lookingType = Optional.empty();
       if (clazz != null)
         lookingType =

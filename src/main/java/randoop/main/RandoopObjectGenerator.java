@@ -46,7 +46,7 @@ public class RandoopObjectGenerator extends GenTests {
   private final Class<?> objectClass;
 
   /** Map the type variable (T, Q) of @objectClass with the parameterization */
-  private Map<TypeVariable, Class<?>> parameterizedClasses = new HashMap<>();
+  private Map<Class<?>, Map<TypeVariable, Class<?>>> parameterizedClasses = new HashMap<>();
 
   /** Object generator */
   private AbstractGenerator explorer;
@@ -112,14 +112,16 @@ public class RandoopObjectGenerator extends GenTests {
   public RandoopObjectGenerator(Class<?> objectClass, List<Class<?>> typeArguments, int seed) {
     this(objectClass, seed);
     List<TypeVariable> s = ClassOrInterfaceType.forClass(objectClass).getTypeParameters();
-    if (s.size() < typeArguments.size())
+    if (s.size() != typeArguments.size())
       throw new IllegalArgumentException(
-          "More parameterized types than parameters"); // Note: No se como describirlo!!!!!
+          "Expected " + typeArguments.size() + " type parameters but " + s.size() + " was/were found");
+    Map<TypeVariable, Class<?>> typeVariableToClass = new HashMap<>();
     for (Class<?> c : typeArguments) {
-      this.parameterizedClasses.put(s.remove(0), c);
+      typeVariableToClass.put(s.remove(0), c);
       if (!c.equals(Integer.class) && !c.equals(String.class) && !c.equals(Double.class))
         classesGenerators.put(c, new RandoopObjectGenerator(c, seed));
     }
+    this.parameterizedClasses.put(objectClass, typeVariableToClass);
   }
 
   /**

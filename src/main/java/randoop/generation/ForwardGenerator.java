@@ -116,7 +116,7 @@ public class ForwardGenerator extends AbstractGenerator {
       IStopper stopper,
       Set<ClassOrInterfaceType> classesUnderTest,
       Class<?> objectsClass,
-      Map<TypeVariable, Class<?>> parameterizedClass) {
+      Map<Class<?>, Map<TypeVariable, Class<?>>> parameterizedClass) {
     this(
         operations,
         sideEffectFreeMethods,
