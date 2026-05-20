@@ -541,16 +541,6 @@ public class GenTests extends GenInputsAbstract {
 
       List<ExecutableSequence> regressionSequences = explorer.getRegressionSequences();
 
-      List<Stack<Object>> values = new ArrayList<>();
-      for(ExecutableSequence e: regressionSequences){
-        Variable var = loadCUTVars(Stack.class, e);
-        if(var != null) {
-          values.add((Stack)ExecutableSequence.getRuntimeValuesForVars(Collections.singletonList(var), e.executionResults)[0]);
-        }
-      }
-      System.out.println(Arrays.toString(values.stream().filter(o -> !o.isEmpty()).toArray()));
-
-
       if (GenInputsAbstract.progressdisplay) {
         System.out.printf(
                 "%nAbout to look for failing assertions in %d regression sequences.%n",
@@ -598,18 +588,19 @@ public class GenTests extends GenInputsAbstract {
     return true;
   }
 
-  public static Variable loadCUTVars(Class<?> cut, ExecutableSequence seq) {
+  public static List<Variable> loadCUTVars(Class<?> cut, ExecutableSequence seq) {
     seq.execute(new DummyVisitor(), new DummyCheckGenerator());
+    List<Variable> vars = new ArrayList<>();
     for (ReferenceValue referenceValue : seq.getAllValues()) {
       if (referenceValue.getType().getCanonicalName().equals(cut.getName())) {
-        return seq.getVariable(referenceValue.getObjectValue());
+        vars.add(seq.getVariable(referenceValue.getObjectValue()));
       }
 //      else if(cut.isAssignableFrom(referenceValue.getType().getRuntimeClass())){
 //        //TODO: cambiar aca
 //        return seq.getVariable(referenceValue.getObjectValue());
 //      }
     }
-    return null;
+    return vars;
   }
   /**
    * Read side-effect-free methods from the default JDK side-effect-free method list, and from a
