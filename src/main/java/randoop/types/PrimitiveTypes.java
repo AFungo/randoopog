@@ -119,7 +119,9 @@ public final class PrimitiveTypes {
     }
 
     // check identity and primitive  widening
-    return source.equals(target) || isSubtype(source, target);
+    // return source.equals(target) || isSubtype(source, target);
+    // FIXME: The above line is the original, the idea is: for primitive types, the match should be exact
+    return source.equals(target);
   }
 
   /**
