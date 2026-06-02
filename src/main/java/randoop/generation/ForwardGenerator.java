@@ -5,6 +5,8 @@ import static randoop.main.GenInputsAbstract.findAssignableClass;
 
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.stream.Collectors;
+
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.plumelib.util.CollectionsPlume;
 import org.plumelib.util.StringsPlume;
@@ -910,6 +912,8 @@ public class ForwardGenerator extends AbstractGenerator {
     if (rog == null) {
       return null;
     }
+    rog.setCustomSeed(this.componentManager.getAllGeneratedSequences());
+    rog.setCustomSeed(this.componentManager.getAllPrimitiveSequences());
     rog.generate();
     return rog.getLastSequence();
   }

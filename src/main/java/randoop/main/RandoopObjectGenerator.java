@@ -69,6 +69,8 @@ public class RandoopObjectGenerator extends GenTests {
   /** Regex of methods for generate secuencees */
   private Pattern methodsToUse = null;
 
+  private Set<Sequence> customSeed = new HashSet<>();
+
   /**
    * Constructs a RandoopObjectGenerator for a given class.
    *
@@ -499,13 +501,29 @@ public class RandoopObjectGenerator extends GenTests {
      *   <li>Add any values for TestValue annotated static fields in operationModel
      * </ul>
      */
-    Set<Sequence> defaultSeeds = SeedSequences.defaultSeeds();
+    Set<Sequence> defaultSeeds = new HashSet<>();
+    if (customSeed.isEmpty()) {
+      defaultSeeds.addAll(SeedSequences.defaultSeeds());
+    } else {
+      defaultSeeds.addAll(customSeed);
+    }
     Set<Sequence> annotatedTestValues = operationModel.getAnnotatedTestValues();
     Set<Sequence> components =
         new LinkedHashSet<>(
             CollectionsPlume.mapCapacity(defaultSeeds.size() + annotatedTestValues.size()));
     components.addAll(defaultSeeds);
     components.addAll(annotatedTestValues);
+
+    // FIXME: The idea is to remove the default values if the user use its own custom ones.
+    if (!customIntegers.isEmpty()) {
+      components.removeIf((s) -> !s.allVariablesForTypeLastStatement(Type.forClass(int.class), false).isEmpty());
+    }
+    if (!customDoubles.isEmpty()) { // TODO: Maybe this can affect floats, indeed, above integers could affect longs.
+      components.removeIf((s) -> !s.allVariablesForTypeLastStatement(Type.forClass(double.class), false).isEmpty());
+    }
+    if (!customStrings.isEmpty()) {
+      components.removeIf((s) -> !s.allVariablesForTypeLastStatement(Type.forClass(String.class), false).isEmpty());
+    }
 
     ComponentManager componentMgr = new ComponentManager(components);
     operationModel.addClassLiterals(
@@ -628,6 +646,16 @@ public class RandoopObjectGenerator extends GenTests {
 
     addCustomIntegersToExplorer();
     addCustomStringsToExplorer();
+
+    if (!customIntegers.isEmpty()) {
+      componentMgr.usingCustomValuesFor(CustomValues.INTEGER);
+    }
+    if (!customDoubles.isEmpty()) {
+      componentMgr.usingCustomValuesFor(CustomValues.DOUBLE);
+    }
+    if (!customStrings.isEmpty()) {
+      componentMgr.usingCustomValuesFor(CustomValues.STRING);
+    }
     if (this.assume != null) {
       explorer.setAssume(this.assume);
     }
@@ -664,4 +692,9 @@ public class RandoopObjectGenerator extends GenTests {
   public Sequence getLastSequence() {
     return explorer.getLastSequence();
   }
+
+  public void setCustomSeed(Set<Sequence> allSequences) {
+    customSeed.addAll(allSequences);
+  }
+
 }

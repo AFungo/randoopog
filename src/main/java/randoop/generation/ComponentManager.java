@@ -1,9 +1,7 @@
 package randoop.generation;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
+
 import org.checkerframework.checker.nullness.qual.Nullable;
 import randoop.main.RandoopBug;
 import randoop.operation.TypedClassOperation;
@@ -77,6 +75,8 @@ public class ComponentManager {
    */
   private @Nullable PackageLiterals packageLiterals = null;
 
+  private BitSet customValuesFor = new BitSet(3);
+
   /** Create an empty component manager, with an empty seed sequence set. */
   public ComponentManager() {
     gralComponents = new SequenceCollection();
@@ -141,6 +141,18 @@ public class ComponentManager {
    * @param sequence the sequence
    */
   public void addGeneratedSequence(Sequence sequence) {
+    if (!sequence.allVariablesForTypeLastStatement(Type.forClass(int.class), false).isEmpty()
+        && customValuesFor.get(CustomValues.INTEGER.ordinal())) {
+      return;
+    }
+    if (!sequence.allVariablesForTypeLastStatement(Type.forClass(double.class), false).isEmpty()
+            && customValuesFor.get(CustomValues.DOUBLE.ordinal())) {
+      return;
+    }
+    if (!sequence.allVariablesForTypeLastStatement(Type.forClass(String.class), false).isEmpty()
+            && customValuesFor.get(CustomValues.STRING.ordinal())) {
+      return;
+    }
     gralComponents.add(sequence);
   }
 
@@ -273,4 +285,9 @@ public class ComponentManager {
     }
     gralComponents.log();
   }
+
+  public void usingCustomValuesFor(CustomValues t) {
+    customValuesFor.set(t.ordinal());
+  }
+
 }
