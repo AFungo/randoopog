@@ -46,7 +46,7 @@ public class RandoopObjectGenerator extends GenTests {
   private final Class<?> objectClass;
 
   /** Map the type variable (T, Q) of @objectClass with the parameterization */
-  private Map<TypeVariable, Class<?>> parameterizedClasses = new HashMap<>();
+  private Map<Class<?>, Map<TypeVariable, Class<?>>> parameterizedClasses = new HashMap<>();
 
   /** Object generator */
   private AbstractGenerator explorer;
@@ -68,6 +68,8 @@ public class RandoopObjectGenerator extends GenTests {
 
   /** Regex of methods for generate secuencees */
   private Pattern methodsToUse = null;
+
+  private Set<Sequence> customSeed = new HashSet<>();
 
   /**
    * Constructs a RandoopObjectGenerator for a given class.
@@ -112,14 +114,16 @@ public class RandoopObjectGenerator extends GenTests {
   public RandoopObjectGenerator(Class<?> objectClass, List<Class<?>> typeArguments, int seed) {
     this(objectClass, seed);
     List<TypeVariable> s = ClassOrInterfaceType.forClass(objectClass).getTypeParameters();
-    if (s.size() < typeArguments.size())
+    if (s.size() != typeArguments.size())
       throw new IllegalArgumentException(
-          "More parameterized types than parameters"); // Note: No se como describirlo!!!!!
+          "Expected " + typeArguments.size() + " type parameters but " + s.size() + " was/were found");
+    Map<TypeVariable, Class<?>> typeVariableToClass = new HashMap<>();
     for (Class<?> c : typeArguments) {
-      this.parameterizedClasses.put(s.remove(0), c);
+      typeVariableToClass.put(s.remove(0), c);
       if (!c.equals(Integer.class) && !c.equals(String.class) && !c.equals(Double.class))
         classesGenerators.put(c, new RandoopObjectGenerator(c, seed));
     }
+    this.parameterizedClasses.put(objectClass, typeVariableToClass);
   }
 
   /**
@@ -497,13 +501,29 @@ public class RandoopObjectGenerator extends GenTests {
      *   <li>Add any values for TestValue annotated static fields in operationModel
      * </ul>
      */
-    Set<Sequence> defaultSeeds = SeedSequences.defaultSeeds();
+    Set<Sequence> defaultSeeds = new HashSet<>();
+    if (customSeed.isEmpty()) {
+      defaultSeeds.addAll(SeedSequences.defaultSeeds());
+    } else {
+      defaultSeeds.addAll(customSeed);
+    }
     Set<Sequence> annotatedTestValues = operationModel.getAnnotatedTestValues();
     Set<Sequence> components =
         new LinkedHashSet<>(
             CollectionsPlume.mapCapacity(defaultSeeds.size() + annotatedTestValues.size()));
     components.addAll(defaultSeeds);
     components.addAll(annotatedTestValues);
+
+    // FIXME: The idea is to remove the default values if the user use its own custom ones.
+    if (!customIntegers.isEmpty()) {
+      components.removeIf((s) -> !s.allVariablesForTypeLastStatement(Type.forClass(int.class), false).isEmpty());
+    }
+    if (!customDoubles.isEmpty()) { // TODO: Maybe this can affect floats, indeed, above integers could affect longs.
+      components.removeIf((s) -> !s.allVariablesForTypeLastStatement(Type.forClass(double.class), false).isEmpty());
+    }
+    if (!customStrings.isEmpty()) {
+      components.removeIf((s) -> !s.allVariablesForTypeLastStatement(Type.forClass(String.class), false).isEmpty());
+    }
 
     ComponentManager componentMgr = new ComponentManager(components);
     operationModel.addClassLiterals(
@@ -626,6 +646,16 @@ public class RandoopObjectGenerator extends GenTests {
 
     addCustomIntegersToExplorer();
     addCustomStringsToExplorer();
+
+    if (!customIntegers.isEmpty()) {
+      componentMgr.usingCustomValuesFor(CustomValues.INTEGER);
+    }
+    if (!customDoubles.isEmpty()) {
+      componentMgr.usingCustomValuesFor(CustomValues.DOUBLE);
+    }
+    if (!customStrings.isEmpty()) {
+      componentMgr.usingCustomValuesFor(CustomValues.STRING);
+    }
     if (this.assume != null) {
       explorer.setAssume(this.assume);
     }
@@ -662,4 +692,9 @@ public class RandoopObjectGenerator extends GenTests {
   public Sequence getLastSequence() {
     return explorer.getLastSequence();
   }
+
+  public void setCustomSeed(Set<Sequence> allSequences) {
+    customSeed.addAll(allSequences);
+  }
+
 }

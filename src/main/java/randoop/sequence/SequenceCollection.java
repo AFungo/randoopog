@@ -155,6 +155,10 @@ public class SequenceCollection {
               + " should be assignable from "
               + argument.getType().getBinaryName();
       if (sequence.isActive(argument.getDeclIndex())) {
+        // FIXME: I add this remove line because if you have because if we same something like Cut<K>
+        //  and in the new sequence you instantiate K with some class C then the set is not updated, and it should
+        //  i think...
+        typesAndSupertypes.remove(formalType);
         typesAndSupertypes.add(formalType);
         if (formalType.isClassOrInterfaceType()) {
           // This adds all the supertypes, not just immediate ones.

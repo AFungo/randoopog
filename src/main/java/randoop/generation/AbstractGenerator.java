@@ -458,18 +458,20 @@ public abstract class AbstractGenerator {
    * @param sequence sequence for build the object
    */
   private void buildAndSaveNewObject(ExecutableSequence sequence){
-    Variable var = loadCUTVars(this.objectsClass, sequence);
-    if (var != null) {
+    List<Variable> vars = loadCUTVars(this.objectsClass, sequence);
+    if (!vars.isEmpty()) {
       //Check if the sequence has an exception
       if(sequence.isNormalExecution() && !sequence.hasFailure() && !sequence.hasInvalidBehavior()) {
-        Object newObject = ExecutableSequence.getRuntimeValuesForVars(
-                Collections.singletonList(var), sequence.executionResults)[0];
-        if (!this.allObjects.contains(newObject)) {
-          this.allObjects.add(newObject);
-          if(this.assume.apply(newObject)) {
-            this.objectsAmount++;
-            this.lastObject = newObject;
-            this.lastSeq = sequence.sequence;
+        for (Variable var : vars) {
+          Object newObject = ExecutableSequence.getRuntimeValuesForVars(
+                  Collections.singletonList(var), sequence.executionResults)[0];
+          if (!this.allObjects.contains(newObject)) {
+            this.allObjects.add(newObject);
+            if (this.assume.apply(newObject)) {
+              this.objectsAmount++;
+              this.lastObject = newObject;
+              this.lastSeq = sequence.sequence;
+            }
           }
         }
       }
