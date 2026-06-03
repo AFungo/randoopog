@@ -141,15 +141,15 @@ public class ComponentManager {
    * @param sequence the sequence
    */
   public void addGeneratedSequence(Sequence sequence) {
-    if (!sequence.allVariablesForTypeLastStatement(Type.forClass(int.class), false).isEmpty()
+    if (sequence.getLastVariable().getType().equals(Type.forClass(int.class))
         && customValuesFor.get(CustomValues.INTEGER.ordinal())) {
       return;
     }
-    if (!sequence.allVariablesForTypeLastStatement(Type.forClass(double.class), false).isEmpty()
+    if (sequence.getLastVariable().getType().equals(Type.forClass(double.class))
             && customValuesFor.get(CustomValues.DOUBLE.ordinal())) {
       return;
     }
-    if (!sequence.allVariablesForTypeLastStatement(Type.forClass(String.class), false).isEmpty()
+    if (sequence.getLastVariable().getType().equals(Type.forClass(String.class))
             && customValuesFor.get(CustomValues.STRING.ordinal())) {
       return;
     }
