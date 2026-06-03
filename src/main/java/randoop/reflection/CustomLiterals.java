@@ -1,5 +1,6 @@
 package randoop.reflection;
 
+import java.math.BigInteger;
 import java.util.*;
 import randoop.operation.NonreceiverTerm;
 import randoop.operation.OperationParseException;
@@ -106,19 +107,54 @@ public class CustomLiterals {
     throw new Error("Do not instantiate");
   }
 
+  private Set<Class<?>> integerTypes = new HashSet<>();
+
   public static MultiMap<ClassOrInterfaceType, Sequence> parseIntegerLiterals(
       Set<Integer> integerSet) {
     final MultiMap<ClassOrInterfaceType, Sequence> map = new MultiMap<>();
     try {
       for (Integer i : integerSet) {
-        String str = "int:" + i;
-        TypedOperation operation = NonreceiverTerm.parse(str);
-        operation =
-            TypedOperation.createNonreceiverInitialization(
-                new NonreceiverTerm(Type.forClass(Integer.class), i));
-        map.add(
-            ClassOrInterfaceType.forClass(Integer.class),
-            new Sequence().extend(operation, new ArrayList<Variable>(0)));
+        if (i >= Byte.MIN_VALUE && i <= Byte.MAX_VALUE) {
+          String str = "byte:" + i;
+          TypedOperation operation = NonreceiverTerm.parse(str);
+          operation =
+                  TypedOperation.createNonreceiverInitialization(
+                          new NonreceiverTerm(Type.forClass(byte.class), i.byteValue()));
+          map.add(
+                  ClassOrInterfaceType.forClass(Byte.class),
+                  new Sequence().extend(operation, new ArrayList<Variable>(0)));
+        }
+        if (i >= Short.MIN_VALUE && i <= Short.MAX_VALUE) {
+          String str = "short:" + i;
+          TypedOperation operation = NonreceiverTerm.parse(str);
+          operation =
+                  TypedOperation.createNonreceiverInitialization(
+                          new NonreceiverTerm(Type.forClass(short.class), i.shortValue()));
+          map.add(
+                  ClassOrInterfaceType.forClass(Short.class),
+                  new Sequence().extend(operation, new ArrayList<Variable>(0)));
+
+        }
+        {
+          String str = "int:" + i;
+          TypedOperation operation = NonreceiverTerm.parse(str);
+          operation =
+                  TypedOperation.createNonreceiverInitialization(
+                          new NonreceiverTerm(Type.forClass(int.class), i.intValue()));
+          map.add(
+                  ClassOrInterfaceType.forClass(Integer.class),
+                  new Sequence().extend(operation, new ArrayList<Variable>(0)));
+        }
+        {
+          String str = "long:" + i;
+          TypedOperation operation = NonreceiverTerm.parse(str);
+          operation =
+                  TypedOperation.createNonreceiverInitialization(
+                          new NonreceiverTerm(Type.forClass(long.class), i.longValue()));
+          map.add(
+                  ClassOrInterfaceType.forClass(BigInteger.class),
+                  new Sequence().extend(operation, new ArrayList<Variable>(0)));
+        }
       }
     } catch (OperationParseException e) {
       throw new Error(e);
