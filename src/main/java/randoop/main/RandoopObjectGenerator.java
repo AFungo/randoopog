@@ -514,9 +514,9 @@ public class RandoopObjectGenerator extends GenTests {
     components.addAll(defaultSeeds);
     components.addAll(annotatedTestValues);
 
-    // FIXME: The idea is to remove the default values if the user use its own custom ones.
     if (!customIntegers.isEmpty()) {
-      components.removeIf((s) -> !s.allVariablesForTypeLastStatement(Type.forClass(int.class), false).isEmpty());
+      // FIXME: For now, using long to discard will discard byte, short, int and long.
+      components.removeIf((s) -> !s.allVariablesForTypeLastStatement(Type.forClass(long.class), false).isEmpty());
     }
     if (!customDoubles.isEmpty()) { // TODO: Maybe this can affect floats, indeed, above integers could affect longs.
       components.removeIf((s) -> !s.allVariablesForTypeLastStatement(Type.forClass(double.class), false).isEmpty());
@@ -541,6 +541,7 @@ public class RandoopObjectGenerator extends GenTests {
     /*
      * Create the generator for this session.
      */
+    // GenInputsAbstract.method_selection = MethodSelectionMode.OBJECT_GENERATOR;
     explorer =
         !parameterizedClasses.isEmpty()
             ? new ForwardGenerator(
