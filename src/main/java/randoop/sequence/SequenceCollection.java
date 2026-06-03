@@ -182,9 +182,11 @@ public class SequenceCollection {
         this.sequenceMap.computeIfAbsent(type, __ -> new SimpleArrayList<>());
     Log.logPrintf(
         "Adding sequence #%d of type %s of length %d%n", set.size() + 1, type, sequence.size());
-    boolean added = set.add(sequence);
-    assert added;
-    sequenceCount++;
+    if (!set.contains(sequence)) {
+      boolean added = set.add(sequence);
+      assert added;
+      sequenceCount++;
+    }
   }
 
   /**
