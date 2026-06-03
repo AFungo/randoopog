@@ -135,7 +135,7 @@ public class CustomLiterals {
                   new Sequence().extend(operation, new ArrayList<Variable>(0)));
 
         }
-        {
+        { // TODO: Maybe we can take BigIntegers as range, so in that case we will have a if for this block
           String str = "int:" + i;
           TypedOperation operation = NonreceiverTerm.parse(str);
           operation =
@@ -167,14 +167,26 @@ public class CustomLiterals {
     final MultiMap<ClassOrInterfaceType, Sequence> map = new MultiMap<>();
     try {
       for (Double i : doubleSet) {
-        String str = "double:" + i;
-        TypedOperation operation = NonreceiverTerm.parse(str);
-        operation =
-            TypedOperation.createNonreceiverInitialization(
-                new NonreceiverTerm(Type.forClass(Double.class), i));
-        map.add(
-            ClassOrInterfaceType.forClass(Double.class),
-            new Sequence().extend(operation, new ArrayList<Variable>(0)));
+        if ((double)i.floatValue() == i) {
+          String str = "float:" + i;
+          TypedOperation operation = NonreceiverTerm.parse(str);
+          operation =
+                  TypedOperation.createNonreceiverInitialization(
+                          new NonreceiverTerm(Type.forClass(float.class), i));
+          map.add(
+                  ClassOrInterfaceType.forClass(Double.class),
+                  new Sequence().extend(operation, new ArrayList<Variable>(0)));
+        }
+        {
+          String str = "double:" + i;
+          TypedOperation operation = NonreceiverTerm.parse(str);
+          operation =
+                  TypedOperation.createNonreceiverInitialization(
+                          new NonreceiverTerm(Type.forClass(Double.class), i));
+          map.add(
+                  ClassOrInterfaceType.forClass(Double.class),
+                  new Sequence().extend(operation, new ArrayList<Variable>(0)));
+        }
       }
     } catch (OperationParseException e) {
       throw new Error(e);
