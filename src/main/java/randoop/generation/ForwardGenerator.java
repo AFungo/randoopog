@@ -154,6 +154,9 @@ public class ForwardGenerator extends AbstractGenerator {
     initializeRuntimePrimitivesSeen();
 
     switch (GenInputsAbstract.method_selection) {
+      case OBJECT_GENERATOR:
+        this.operationSelector = new ObjectGeneratingMethodSelection(operations, classesUnderTest);
+        break;
       case UNIFORM:
         this.operationSelector = new UniformRandomMethodSelection(operations);
         break;

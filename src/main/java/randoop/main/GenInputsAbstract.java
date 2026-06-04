@@ -668,7 +668,9 @@ public abstract class GenInputsAbstract extends CommandHandler {
      * Randoop with {@code -Xbootclasspath/a:/path/to/jacocoagent.jar
      * -javaagent:/path/to/jacocoagent.jar} .
      */
-    BLOODHOUND
+    BLOODHOUND,
+    /* Select operations that returns values with a specific type with higher probability */
+    OBJECT_GENERATOR,
   }
 
   /** Print to standard out, method weights and method uncovered ratios. */
