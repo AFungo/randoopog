@@ -483,33 +483,15 @@ public class TypeInstantiator {
   private Substitution selectSubstitutionIndependently(
       List<TypeVariable> parameters, Substitution substitution) {
     List<ReferenceType> selectedTypes = new ArrayList<>(parameters.size());
-    // FIXME: ola, aca no se cuando entramos, no me cierra, quizas es lo que quiero hacer, pero me parece mas sencilla
-    //  mi idea de leer el map simplemente y ya.
     for (TypeVariable typeArgument : parameters) {
       List<ReferenceType> candidates = candidateTypes(typeArgument);
-      Class<?> cut = Object.class;
-      // NotE: hay que preguntar si esta la clase que queremos instanciar y esto lo retorna
-      Class<?> clazz = parameterizedClasses.get(cut).get(typeArgument);
-      Optional<ReferenceType> lookingType = Optional.empty();
-      if (clazz != null)
-        lookingType =
-            candidates.stream().filter(obj -> obj.getRuntimeClass().equals(clazz)).findFirst();
-      //      if(candidates.get(5).getRuntimeClass().equals(String.class))
-      // System.out.println("AAAAAAAA");
-      // Note: aca lo agregue yo, tiene en cuenta si el tipo que queremos que cree los objetos esta
-      // en la lista de posibles substituciones
-      if (lookingType.isPresent()) {
-        selectedTypes.add(lookingType.get());
-      } else {
-        if (candidates.isEmpty()) {
-          Log.logPrintf(
-              "TypeInstantiator.selectSubstitutionIndependently: No candidate types for %s%n",
-              typeArgument);
-          return null;
-        }
-        //      selectedTypes.add()
-        selectedTypes.add(Randomness.randomMember(candidates));
+      if (candidates.isEmpty()) {
+        Log.logPrintf(
+            "TypeInstantiator.selectSubstitutionIndependently: No candidate types for %s%n",
+            typeArgument);
+        return null;
       }
+      selectedTypes.add(Randomness.randomMember(candidates));
     }
     return substitution.extend(parameters, selectedTypes);
   }
