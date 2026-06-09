@@ -34,7 +34,7 @@ public class ObjectGeneratingMethodSelection implements TypedOperationSelector {
 
     @Override
     public TypedOperation selectOperation() {
-        if (Randomness.weightedCoinFlip(0.5f)) {
+        if (Randomness.weightedCoinFlip(0.7f)) {
             return Randomness.randomMember(objectGeneratingOperations);
         } else {
             return Randomness.randomMember(noObjectGeneratingOperations);
