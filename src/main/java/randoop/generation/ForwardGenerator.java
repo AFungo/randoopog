@@ -812,7 +812,19 @@ public class ForwardGenerator extends AbstractGenerator {
         } else if (GenInputsAbstract.forbid_null) {
           Class<?> clazz = inputType.getRuntimeClass();
           // if the generator aren't declared we create one
-          Sequence seq = getNextSequenceForClass(clazz);
+          Sequence seq;
+          if (inputType instanceof InstantiatedType) {
+            InstantiatedType instantiatedType = (InstantiatedType) inputType;
+            List<Class<?>> argumentTypes = new ArrayList<>();
+            for (TypeArgument typeArgument : instantiatedType.getTypeArguments()) {
+              ReferenceArgument referenceArgument = (ReferenceArgument) typeArgument;
+              ReferenceType referenceType = referenceArgument.getReferenceType();
+              argumentTypes.add(referenceType.getRuntimeClass());
+            }
+            seq = getNextSequenceForClass(clazz, argumentTypes);
+          } else {
+            seq = getNextSequenceForClass(clazz);
+          }
           if (seq == null) {
             Log.logPrintf(
                 "No sequences of type, and forbid-null option is true."
@@ -910,8 +922,33 @@ public class ForwardGenerator extends AbstractGenerator {
     return classesGenerators.get(clazz);
   }
 
+  private RandoopObjectGenerator getGeneratorFor(Class<?> clazz, List<Class<?>> argumentTypes) {
+    // FIXME: The end is near. Maybe we should index this map using something like (Class, ArgumentTypes)
+    //  Because if we ask for Stack<String> but we already use Stack<Integer> we are fucked.
+    if (!classesGenerators.containsKey(clazz)) {
+      if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
+        return getGeneratorForInterface(clazz);
+      } else {
+        classesGenerators.put(
+                clazz, new RandoopObjectGenerator(clazz, argumentTypes, GenInputsAbstract.randomseed));
+      }
+    }
+    return classesGenerators.get(clazz);
+  }
+
   private Sequence getNextSequenceForClass(Class<?> clazz) {
     RandoopObjectGenerator rog = this.getGeneratorFor(clazz);
+    if (rog == null) {
+      return null;
+    }
+    rog.setCustomSeed(this.componentManager.getAllGeneratedSequences());
+    rog.setCustomSeed(this.componentManager.getAllPrimitiveSequences());
+    rog.generate();
+    return rog.getLastSequence();
+  }
+
+  private Sequence getNextSequenceForClass(Class<?> clazz, List<Class<?>> typeArguments) {
+    RandoopObjectGenerator rog = this.getGeneratorFor(clazz, typeArguments);
     if (rog == null) {
       return null;
     }
