@@ -646,6 +646,7 @@ public class RandoopObjectGenerator extends GenTests {
     }
 
     addCustomIntegersToExplorer();
+    addCustomDoublesToExplorer();
     addCustomStringsToExplorer();
 
     if (!customIntegers.isEmpty()) {

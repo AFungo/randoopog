@@ -6,6 +6,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import org.plumelib.util.CollectionsPlume;
+import randoop.operation.NonreceiverTerm;
+import randoop.operation.TypedOperation;
 import randoop.sequence.Sequence;
 import randoop.types.JavaTypes;
 import randoop.types.Type;
@@ -85,6 +87,32 @@ public final class SeedSequences {
         seedSequences.add(Sequence.zero(JavaTypes.STRING_TYPE));
       } else {
         seedSequences.add(Sequence.createSequenceForPrimitive(seed));
+        TypedOperation operation;
+        if (seed instanceof Byte) {
+           operation = TypedOperation.createNonreceiverInitialization(
+                  new NonreceiverTerm(Type.forClass(Byte.class), seed));
+           seedSequences.add(new Sequence().extend(operation, new ArrayList<>(0)));
+        } else if (seed instanceof Short) {
+          operation = TypedOperation.createNonreceiverInitialization(
+                  new NonreceiverTerm(Type.forClass(Short.class), seed));
+          seedSequences.add(new Sequence().extend(operation, new ArrayList<>(0)));
+        } else if (seed instanceof Integer) {
+          operation = TypedOperation.createNonreceiverInitialization(
+                  new NonreceiverTerm(Type.forClass(Integer.class), seed));
+          seedSequences.add(new Sequence().extend(operation, new ArrayList<>(0)));
+        } else if (seed instanceof Long) {
+          operation = TypedOperation.createNonreceiverInitialization(
+                  new NonreceiverTerm(Type.forClass(Long.class), seed));
+          seedSequences.add(new Sequence().extend(operation, new ArrayList<>(0)));
+        } else if (seed instanceof Float) {
+          operation = TypedOperation.createNonreceiverInitialization(
+                  new NonreceiverTerm(Type.forClass(Float.class), seed));
+          seedSequences.add(new Sequence().extend(operation, new ArrayList<>(0)));
+        } else if (seed instanceof Double) {
+          operation = TypedOperation.createNonreceiverInitialization(
+                  new NonreceiverTerm(Type.forClass(Double.class), seed));
+          seedSequences.add(new Sequence().extend(operation, new ArrayList<>(0)));
+        }
       }
     }
     return seedSequences;
