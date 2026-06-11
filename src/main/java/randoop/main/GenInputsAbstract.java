@@ -671,6 +671,7 @@ public abstract class GenInputsAbstract extends CommandHandler {
     BLOODHOUND,
     /* Select operations that returns values with a specific type with higher probability */
     OBJECT_GENERATOR,
+    WEIGHTED,
   }
 
   /** Print to standard out, method weights and method uncovered ratios. */

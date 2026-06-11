@@ -14,6 +14,7 @@ import randoop.ExecutionVisitor;
 import randoop.MultiVisitor;
 import randoop.main.GenInputsAbstract;
 import randoop.main.RandoopObjectGenerator;
+import randoop.operation.TypedClassOperation;
 import randoop.operation.TypedOperation;
 import randoop.sequence.ExecutableSequence;
 import randoop.sequence.Sequence;
@@ -108,6 +109,8 @@ public abstract class AbstractGenerator {
    */
   protected final List<TypedOperation> operations;
 
+  protected final Map<TypedOperation, Double> weights;
+
   /**
    * Container for execution visitors used during execution of sequences.
    */
@@ -187,6 +190,8 @@ public abstract class AbstractGenerator {
    */
   protected Class<?> objectsClass;
 
+  protected TypedOperation lastUsedOperation;
+
 
   /**
    * A function used to filter generated objects. This function takes an object as input and returns
@@ -217,6 +222,10 @@ public abstract class AbstractGenerator {
 
     this.limits = limits;
     this.operations = operations;
+    weights = new HashMap<>();
+    for (TypedOperation operation : operations) {
+      weights.put(operation, 1.0d);
+    }
     this.executionVisitor = new DummyVisitor();
     this.outputTest = new AlwaysFalse<>();
 
@@ -391,7 +400,7 @@ public abstract class AbstractGenerator {
 
       boolean test;
       try {
-        test = outputTest.test(eSeq);
+        //test = outputTest.test(eSeq);
       } catch (Throwable t) {
 //        System.out.printf(
 //            "%nProblem with sequence:%n%s%n%s%n", eSeq, UtilPlume.stackTraceToString(t));
@@ -400,10 +409,11 @@ public abstract class AbstractGenerator {
         //FIXME: When we can remove old objects this exception dont give any more troubles
         continue;
       }
-      if (test) {
+      //if (test) {
         // Classify the sequence
         if (eSeq.hasInvalidBehavior()) {
           invalidSequenceCount++;
+          decreaseWeight(lastUsedOperation);
         } else if (eSeq.hasFailure()) {
           /*
            * NOTE: aca es cuando se fija si el check rep fallo, lo agrega a las failing sequences
@@ -411,15 +421,17 @@ public abstract class AbstractGenerator {
            */
           operationHistory.add(eSeq.getOperation(), OperationOutcome.ERROR_SEQUENCE);
           num_failing_sequences++;
+          //decreaseWeight(lastUsedOperation);
           outErrorSeqs.add(eSeq);
         } else {
           buildAndSaveNewObject(eSeq);
           outRegressionSeqs.add(eSeq);
           newRegressionTestHook(eSeq.sequence);
         }
-      } else {
-        num_failed_output_test++;
-      }
+      //} else {
+        //decreaseWeight(lastUsedOperation);
+      //  num_failed_output_test++;
+      //}
 
       if (dump_sequences) {
         Log.logPrintf("Sequence after execution:%n%s%n", eSeq);
@@ -462,11 +474,13 @@ public abstract class AbstractGenerator {
     if (!vars.isEmpty()) {
       //Check if the sequence has an exception
       if(sequence.isNormalExecution() && !sequence.hasFailure() && !sequence.hasInvalidBehavior()) {
+        boolean hasNewObjects = false;
         for (Variable var : vars) {
           Object newObject = ExecutableSequence.getRuntimeValuesForVars(
                   Collections.singletonList(var), sequence.executionResults)[0];
           if (!this.allObjects.contains(newObject)) {
             this.allObjects.add(newObject);
+            hasNewObjects = true;
             if (this.assume.apply(newObject)) {
               this.objectsAmount++;
               this.lastObject = newObject;
@@ -474,8 +488,23 @@ public abstract class AbstractGenerator {
             }
           }
         }
+        if (hasNewObjects) {
+          increaseWeight(lastUsedOperation);
+        } else {
+          decreaseWeight(lastUsedOperation);
+        }
       }
+    } else {
+      decreaseWeight(lastUsedOperation);
     }
+  }
+
+  private void increaseWeight(TypedOperation operation) {
+    weights.put(operation, weights.get(operation) * 1.1d);
+  }
+
+  private void decreaseWeight(TypedOperation operation) {
+    weights.put(operation, Math.max(weights.get(operation) * 0.9d, 0.01d));
   }
   
   /**

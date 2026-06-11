@@ -541,7 +541,7 @@ public class RandoopObjectGenerator extends GenTests {
     /*
      * Create the generator for this session.
      */
-    //GenInputsAbstract.method_selection = MethodSelectionMode.OBJECT_GENERATOR;
+    GenInputsAbstract.method_selection = MethodSelectionMode.WEIGHTED;
     explorer =
         !parameterizedClasses.isEmpty()
             ? new ForwardGenerator(

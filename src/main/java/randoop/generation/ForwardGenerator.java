@@ -154,6 +154,9 @@ public class ForwardGenerator extends AbstractGenerator {
     initializeRuntimePrimitivesSeen();
 
     switch (GenInputsAbstract.method_selection) {
+      case WEIGHTED:
+        this.operationSelector = new WeightedRandomMethodSelection(operations, weights);
+        break;
       case OBJECT_GENERATOR:
         this.operationSelector = new ObjectGeneratingMethodSelection(operations, classesUnderTest);
         break;
@@ -457,6 +460,7 @@ public class ForwardGenerator extends AbstractGenerator {
 
     // Select the next operation to use in constructing a new sequence.
     TypedOperation operation = operationSelector.selectOperation();
+    lastUsedOperation = operation;
     Log.logPrintf("Selected operation: %s%n", operation);
 
     if (operation.isGeneric() || operation.hasWildcardTypes()) {
