@@ -494,9 +494,9 @@ public abstract class AbstractGenerator {
           decreaseWeight(lastUsedOperation);
         }
       }
-    } else {
-      decreaseWeight(lastUsedOperation);
-    }
+    }// else {
+    //  decreaseWeight(lastUsedOperation);
+    //}
   }
 
   private void increaseWeight(TypedOperation operation) {
